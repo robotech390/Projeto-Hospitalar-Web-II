@@ -1,3 +1,86 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 100 6% 97%;
+    --foreground: 160 6% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 160 6% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 6% 11%;
+
+    --primary: 170 100% 12%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 174 100% 27%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 120 5% 95%;
+    --muted-foreground: 150 3% 37%;
+
+    --accent: 174 62% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 7% 88%;
+    --input: 120 7% 88%;
+    --ring: 170 100% 12%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 170 100% 12%;
+    --sidebar-foreground: 160 10% 85%;
+    --sidebar-primary: 174 100% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 170 80% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 170 60% 18%;
+    --sidebar-ring: 174 100% 27%;
+    --sidebar-muted: 160 10% 60%;
+
+    --status-pendente: 38 92% 50%;
+    --status-coletado: 217 91% 60%;
+    --status-analise: 258 90% 66%;
+    --status-concluido: 160 84% 39%;
+
+    --chart-1: 174 100% 27%;
+    --chart-2: 170 100% 12%;
+    --chart-3: 174 62% 40%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 38 92% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-pretty;
+  }
+}
+
+@layer utilities {
+  .status-pendente {
+    @apply bg-[hsl(var(--status-pendente)/0.12)] text-[hsl(var(--status-pendente))];
+  }
+  .status-coletado {
+    @apply bg-[hsl(var(--status-coletado)/0.12)] text-[hsl(var(--status-coletado))];
+  }
+  .status-analise {
+    @apply bg-[hsl(var(--status-analise)/0.12)] text-[hsl(var(--status-analise))];
+  }
+  .status-concluido {
+    @apply bg-[hsl(var(--status-concluido)/0.12)] text-[hsl(var(--status-concluido))];
+  }
+}
