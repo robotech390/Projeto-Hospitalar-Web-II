@@ -21,4 +21,9 @@ class LabModuleController extends Controller
     {
         return Inertia::render('Lab/ResultEntryForm');
     }
+
+    public function examStatus()
+    {
+        return Inertia::render('Lab/ExamStatus');
+    }
 }

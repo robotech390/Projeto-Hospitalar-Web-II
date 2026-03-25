@@ -18,10 +18,12 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
 // Rotas do módulo Laboratório e Exames
 Route::get('/lab/exams', [\App\Http\Controllers\LabModuleController::class, 'examCatalog'])->name('lab.exams');
 Route::get('/lab/collection-queue', [\App\Http\Controllers\LabModuleController::class, 'collectionQueue'])->name('lab.collectionQueue');
 Route::get('/lab/result-entry', [\App\Http\Controllers\LabModuleController::class, 'resultEntryForm'])->name('lab.resultEntry');
+Route::get('/lab/exam-status', [\App\Http\Controllers\LabModuleController::class, 'examStatus'])->name('lab.examStatus');
 
 
 
