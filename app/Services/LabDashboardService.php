@@ -3,14 +3,19 @@
 namespace App\Services;
 
 use App\Repositories\LabExamRepositoryInterface;
+use App\Repositories\LabDashboardRepositoryInterface;
 
 class LabDashboardService
 {
     protected $examRepository;
+    protected $dashboardRepository;
 
-    public function __construct(LabExamRepositoryInterface $examRepository)
-    {
+    public function __construct(
+        LabExamRepositoryInterface $examRepository,
+        LabDashboardRepositoryInterface $dashboardRepository
+    ) {
         $this->examRepository = $examRepository;
+        $this->dashboardRepository = $dashboardRepository;
     }
 
     public function getDashboardData(): array
@@ -21,23 +26,6 @@ class LabDashboardService
         $concluidosHoje = count(array_filter($pedidosExames, fn($e) => $e['status'] === 'Concluído'));
         $receitaHoje = $concluidosHoje * (mt_rand(20, 50) / 100.0);
 
-        $dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        $weekData = [];
-        foreach ($dias as $dia) {
-            $weekData[] = [
-                'dia' => $dia,
-                'sangue' => mt_rand(5, 24),
-                'imagem' => mt_rand(2, 11),
-            ];
-        }
-        $meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        $revenueData = [];
-        foreach ($meses as $mes) {
-            $revenueData[] = [
-                'mes' => $mes,
-                'valor' => mt_rand(20, 50) / 100.0 * 132,
-            ];
-        }
         $upcomingExams = array_filter($pedidosExames, function($e) {
             return in_array($e['status'], ['Pendente', 'Coletado']);
         });
@@ -46,12 +34,15 @@ class LabDashboardService
         });
         $upcomingExams = array_slice(array_values($upcomingExams), 0, 5);
 
+        $weekData = $this->dashboardRepository->getWeekData();
+        $revenueData = $this->dashboardRepository->getRevenueData();
+
         return [
-            // 'pendentes' => [
-            //     'value' => $pendentes,
-            //     'trendValue' => 1,
-            //     'trendPercentual' => false,
-            // ],
+            'pendentes' => [
+                'value' => $pendentes,
+                'trendValue' => 1,
+                'trendPercentual' => false,
+            ],
             'emAnalise' => [
                 'value' => $emAnalise,
                 'trendValue' => 0,

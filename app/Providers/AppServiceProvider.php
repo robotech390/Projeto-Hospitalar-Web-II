@@ -16,6 +16,14 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\LabExamRepositoryInterface::class,
             \App\Repositories\LabExamMockRepository::class
         );
+        $this->app->bind(
+            \App\Repositories\LabCatalogRepositoryInterface::class,
+            \App\Repositories\LabCatalogMockRepository::class
+        );
+        $this->app->bind(
+            \App\Repositories\LabDashboardRepositoryInterface::class,
+            \App\Repositories\LabDashboardMockRepository::class
+        );
     }
 
     /**
