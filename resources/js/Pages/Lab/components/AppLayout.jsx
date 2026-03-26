@@ -12,8 +12,8 @@ function SidebarGroup({ label, children }) {
   );
 }
 
-function SidebarItem({ href, icon, label, match, url }) {
-  const active = url.startsWith(match);
+function SidebarItem({ href, icon, label, url }) {
+  const active = url.startsWith(href);
   return (
     <Link
       href={href}
@@ -42,7 +42,6 @@ export default function AppLayout({ children }) {
               href="/lab/dashboard"
               icon={<LayoutDashboard className="h-5 w-5" />}
               label="Dashboard"
-              match="/lab/dashboard"
               url={url}
             />
           </SidebarGroup>
@@ -51,28 +50,24 @@ export default function AppLayout({ children }) {
               href="/lab/exams"
               icon={<FlaskConical className="h-5 w-5" />}
               label="Catálogo de Exames"
-              match="/lab/exams"
               url={url}
             />
             <SidebarItem
               href="/lab/collection-queue"
               icon={<ClipboardList className="h-5 w-5" />}
               label="Fila de Coleta"
-              match="/lab/collection-queue"
               url={url}
             />
             <SidebarItem
               href="/lab/result-entry"
               icon={<Upload className="h-5 w-5" />}
               label="Lançar Resultados"
-              match="/lab/result-entry"
               url={url}
             />
             <SidebarItem
               href="/lab/exam-status"
               icon={<BarChart3 className="h-5 w-5" />}
               label="Status dos Exames"
-              match="/lab/exam-status"
               url={url}
             />
           </SidebarGroup>

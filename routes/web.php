@@ -20,6 +20,7 @@ Route::get('/dashboard', function () {
 
 
 // Rotas do módulo Laboratório e Exames
+Route::get('/lab/dashboard', [\App\Http\Controllers\LabModuleController::class, 'dashboard'])->name('lab.dashboard');
 Route::get('/lab/exams', [\App\Http\Controllers\LabModuleController::class, 'examCatalog'])->name('lab.exams');
 Route::get('/lab/collection-queue', [\App\Http\Controllers\LabModuleController::class, 'collectionQueue'])->name('lab.collectionQueue');
 Route::get('/lab/result-entry', [\App\Http\Controllers\LabModuleController::class, 'resultEntryForm'])->name('lab.resultEntry');

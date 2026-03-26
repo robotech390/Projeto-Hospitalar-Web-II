@@ -7,6 +7,11 @@ use Inertia\Inertia;
 
 class LabModuleController extends Controller
 {
+    public function dashboard()
+    {
+        return Inertia::render('Lab/Dashboard');
+    }
+
     public function examCatalog()
     {
         return Inertia::render('Lab/ExamCatalog');
