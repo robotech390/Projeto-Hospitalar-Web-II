@@ -1,9 +1,13 @@
 
-import { useState } from 'react';
+
 import { Card, CardContent } from './components/Card';
 import Button from './components/Button';
-import Input from './components/Input';
 import StatusBadge from './components/StatusBadge';
+import { CheckCircle, Search } from 'lucide-react';
+import AppLayout from './components/AppLayout';
+import { router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import Input from './components/Input';
 import {
   Select,
   SelectTrigger,
@@ -11,37 +15,14 @@ import {
   SelectItem,
   SelectValue
 } from './components/Select';
-import { pedidosExames } from './data';
-import { toastSuccess } from './toast';
-import { Search, CheckCircle } from 'lucide-react';
-import AppLayout from './components/AppLayout';
 
-export default function CollectionQueue() {
-  const [orders, setOrders] = useState([...pedidosExames]);
+
+export default function CollectionQueue({ orders = [] }) {
+
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('Todos');
 
-  const fila = orders.filter((o) => o.status === 'Pendente' || o.status === 'Coletado');
-  const filtered = fila.filter((o) => {
-    const matchSearch = o.paciente.toLowerCase().includes(search.toLowerCase()) || o.exame.toLowerCase().includes(search.toLowerCase());
-    const matchTipo = filterTipo === 'Todos' || o.tipo === filterTipo;
-    return matchSearch && matchTipo;
-  });
-
-  const confirmarColeta = (id) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: 'Coletado' } : o))
-    );
-    toastSuccess('Coleta confirmada!');
-  };
-
-  const enviarAnalise = (id) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: 'Em Análise' } : o))
-    );
-    toastSuccess('Enviado para análise!');
-  };
-
+  // Nenhuma lógica local de filtro ou busca, apenas exibe os dados recebidos do backend
   return (
     <AppLayout>
       <div>
@@ -63,8 +44,8 @@ export default function CollectionQueue() {
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-3">
-        {filtered.length === 0 && (
+      <div className="space-y-3 mt-4">
+        {orders.length === 0 && (
           <Card className="shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-12 text-gray-400">
               <CheckCircle className="mb-2 h-10 w-10" />
@@ -72,7 +53,7 @@ export default function CollectionQueue() {
             </CardContent>
           </Card>
         )}
-        {filtered.map((o) => (
+        {orders.map((o) => (
           <Card key={o.id} className="shadow-sm transition-shadow hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex-1 min-w-0">
@@ -82,14 +63,7 @@ export default function CollectionQueue() {
               </div>
               <span className="text-sm tabular-nums text-muted-foreground">{o.horario}</span>
               <StatusBadge status={o.status} />
-              <div className="flex gap-2">
-                {o.status === 'Pendente' && (
-                  <Button size="sm" onClick={() => confirmarColeta(o.id)}>Confirmar Coleta</Button>
-                )}
-                {o.status === 'Coletado' && (
-                  <Button size="sm" variant="outline" onClick={() => enviarAnalise(o.id)}>Enviar p/ Análise</Button>
-                )}
-              </div>
+              {/* Botões de ação removidos pois não há lógica local */}
             </CardContent>
           </Card>
         ))}

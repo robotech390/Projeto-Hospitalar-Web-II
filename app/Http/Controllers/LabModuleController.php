@@ -7,28 +7,33 @@ use Inertia\Inertia;
 
 class LabModuleController extends Controller
 {
-    public function dashboard()
+    public function dashboard(\App\Services\LabDashboardService $dashboardService)
     {
-        return Inertia::render('Lab/Dashboard');
+        $data = $dashboardService->getDashboardData();
+        return Inertia::render('Lab/Dashboard', $data);
     }
 
-    public function examCatalog()
+    public function examCatalog(\App\Services\LabCatalogService $catalogService)
     {
-        return Inertia::render('Lab/ExamCatalog');
+        $data = $catalogService->getCatalogData();
+        return Inertia::render('Lab/ExamCatalog', $data);
     }
 
-    public function collectionQueue()
+    public function collectionQueue(\App\Services\LabCollectionQueueService $queueService)
     {
-        return Inertia::render('Lab/CollectionQueue');
+        $data = $queueService->getQueueData();
+        return Inertia::render('Lab/CollectionQueue', $data);
     }
 
-    public function resultEntryForm()
+    public function resultEntryForm(\App\Services\LabResultEntryService $resultEntryService)
     {
-        return Inertia::render('Lab/ResultEntryForm');
+        $data = $resultEntryService->getResultEntryData();
+        return Inertia::render('Lab/ResultEntryForm', $data);
     }
 
-    public function examStatus()
+    public function examStatus(\App\Services\LabExamStatusService $examStatusService)
     {
-        return Inertia::render('Lab/ExamStatus');
+        $data = $examStatusService->getExamStatusData();
+        return Inertia::render('Lab/ExamStatus', $data);
     }
 }

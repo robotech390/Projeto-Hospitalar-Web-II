@@ -1,51 +1,32 @@
 
+
 import { useState } from 'react';
 import { Card, CardContent } from './components/Card';
 import Button from './components/Button';
 import Input from './components/Input';
 import Textarea from './components/Textarea';
 import StatusBadge from './components/StatusBadge';
-import { pedidosExames } from './data';
 import { toastSuccess, toastError } from './toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './components/Dialog';
 import { Search, Upload, FileText, CheckCircle } from 'lucide-react';
 import AppLayout from './components/AppLayout';
 
-export default function ResultEntryForm() {
-  const [orders, setOrders] = useState(pedidosExames.map(o => ({ ...o }))); // cópia para estado local
-  const [search, setSearch] = useState('');
+
+export default function ResultEntryForm({ orders = [] }) {
+  // Nenhuma lógica local de filtro ou busca, apenas exibe os dados recebidos do backend
   const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
   const [laudo, setLaudo] = useState('');
   const [fileName, setFileName] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  // Exames em análise ou coletados
-  const emAnalise = orders.filter((o) => o.status === 'Em Análise' || o.status === 'Coletado');
-  const filtered = emAnalise.filter((o) =>
-    o.paciente.toLowerCase().includes(search.toLowerCase()) ||
-    o.exame.toLowerCase().includes(search.toLowerCase())
-  );
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) setFileName(file.name);
   };
 
-  const handleConcluir = () => {
-    if (!selected) return;
-    if (!laudo && !fileName) {
-      toastError('Informe o laudo ou anexe um arquivo.');
-      return;
-    }
-    setOrders((prev) =>
-      prev.map((o) => (o.id === selected.id ? { ...o, status: 'Concluído', resultado: laudo || fileName } : o))
-    );
-    toastSuccess(`Resultado do exame de ${selected.paciente} lançado!`);
-    setSelected(null);
-    setLaudo('');
-    setFileName('');
-    setDialogOpen(false);
-  };
+  // Apenas exames em análise ou coletados são exibidos
+  const filtered = orders.filter((o) => o.status === 'Em Análise' || o.status === 'Coletado');
 
   return (
     <AppLayout>
@@ -119,7 +100,7 @@ export default function ResultEntryForm() {
             </div>
           )}
           <DialogFooter>
-            <Button onClick={handleConcluir} variant="default">Concluir</Button>
+            <Button variant="default" disabled>Lançamento apenas visual</Button>
             <DialogClose asChild>
               <Button variant="ghost">Cancelar</Button>
             </DialogClose>

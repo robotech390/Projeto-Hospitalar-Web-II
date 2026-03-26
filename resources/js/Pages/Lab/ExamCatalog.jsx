@@ -1,6 +1,7 @@
 
 
 import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 import { Card, CardContent } from './components/Card';
 import { FlaskConical, Pencil, Plus, Trash2 } from 'lucide-react';
 import Button from './components/Button';
@@ -22,11 +23,11 @@ import {
   SelectValue
 } from './components/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from './components/Dialog';
-import { catalogoExames } from './data';
 import { toastSuccess } from './toast';
 
 export default function ExamCatalog() {
-  const [exames, setExames] = useState([...catalogoExames]);
+  const { props } = usePage();
+  const [exames, setExames] = useState([...props.catalogoExames]);
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('Todos');
   const [editItem, setEditItem] = useState(null);

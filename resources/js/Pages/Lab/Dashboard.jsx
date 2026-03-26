@@ -1,10 +1,12 @@
 
+
 import React from "react";
+import { usePage } from "@inertiajs/react";
 import AppLayout from "./components/AppLayout";
 import { Card, CardContent } from "./components/Card";
 import StatusBadge from "./components/StatusBadge";
 import Trend from "./components/Trend";
-import { Clock } from "lucide-react";
+import { Clock, ClipboardList, BarChart3, Upload, DollarSign } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -16,68 +18,57 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { pedidosExames } from "./data";
-import { ClipboardList, BarChart3, Upload, DollarSign } from "lucide-react";
 
 
-function formatCurrency(value) {
-  return `R$ ${value.toFixed(1)}k`;
-}
-
-// --- Dashboard Calculations ---
-// Cards
-const today = new Date().toISOString().slice(0, 10);
-const pendentes = pedidosExames.filter(e => e.status === "Pendente").length;
-const emAnalise = pedidosExames.filter(e => e.status === "Em Análise").length;
-const concluidosHoje = pedidosExames.filter(e => e.status === "Concluído").length;
-// Receita do dia: soma dos exames concluídos hoje (mock: 50 por exame)
-const receitaHoje = pedidosExames.filter(e => e.status === "Concluído").length * (Math.random() * 30 + 20)/100;
-
-const stats = [
+// Mapeamento local dos cards de estatísticas (label, icon, format)
+const statsConfig = [
   {
-    label: "Exames Pendentes",
-    value: pendentes,
-    icon: ClipboardList, trendValue: 1, trendPercentual: false,
+    key: 'pendentes',
+    label: 'Exames Pendentes',
+    icon: ClipboardList,
+    format: (v) => v,
   },
   {
-    label: "Em Análise",
-    value: emAnalise,
-    icon: BarChart3, trendValue: 0, trendPercentual: false,
+    key: 'emAnalise',
+    label: 'Em Análise',
+    icon: BarChart3,
+    format: (v) => v,
   },
   {
-    label: "Concluídos Hoje",
-    value: concluidosHoje,
-    icon: Upload, trendValue: 0, trendPercentual: true,
+    key: 'concluidosHoje',
+    label: 'Concluídos Hoje',
+    icon: Upload,
+    format: (v) => v,
   },
   {
-    label: "Receita do Dia",
-    value: formatCurrency(receitaHoje),
-    icon: DollarSign, trendValue: 10, trendPercentual: true,
+    key: 'receitaHoje',
+    label: 'Receita do Dia',
+    icon: DollarSign,
+    format: formatCurrency,
   },
 ];
 
-// Gráfico semanal (mock: agrupar por dia da semana, sangue/imagem)
-const dias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-const weekData = dias.map((dia, idx) => {
-  // Simular datas da semana atual
-  return {
-    dia,
-    sangue: Math.floor(Math.random() * 20) + 5,
-    imagem: Math.floor(Math.random() * 10) + 2,
-  };
-});
-
-// Receita mensal (mock: 12 meses)
-const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-const revenueData = meses.map((mes, idx) => ({ mes, valor: Math.floor((Math.random() * 30 + 20)/100 * 132) }));
-
-// Próximos exames: status pendente ou coletado, ordenados por horário
-const upcomingExams = pedidosExames
-  .filter(e => ["Pendente", "Coletado"].includes(e.status))
-  .sort((a, b) => a.horario.localeCompare(b.horario))
-  .slice(0, 5);
+function formatCurrency(value) {
+  return `R$ ${Number(value).toFixed(1)}k`;
+}
 
 export default function Dashboard() {
+  const { pendentes = {}, emAnalise = {}, concluidosHoje = {}, receitaHoje = {}, weekData = [], revenueData = [], upcomingExams = [] } = usePage().props;
+  const backendStats = { pendentes, emAnalise, concluidosHoje, receitaHoje };
+
+  const stats = statsConfig.map((cfg) => {
+    const backend = backendStats[cfg.key];
+    const value = backend && backend.value !== undefined ? cfg.format(backend.value) : undefined;
+    const trendValue = backend && backend.trendValue !== undefined ? backend.trendValue : undefined;
+    const trendPercentual = backend && backend.trendPercentual !== undefined ? backend.trendPercentual : undefined;
+    return {
+      ...cfg,
+      value,
+      trendValue,
+      trendPercentual,
+    };
+  });
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -87,22 +78,25 @@ export default function Dashboard() {
         </div>
         {/* Cards de estatísticas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="flex flex-col p-5 gap-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-                    <stat.icon className="w-5 h-5 text-secondary" />
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={stat.label} className="flex flex-col p-5 gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
+                      <Icon className="w-5 h-5 text-secondary" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-muted-foreground">{stat.value ?? '-'}</div>
+                      <div className="text-xs text-muted-foreground/70 font-medium">{stat.label}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-muted-foreground">{stat.value}</div>
-                    <div className="text-xs text-muted-foreground/70 font-medium">{stat.label}</div>
-                  </div>
+                  <Trend percentual={stat.trendPercentual} value={stat.trendValue} />
                 </div>
-                <Trend percentual={stat.trendPercentual} value={stat.trendValue} />
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

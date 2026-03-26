@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent } from './components/Card';
 import Input from './components/Input';
 import StatusBadge from './components/StatusBadge';
+import { Clock, FlaskConical, Microscope, CheckCircle } from 'lucide-react';
+import AppLayout from './components/AppLayout';
 import Button from './components/Button';
 import {
     Select,
@@ -10,9 +12,7 @@ import {
     SelectItem,
     SelectValue
 } from './components/Select';
-import { pedidosExames } from './data';
-import { Search, Clock, FlaskConical, Microscope, CheckCircle } from 'lucide-react';
-import AppLayout from './components/AppLayout';
+
 
 const statusSteps = [
     { status: 'Pendente', icon: Clock, label: 'Pendente' },
@@ -20,20 +20,11 @@ const statusSteps = [
     { status: 'Em Análise', icon: Microscope, label: 'Em Análise' },
     { status: 'Concluído', icon: CheckCircle, label: 'Concluído' },
 ];
-
 const statusOrder = { Pendente: 0, Coletado: 1, 'Em Análise': 2, Concluído: 3 };
 
-export default function ExamStatus() {
-    const [search, setSearch] = useState('');
-    const [filterStatus, setFilterStatus] = useState('Todos');
 
-    const filtered = pedidosExames.filter((o) => {
-        const matchSearch = o.paciente.toLowerCase().includes(search.toLowerCase()) || o.exame.toLowerCase().includes(search.toLowerCase());
-        const matchStatus = filterStatus === 'Todos' || o.status === filterStatus;
-        return matchSearch && matchStatus;
-    });
-
-    const counts = pedidosExames.reduce((acc, o) => {
+export default function ExamStatus({ orders = [] }) {
+    const counts = orders.reduce((acc, o) => {
         acc[o.status] = (acc[o.status] || 0) + 1;
         return acc;
     }, {});
@@ -50,8 +41,7 @@ export default function ExamStatus() {
                     {statusSteps.map((s) => (
                         <Card
                             key={s.status}
-                            className={`flex-1 min-w-[160px] cursor-pointer shadow-sm transition-shadow hover:shadow-md ${filterStatus === s.status ? 'ring-2 ring-blue-400' : ''}`}
-                            onClick={() => setFilterStatus(filterStatus === s.status ? 'Todos' : s.status)}
+                            className="flex-1 min-w-[160px] shadow-sm"
                         >
                             <CardContent className="flex items-center gap-3 p-4">
                                 <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${s.status === 'Pendente' ? 'bg-yellow-100' :
@@ -77,22 +67,6 @@ export default function ExamStatus() {
 
             <Card className="shadow-sm">
                 <CardContent className="p-5">
-                    <div className="mb-4 flex flex-wrap items-center gap-3">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <Input className="pl-9" placeholder="Buscar paciente ou exame..." value={search} onChange={e => setSearch(e.target.value)} />
-                        </div>
-                        <Select value={filterStatus} onValueChange={setFilterStatus}>
-                            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Todos">Todos os Status</SelectItem>
-                                <SelectItem value="Pendente">Pendente</SelectItem>
-                                <SelectItem value="Coletado">Coletado</SelectItem>
-                                <SelectItem value="Em Análise">Em Análise</SelectItem>
-                                <SelectItem value="Concluído">Concluído</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-sm">
                             <thead>
@@ -107,7 +81,7 @@ export default function ExamStatus() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filtered.map((o) => (
+                                {orders.map((o) => (
                                     <tr key={o.id} className="border-b hover:bg-gray-50">
                                         <td className="py-2 px-2">
                                             <div className="flex items-center gap-2">
@@ -139,7 +113,7 @@ export default function ExamStatus() {
                                 ))}
                             </tbody>
                         </table>
-                        {filtered.length === 0 && (
+                        {orders.length === 0 && (
                             <div className="text-center text-gray-400 py-8">Nenhum exame encontrado</div>
                         )}
                     </div>
