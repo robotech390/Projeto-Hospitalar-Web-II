@@ -1,0 +1,21 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Catalogo from './pages/Catalogo';
+import EntradaNotas from './pages/EntradaNotas';
+import Dispensacao from './pages/Dispensacao';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="catalogo" element={<Catalogo />} />
+          <Route path="entrada" element={<EntradaNotas />} />
+          <Route path="dispensacao" element={<Dispensacao />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
