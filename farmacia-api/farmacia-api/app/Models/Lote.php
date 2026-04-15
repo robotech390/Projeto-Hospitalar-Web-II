@@ -7,19 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Lote extends Model
 {
     protected $table = 'lote';
-    
     public $timestamps = false;
+    
+    protected $fillable = ['id_produto', 'numero', 'data_validade', 'quantidade_produtos', 'ativo'];
 
-    protected $fillable = [
-        'id_produto', 
-        'numero', 
-        'data_validade', 
-        'quantidade_produtos'
-    ];
-
-    // Opcional, mas recomendado: Relacionamento com Produto
-    public function produto()
+    // Este relacionamento é obrigatório para puxar o nome do remédio no Dashboard
+    public function medicamento()
     {
-        return $this->belongsTo(Produto::class, 'id_produto');
+        return $this->belongsTo(Medicamento::class, 'id_produto');
     }
 }

@@ -16,17 +16,27 @@ export default function Dashboard() {
         setCarregando(false);
       })
       .catch(error => {
-        console.error("Erro na API:", error);
-        setErro('Falha ao carregar dados do servidor. Verifique o backend.');
+        console.error("Erro na API (Dashboard):", error);
+        // Tratamento de erro: Zera os dados para destravar a tela
+        setDados({
+          kpis: { total_produtos: 0, alertas_quantidade: 0, dispensacoes_hoje: 0 },
+          alertas_detalhados: []
+        });
+        setErro('Falha de conexão com o banco de dados. Exibindo painel zerado.');
         setCarregando(false);
       });
   }, []);
 
-  if (carregando) return <div className="text-center">Carregando dados...</div>;
-  if (erro) return <div className="text-center text-red-500 font-bold">{erro}</div>;
-
+  if (carregando) return <div className="p-8 text-center text-gray-500 font-medium">Carregando dados da farmácia...</div>;
+  
   return (
     <>
+      {erro && (
+        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+          {erro}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[var(--color-brand-primary)]">
           <p className="text-gray-500 text-sm">Medicamentos Cadastrados</p>
@@ -57,10 +67,10 @@ export default function Dashboard() {
           <tbody className="text-sm">
             {dados.alertas_detalhados.map((alerta: any) => (
               <tr key={alerta.id} className="border-b">
-                <td className="py-3">{alerta.codigo}</td>
-                <td className="py-3">{alerta.medicamento}</td>
+                <td className="py-3 text-gray-500">#{alerta.codigo}</td>
+                <td className="py-3 font-semibold text-gray-800">{alerta.medicamento}</td>
                 <td className="py-3">{alerta.lote}</td>
-                <td className={`py-3 font-semibold ${alerta.quantidade <= 50 ? 'text-red-500' : 'text-yellow-600'}`}>
+                <td className={`py-3 font-bold ${alerta.quantidade <= 50 ? 'text-red-500' : 'text-yellow-600'}`}>
                   {alerta.quantidade} un
                 </td>
                 <td className="py-3">
@@ -70,6 +80,11 @@ export default function Dashboard() {
                 </td>
               </tr>
             ))}
+            {dados.alertas_detalhados.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-4 text-center text-gray-500">Nenhum alerta no momento.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -15,9 +15,6 @@ export default function Layout() {
           <Link to="/catalogo" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
             Catálogo de Produtos
           </Link>
-          <Link to="/entrada" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
-            Entrada de Notas
-          </Link>
           <Link to="/dispensacao" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
             Dispensação
           </Link>
