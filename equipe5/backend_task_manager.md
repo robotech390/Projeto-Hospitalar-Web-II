@@ -2,31 +2,31 @@
 *Objetivo: Mapear as tabelas para orientaçao a objetos com a lógica correta de relacionamentos no seu framework.*
 
 ### 1.1. Model `TipoExame`
-- [ ] Criar o arquivo/classe do model `TipoExame`.
-- [ ] Definir a propriedade que aponta para a tabela `tipo_exame`.
-- [ ] Declarar as propriedades "mass assignables" (atributos preenchíveis).
-- [ ] Criar relacionamento genérico `1:N` (hasMany) informando que **um tipo de exame pertence a vários itens de exame**.
+- [x] Criar o arquivo/classe do model `TipoExame`.
+- [x] Definir a propriedade que aponta para a tabela `tipo_exame`.
+- [x] Declarar as propriedades "mass assignables" (atributos preenchíveis).
+- [x] Criar relacionamento genérico `1:N` (hasMany) informando que **um tipo de exame pertence a vários itens de exame**.
 
 ### 1.2. Model `SolicitacaoExame`
-- [ ] Criar o arquivo/classe do model `SolicitacaoExame`.
-- [ ] Configurar formatação contínua de datas (Accessors/Mutators).
-- [ ] Definir de maneira estática ou em arquivo externo as constantes/Enums de **STATUS permitidos** para validações no código.
-- [ ] Criar relacionamento `1:N` (hasMany): **Uma solicitação possui vários itens de exame**.
+- [x] Criar o arquivo/classe do model `SolicitacaoExame`.
+- [x] Configurar formatação contínua de datas (Accessors/Mutators).
+- [x] Definir de maneira estática ou em arquivo externo as constantes/Enums de **STATUS permitidos** para validações no código.
+- [x] Criar relacionamento `1:N` (hasMany): **Uma solicitação possui vários itens de exame**.
 
 ### 1.3. Model `ItensExame`
-- [ ] Criar o arquivo/classe do model `ItensExame`.
-- [ ] Criar relacionamento `N:1` (belongsTo): **Este item pertence a UMA solicitação de exame**.
-- [ ] Criar relacionamento `N:1` (belongsTo): **Este item referencia UM tipo de exame**.
+- [x] Criar o arquivo/classe do model `ItensExame`.
+- [x] Criar relacionamento `N:1` (belongsTo): **Este item pertence a UMA solicitação de exame**.
+- [x] Criar relacionamento `N:1` (belongsTo): **Este item referencia UM tipo de exame**.
 
 ---
 
 ## 🛡️ Fase 2: Validações e Regras de Negócio (Camada de Serviço ou Requests)
 *Antes dos dados entrarem no banco a partir da integração com o front de React, precisamos garanti-los.*
 
-- [ ] Implementar regra: Uma solicitação precisa de **no mínimo 1 tipo de exame**.
-- [ ] Implementar regra: Não permitir inserir duas vezes o mesmo `tipo_exame` dentro da mesma `solicitacao_exame`.
-- [ ] Implementar validação: Checar fluxo lógico de transição do fluxo de status (Não permitir pular de `pendente` direto para `concluido` caso seja necessário passar pelo `em_andamento`, etc).
-- [ ] Bloquear a inclusão de solicitações com `data_solicitacao` no passado se o requisito de negócio não permitir retroatividade de dados.
+- [x] Implementar regra: Uma solicitação precisa de **no mínimo 1 tipo de exame**.
+- [x] Implementar regra: Não permitir inserir duas vezes o mesmo `tipo_exame` dentro da mesma `solicitacao_exame`.
+- [x] Implementar validação: Checar fluxo lógico de transição do fluxo de status (Não permitir pular de `pendente` direto para `concluido` caso seja necessário passar pelo `em_andamento`, etc).
+- [x] Bloquear a inclusão de solicitações com `data_solicitacao` no passado se o requisito de negócio não permitir retroatividade de dados.
 
 ---
 
