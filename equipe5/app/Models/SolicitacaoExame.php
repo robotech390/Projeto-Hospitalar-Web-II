@@ -50,6 +50,16 @@ class SolicitacaoExame extends Model
     }
 
     /**
+     * Get the types of exam directly (via pivot).
+     */
+    public function tiposExame()
+    {
+        return $this->belongsToMany(TipoExame::class, 'itens_exame', 'id_solicitacao', 'id_tipo_exame')
+            ->withPivot('status', 'laudo', 'arquivo', 'data_resultado')
+            ->withTimestamps();
+    }
+
+    /**
      * Interact with the solicitation's date.
      */
     protected function data(): Attribute
