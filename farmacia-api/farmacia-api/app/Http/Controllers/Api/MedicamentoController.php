@@ -25,4 +25,20 @@ class MedicamentoController extends Controller
             return response()->json(['erro' => $e->getMessage()], 500);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $medicamento = Medicamento::find($id);
+            if (!$medicamento) return response()->json(['erro' => 'Não encontrado'], 404);
+
+            // Remove o principio_ativo do request para impedir que ele seja editado
+            $dados = $request->except(['principio_ativo']);
+            
+            $medicamento->update($dados);
+            return response()->json($medicamento);
+        } catch (\Exception $e) {
+            return response()->json(['erro' => $e->getMessage()], 500);
+        }
+    }
 }

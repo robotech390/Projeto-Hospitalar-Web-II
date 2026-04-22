@@ -15,3 +15,4 @@ Route::get('/tipos', [TipoMedicamentoController::class, 'index']);
 Route::post('/tipos', [TipoMedicamentoController::class, 'store']);
 Route::get('/lotes-disponiveis', [DispensacaoController::class, 'index']);
 Route::post('/dispensacao', [DispensacaoController::class, 'store']);
+Route::put('/medicamentos/{id}', [MedicamentoController::class, 'update']);

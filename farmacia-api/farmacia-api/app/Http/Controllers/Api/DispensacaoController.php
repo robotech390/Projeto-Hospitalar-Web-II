@@ -10,28 +10,41 @@ class DispensacaoController extends Controller
 {
     public function index()
     {
-        // Envia para o React apenas lotes que possuem estoque positivo
+        // Só retorna lotes que estejam ativos E que tenham estoque real
         return response()->json(
-            Lote::with('medicamento')->where('quantidade_produtos', '>', 0)->get()
+            Lote::with('medicamento')
+                ->where('ativo', 1) 
+                ->where('quantidade_produtos', '>', 0)
+                ->get()
         );
     }
 
     public function store(Request $request)
     {
-        $lote = Lote::find($request->id_lote);
-        
-        if (!$lote) {
-            return response()->json(['erro' => 'Lote não encontrado no banco de dados'], 404);
-        }
-        
-        if ($lote->quantidade_produtos < $request->quantidade) {
-            return response()->json(['erro' => 'Estoque insuficiente no lote selecionado'], 400);
-        }
+        try {
+            $lote = Lote::find($request->id_lote);
 
-        // Subtração direta destrutiva (Risco arquitetural mantido)
-        $lote->quantidade_produtos -= $request->quantidade;
-        $lote->save();
+            if (!$lote || $lote->ativo == 0) {
+                return response()->json(['erro' => 'Lote não encontrado ou já desativado'], 404);
+            }
 
-        return response()->json(['mensagem' => 'Estoque subtraído com sucesso.']);
+            if ($lote->quantidade_produtos < $request->quantidade) {
+                return response()->json(['erro' => 'Estoque insuficiente no lote'], 400);
+            }
+
+            // Realiza a subtração
+            $lote->quantidade_produtos -= $request->quantidade;
+
+            // REGRA: Se zerar o estoque, passa o ativo para 0
+            if ($lote->quantidade_produtos <= 0) {
+                $lote->ativo = 0;
+            }
+
+            $lote->save();
+
+            return response()->json(['mensagem' => 'Dispensação realizada com sucesso!']);
+        } catch (\Exception $e) {
+            return response()->json(['erro' => $e->getMessage()], 500);
+        }
     }
 }

@@ -9,11 +9,12 @@ class Lote extends Model
     protected $table = 'lote';
     public $timestamps = false;
     
-    protected $fillable = ['id_produto', 'numero', 'data_validade', 'quantidade_produtos', 'ativo'];
+    // Atualize o fillable para id_medicamento
+    protected $fillable = ['id_medicamento', 'numero', 'data_validade', 'quantidade_produtos', 'ativo'];
 
-    // Este relacionamento é obrigatório para puxar o nome do remédio no Dashboard
     public function medicamento()
     {
-        return $this->belongsTo(Medicamento::class, 'id_produto');
+        // O segundo parâmetro DEVE ser id_medicamento
+        return $this->belongsTo(Medicamento::class, 'id_medicamento');
     }
 }

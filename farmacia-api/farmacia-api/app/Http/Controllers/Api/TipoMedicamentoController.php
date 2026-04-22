@@ -16,7 +16,12 @@ class TipoMedicamentoController extends Controller
     public function store(Request $request)
     {
         try {
-            $tipo = TipoMedicamento::create($request->all());
+            // Busca um tipo com a mesma descrição (ignorando maiúsculas/minúsculas)
+            // Se encontrar, retorna o existente. Se não, cria um novo.
+            $tipo = TipoMedicamento::firstOrCreate(
+                ['descricao' => trim($request->descricao)]
+            );
+            
             return response()->json($tipo, 201);
         } catch (\Exception $e) {
             return response()->json(['erro' => $e->getMessage()], 500);
