@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Catalogo from './pages/Catalogo';
 import Dispensacao from './pages/Dispensacao';
+import GestaoNotas from './pages/GestaoNotas';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="catalogo" element={<Catalogo />} />
           <Route path="dispensacao" element={<Dispensacao />} />
+          <Route path="gestao-notas" element={<GestaoNotas />} />
         </Route>
       </Routes>
     </BrowserRouter>

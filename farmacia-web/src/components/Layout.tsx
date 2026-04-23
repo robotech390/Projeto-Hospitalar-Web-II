@@ -8,13 +8,22 @@ export default function Layout() {
           SAÚDE+VC
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <div className="text-xs text-[var(--color-brand-light)] font-semibold mb-4 mt-2">MÓDULO FARMÁCIA</div>
+          <div className="text-xs text-[var(--color-brand-light)] font-semibold mb-4 mt-2">
+            MÓDULO FARMÁCIA
+          </div>
+          
           <Link to="/" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition font-medium">
             Dashboard
           </Link>
+          
           <Link to="/catalogo" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
             Catálogo de Produtos
           </Link>
+
+          <Link to="/gestao-notas" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
+            Gestão de Notas
+          </Link>
+
           <Link to="/dispensacao" className="block w-full text-left p-3 rounded hover:bg-[var(--color-brand-primary)] transition">
             Dispensação
           </Link>

@@ -5,6 +5,9 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\MedicamentoController;
 use App\Http\Controllers\Api\TipoMedicamentoController;
 use App\Http\Controllers\Api\DispensacaoController;
+use App\Http\Controllers\Api\NotaFiscalController;
+
+Route::post('/notas-fiscais', [NotaFiscalController::class, 'store']);
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
