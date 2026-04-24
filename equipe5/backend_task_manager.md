@@ -1,48 +1,40 @@
-## 🧩 Fase 1: Desenvolvimento dos Models e Relacionamentos
-*Objetivo: Mapear as tabelas para orientaçao a objetos com a lógica correta de relacionamentos no seu framework.*
+# 📋 Gerenciador de Tarefas - Equipe 5 (Hospitalar)
 
-### 1.1. Model `TipoExame`
-- [x] Criar o arquivo/classe do model `TipoExame`.
-- [x] Definir a propriedade que aponta para a tabela `tipo_exame`.
-- [x] Declarar as propriedades "mass assignables" (atributos preenchíveis).
-- [x] Criar relacionamento genérico `1:N` (hasMany) informando que **um tipo de exame pertence a vários itens de exame**.
+## 🧩 Fase 1: Desenvolvimento dos Models e Relacionamentos (Concluído ✅)
+- [x] **Model TipoExame:** Mapeamento da tabela e relacionamento `hasMany` com itens.
+- [x] **Model SolicitacaoExame:** Accessors/Mutators de data, Enums de Status e relacionamento `hasMany` com itens.
+- [x] **Model ItemExame:** Relacionamentos `belongsTo` com Solicitação e Tipo de Exame.
+- [x] **Migrações:** Tabelas criadas e migradas com chaves estrangeiras corretas.
 
-### 1.2. Model `SolicitacaoExame`
-- [x] Criar o arquivo/classe do model `SolicitacaoExame`.
-- [x] Configurar formatação contínua de datas (Accessors/Mutators).
-- [x] Definir de maneira estática ou em arquivo externo as constantes/Enums de **STATUS permitidos** para validações no código.
-- [x] Criar relacionamento `1:N` (hasMany): **Uma solicitação possui vários itens de exame**.
+## 🛡️ Fase 2: Validações e APIs Base (Concluído ✅)
+- [x] **Requests:** Implementação de `StoreSolicitacaoExameRequest` e `UpdateSolicitacaoExameRequest`.
+- [x] **Regras de Negócio:** Validação de no mínimo 1 item, evitar duplicidade de exames e fluxo de status.
+- [x] **Service Providers:** Configuração de Providers e injeção de dependência para Services/Repositories.
+- [x] **Controllers API:** Endpoints iniciais para Solicitações e Tipos de Exame.
 
-### 1.3. Model `ItensExame`
-- [x] Criar o arquivo/classe do model `ItensExame`.
-- [x] Criar relacionamento `N:1` (belongsTo): **Este item pertence a UMA solicitação de exame**.
-- [x] Criar relacionamento `N:1` (belongsTo): **Este item referencia UM tipo de exame**.
+## 🚀 Fase 3: CRUD de Itens (Integração Front-end ↔ Back-end)
+*Objetivo: Implementar a gestão individualizada de itens de exame dentro do fluxo de solicitações.*
 
----
+### 3.1. Back-end: Endpoints de Itens
+- [x] **ItemExameController:** Criar controlador específico para operações em itens individuais.
+- [x] **Update de Item:** Endpoint para alterar status do item (`pendente` -> `coletado` -> `concluido`) e adicionar laudos/resultados.
+- [x] **Exclusão de Item:** Endpoint para remover um item de uma solicitação (respeitando integridade de negócio).
+- [ ] **Upload de Arquivos:** Implementar lógica de storage para anexar PDFs/Imagens aos itens.
 
-## 🛡️ Fase 2: Validações e Regras de Negócio (Camada de Serviço ou Requests)
-*Antes dos dados entrarem no banco a partir da integração com o front de React, precisamos garanti-los.*
+### 3.2. Front-end: Integração React (Inertia)
+- [ ] **Service API:** Criar funções de chamada para o CRUD de itens no front-end.
+- [ ] **Gestão de Itens na Tela:** Permitir adicionar/remover itens dinamicamente na tela de edição/criação de solicitação.
+- [ ] **Formulário de Resultado:** Componente para preenchimento de laudo e upload de arquivo por item.
+- [ ] **Feedback UI:** Toasts de sucesso/erro e modais de confirmação para ações destrutivas.
 
-- [x] Implementar regra: Uma solicitação precisa de **no mínimo 1 tipo de exame**.
-- [x] Implementar regra: Não permitir inserir duas vezes o mesmo `tipo_exame` dentro da mesma `solicitacao_exame`.
-- [x] Implementar validação: Checar fluxo lógico de transição do fluxo de status (Não permitir pular de `pendente` direto para `concluido` caso seja necessário passar pelo `em_andamento`, etc).
-- [x] Bloquear a inclusão de solicitações com `data_solicitacao` no passado se o requisito de negócio não permitir retroatividade de dados.
+## 🧪 Fase 4: Mock de Dados, Testes e Refinamento
+- [ ] **Seeder:** Popular `tipo_exame` com dados reais (Hemograma, RX, etc).
+- [ ] **Factories:** Gerar dados de teste para solicitações complexas.
+- [ ] **Testes de Integração:** Validar fluxo completo desde a criação no React até a persistência no DB.
+- [ ] **Transições de Status:** Garantir que o front-end respeite as travas de status do back-end.
 
----
-
-## 🧪 Fase 3: Mock de Dados e Testes Iniciais
-*Objetivo: Garantir que o trabalho está robusto antes de integrar ao front-end.*
-
-- [ ] Criar um **Seeder** para popular a tabela `tipo_exame` com dados primários (Ex: "Hemograma", "Raio-X de Tórax", "Ecocardiograma").
-- [ ] Realizar inserts ou rodar **Factories** (Scripts de Mock) para gerar algumas solicitações e itens de brincadeira com status variados.
-- [ ] (Opcional) Implementar testes unitários para assegurar as regras de relacionamento nos models.
-- [ ] Testar uma requisição de listagem manual extraindo todas as solicitações, trazendo **os itens associados (eager loading)** para garantir que as queries geradas estão corretas.
-
----
-
-## 🔮 Fase 4: Boas Práticas e Melhorias Futuras (Opcional)
-
-- [ ] **Soft Deletes:** Implementar exclusão lógica. No setor de saúde (projetos hospitalares), os registros raramente são deletados do banco via `DELETE FROM`, mas sim ocultados. 
-- [ ] **Database Transactions:** Garantir que o Controller que for salvar a solicitação e seus exames use *Transações*. Assim, se a gravação do item falhar no banco, a solicitação em si sofre *Rollback*, não deixando registros incompletos.
-- [ ] **Logs de Auditoria:** Arquitetar um observer ou tracking de eventos para salvar no banco *QUEM* e *QUANDO* o status mudou (ex: de Pendente para Concluído).
-- [ ] **Paginação de Resultados:** Configurar limite e paginação no método de busca para solicitações, visando performar e não travar o Frontend React com listas imensamente extensas.
+## 🔮 Fase 5: Boas Práticas e Melhorias Futuras
+- [ ] **Soft Deletes:** Implementar exclusão lógica para histórico hospitalar.
+- [ ] **Database Transactions:** Garantir atomicidade em operações que envolvam múltiplos itens.
+- [ ] **Logs de Auditoria:** Rastrear quem alterou cada item e quando.
+- [ ] **Paginação:** Otimizar listagens de solicitações no Front-end.
