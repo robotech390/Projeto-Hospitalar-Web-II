@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ItemExameController;
 use App\Http\Controllers\Api\SolicitacaoExameController;
 use App\Http\Controllers\Api\TipoExameController;
 use Illuminate\Http\Request;
@@ -11,10 +12,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 
-Route::apiResource('tipos-exame', TipoExameController::class);
-
-Route::apiResource('solicitacoes', SolicitacaoExameController::class);
+    Route::apiResource('tipos-exame', TipoExameController::class);
+    Route::apiResource('solicitacoes', SolicitacaoExameController::class);
+    Route::apiResource('itens-exame', ItemExameController::class);
+});
