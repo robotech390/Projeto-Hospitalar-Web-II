@@ -1,7 +1,8 @@
 
 
-import { useState } from 'react';
-import { usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { usePage, router } from '@inertiajs/react';
+import axios from 'axios';
 import { Card, CardContent } from './components/Card';
 import { FlaskConical, Pencil, Plus, Trash2 } from 'lucide-react';
 import Button from './components/Button';
@@ -23,12 +24,15 @@ import {
   SelectValue
 } from './components/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from './components/Dialog';
-import { toastSuccess } from './toast';
 
 export default function ExamCatalog() {
   const { props } = usePage();
-  const [exames, setExames] = useState([...props.catalogoExames]);
+  const [exames, setExames] = useState(props.catalogoExames || []);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    setExames(props.catalogoExames || []);
+  }, [props.catalogoExames]);
   const [filterTipo, setFilterTipo] = useState('Todos');
   const [editItem, setEditItem] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -52,21 +56,68 @@ export default function ExamCatalog() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.nome || !form.preco) return;
-    if (editItem) {
-      setExames((prev) => prev.map((e) => (e.id === editItem.id ? { ...e, ...form, preco: Number(form.preco) } : e)));
-      toastSuccess('Exame atualizado com sucesso!');
-    } else {
-      setExames((prev) => [...prev, { id: String(Date.now()), ...form, preco: Number(form.preco) }]);
-      toastSuccess('Exame cadastrado com sucesso!');
-    }
+
+    const isEditing = !!editItem;
+    const tempId = Date.now();
+    const optimisticExame = { id: isEditing ? editItem.id : tempId, ...form, preco: Number(form.preco) };
+
+    // Atualização Otimista da UI (feedback instantâneo)
+    setExames((prev) => 
+      isEditing 
+        ? prev.map((e) => (e.id === editItem.id ? optimisticExame : e))
+        : [...prev, optimisticExame]
+    );
     setDialogOpen(false);
+    try {
+      if (isEditing) {
+        const response = await axios.patch(`/lab/exams/${editItem.id}`, form);
+        // Atualiza com os dados consolidados do banco (ex: formatações ou campos extras)
+        setExames((prev) => prev.map((e) => (e.id === editItem.id ? response.data.exame : e)));
+      } else {
+        const response = await axios.post('/lab/exams', form);
+        // Substitui o ID temporário pelo ID real gerado pelo banco
+        setExames((prev) => prev.map((e) => (e.id === tempId ? response.data.exame : e)));
+      }
+    } catch (error) {
+      // Reverte a alteração visual em caso de falha na API
+      setExames((prev) => 
+        isEditing 
+          ? prev.map((e) => (e.id === editItem.id ? editItem : e))
+          : prev.filter((e) => e.id !== tempId)
+      );
+      setDialogOpen(true); // Reabre o modal para o usuário corrigir
+      
+      if (error.response?.status === 422) {
+        const validationErrors = error.response.data.errors;
+        const messages = Object.values(validationErrors).flat().join('\n');
+        alert('Erros de validação:\n' + messages);
+      } else {
+        console.error(error);
+        alert('Erro ao salvar exame. Verifique o console para mais detalhes.');
+      }
+    }
   };
 
-  const handleDelete = (id) => {
-    setExames((prev) => prev.filter((e) => e.id !== id));
-    toastSuccess('Exame removido.');
+  const handleDelete = async (id) => {
+    if (confirm('Tem certeza que deseja excluir este exame?')) {
+      const itemToDelete = exames.find((e) => e.id === id);
+      
+      // Atualização Otimista da UI
+      setExames((prev) => prev.filter((e) => e.id !== id));
+
+      try {
+        await axios.delete(`/lab/exams/${id}`);
+      } catch (error) {
+        // Reverte a exclusão caso a API falhe
+        if (itemToDelete) {
+          setExames((prev) => [...prev, itemToDelete]);
+        }
+        console.error(error);
+        alert('Erro ao excluir exame.');
+      }
+    }
   };
 
   return (
@@ -102,6 +153,8 @@ export default function ExamCatalog() {
                       <SelectItem value="Sangue">Sangue</SelectItem>
                       <SelectItem value="Raio-X">Raio-X</SelectItem>
                       <SelectItem value="Imagem">Imagem</SelectItem>
+                      <SelectItem value="Urina">Urina</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -137,6 +190,8 @@ export default function ExamCatalog() {
               <SelectItem value="Sangue">Sangue</SelectItem>
               <SelectItem value="Raio-X">Raio-X</SelectItem>
               <SelectItem value="Imagem">Imagem</SelectItem>
+              <SelectItem value="Urina">Urina</SelectItem>
+              <SelectItem value="Outro">Outro</SelectItem>
             </SelectContent>
           </Select>
         </div>
