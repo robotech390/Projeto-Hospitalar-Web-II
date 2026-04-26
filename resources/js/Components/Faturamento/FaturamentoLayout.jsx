@@ -1,0 +1,9 @@
+export default function FaturamentoLayout({ children }) {
+    return (
+        <div className="min-h-screen bg-gray-100">
+            <div className="max-w-7xl mx-auto py-6 px-4">
+                {children}
+            </div>
+        </div>
+    );
+}
