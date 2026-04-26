@@ -1,0 +1,27 @@
+# ── Credenciais ───────────────────────────────────────────────────────────────
+.env
+.env.backup
+
+# ── API (Laravel) ─────────────────────────────────────────────────────────────
+hospital-api/vendor/
+hospital-api/storage/logs/*
+hospital-api/storage/framework/cache/*
+hospital-api/storage/framework/sessions/*
+hospital-api/storage/framework/views/*
+hospital-api/bootstrap/cache/*
+hospital-api/storage/api-docs/
+hospital-api/Dockerfile
+hospital-api/docker-compose.yml
+hospital-api/.dockerignore
+hospital-api/setup.sh
+
+# ── Frontend (React) ──────────────────────────────────────────────────────────
+hospital-frontend/node_modules/
+hospital-frontend/dist/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
