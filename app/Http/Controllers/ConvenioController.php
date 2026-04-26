@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Endereco;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Convenio;
@@ -12,7 +13,7 @@ class ConvenioController extends Controller
     public function index()
     {
         return Inertia::render('Faturamento/Convenio', [
-            'convenios' => Convenio::all()
+            'convenios' => Convenio::with('endereco')->get()
         ]);
     }
 
@@ -22,12 +23,22 @@ class ConvenioController extends Controller
             'nome' => 'required|string|max:255',
         ]);
 
-        $data = $request->all();
-        $data['cnpj'] = preg_replace('/\D/', '', $data['cnpj']);
-        $data['telefone'] = preg_replace('/\D/', '', $data['telefone']);
-        $data['email'] = strtolower($data['email']);
+        $endereco = Endereco::create([
+            'logradouro' => $request->logradouro,
+            'numero' => $request->numero,
+            'bairro' => $request->bairro,
+            'cidade' => $request->cidade,
+            'estado' => $request->estado,
+            'cep' => preg_replace('/\D/', '', $request->cep),
+        ]);
 
-        Convenio::create($data);
+        Convenio::create([
+            'nome' => $request->nome,
+            'cnpj' => preg_replace('/\D/', '', $request->cnpj),
+            'telefone' => preg_replace('/\D/', '', $request->telefone),
+            'email' => strtolower($request->email),
+            'id_endereco' => $endereco->id,
+        ]);
 
         return redirect()->back();
     }
@@ -36,7 +47,19 @@ class ConvenioController extends Controller
         $data = $request->all();
         $data['cnpj'] = preg_replace('/\D/', '', $data['cnpj']);
 
-        $convenio->updated($request->all());
+        $convenio ->update($data);
+        
+        if($convenio->id_endereco){
+            $convenio->endereco()->update([
+                'logradouro' => $request->logradouro,
+                'numero' => $request->numero,
+                'bairro' => $request->bairro,
+                'cidade' => $request->cidade,
+                'estado' => $request->estado,
+                'cep' => preg_replace('/\D/', '', $request->cep),
+            ]);
+        }
+        
         return redirect()->back();
     }
 

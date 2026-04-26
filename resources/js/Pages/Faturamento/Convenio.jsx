@@ -26,10 +26,10 @@ export default function Convenio({ convenios = [] }) {
       const convenio = convenios.find((c) => c.id === id);
       if (convenio) {
         setFormData({
-          nome: convenio.nome,
-          cnpj: convenio.cnpj,
-          telefone: convenio.telefone,
-          email: convenio.email,
+          nome: convenio.nome || '',
+          cnpj: convenio.cnpj || '',
+          telefone: convenio.telefone || '',
+          email: convenio.email || '',
           rua: convenio.endereco?.rua || '',
           numero: convenio.endereco?.numero || '',
           cidade: convenio.endereco?.cidade || '',

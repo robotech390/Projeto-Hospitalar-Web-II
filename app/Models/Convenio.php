@@ -15,4 +15,7 @@ class Convenio extends Model
     public $timestamps = false;
     protected $fillable = ['nome', 'cnpj', 'telefone', 'email', 'id_endereco', 'data_criacao', 'data_atualizacao'];
 
+    public function endereco(){
+        return $this->belongsTo(Endereco::class, 'id_endereco');
+    }
 }
