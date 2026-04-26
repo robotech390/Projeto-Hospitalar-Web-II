@@ -1,12 +1,12 @@
 
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Card, CardContent } from './components/Card';
 import Button from './components/Button';
 import Input from './components/Input';
 import Textarea from './components/Textarea';
 import StatusBadge from './components/StatusBadge';
-import { toastSuccess, toastError } from './toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './components/Dialog';
 import { Search, Upload, FileText, CheckCircle } from 'lucide-react';
 import AppLayout from './components/AppLayout';
@@ -14,19 +14,63 @@ import AppLayout from './components/AppLayout';
 
 export default function ResultEntryForm({ orders = [] }) {
   // Nenhuma lógica local de filtro ou busca, apenas exibe os dados recebidos do backend
+  const [examOrders, setExamOrders] = useState(orders || []);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [laudo, setLaudo] = useState('');
   const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setExamOrders(orders || []);
+  }, [orders]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) setFileName(file.name);
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFileName(selectedFile.name);
+      setFile(selectedFile);
+    } else {
+      setFileName('');
+      setFile(null);
+    }
   };
 
-  // Apenas exames em análise ou coletados são exibidos
-  const filtered = orders.filter((o) => o.status === 'Em Análise' || o.status === 'Coletado');
+  const handleSave = async () => {
+    if (!laudo || !selected) return;
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('laudo', laudo);
+      if (file) {
+        formData.append('arquivo', file);
+      }
+
+      await axios.post(`/lab/result-entry/${selected.id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Atualização Otimista
+      setExamOrders(prev => prev.filter(o => o.id !== selected.id));
+      setDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao salvar resultado. Verifique os dados e tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filtered = examOrders.filter((o) => {
+    const matchesSearch = o.paciente.toLowerCase().includes(search.toLowerCase()) ||
+      o.exame.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch && (o.status === 'Em Análise' || o.status === 'Coletado');
+  });
 
   return (
     <AppLayout>
@@ -100,9 +144,11 @@ export default function ResultEntryForm({ orders = [] }) {
             </div>
           )}
           <DialogFooter>
-            <Button variant="default" disabled>Lançamento apenas visual</Button>
+            <Button onClick={handleSave} disabled={isSubmitting || !laudo}>
+              {isSubmitting ? 'Salvando...' : 'Salvar Resultado'}
+            </Button>
             <DialogClose asChild>
-              <Button variant="ghost">Cancelar</Button>
+              <Button variant="ghost" disabled={isSubmitting}>Cancelar</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
