@@ -145,6 +145,9 @@ export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
                                     <div className="text-gray-500">
                                         Dr. {c.medico?.pessoa?.nome}
                                     </div>
+                                    <div className="text-gray-400">
+                                        {c.tipo_consulta?.descricao}
+                                    </div>
                                     <div className="flex items-center justify-between">
                                         <span
                                             className={`px-1.5 py-0.5 rounded text-xs font-medium ${statusCor[c.status] ?? ''}`}
