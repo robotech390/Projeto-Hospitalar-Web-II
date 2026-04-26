@@ -27,6 +27,7 @@ Route::patch('/lab/exams/{id}', [\App\Http\Controllers\LabModuleController::clas
 Route::delete('/lab/exams/{id}', [\App\Http\Controllers\LabModuleController::class, 'deleteExam'])->name('lab.exams.delete');
 Route::get('/lab/collection-queue', [\App\Http\Controllers\LabModuleController::class, 'collectionQueue'])->name('lab.collectionQueue');
 Route::get('/lab/result-entry', [\App\Http\Controllers\LabModuleController::class, 'resultEntryForm'])->name('lab.resultEntry');
+Route::post('/lab/result-entry/{id}', [\App\Http\Controllers\LabModuleController::class, 'updateResultEntry'])->name('lab.resultEntry.update');
 Route::get('/lab/exam-status', [\App\Http\Controllers\LabModuleController::class, 'examStatus'])->name('lab.examStatus');
 
 
