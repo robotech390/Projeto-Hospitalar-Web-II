@@ -22,6 +22,9 @@ Route::get('/dashboard', function () {
 // Rotas do módulo Laboratório e Exames
 Route::get('/lab/dashboard', [\App\Http\Controllers\LabModuleController::class, 'dashboard'])->name('lab.dashboard');
 Route::get('/lab/exams', [\App\Http\Controllers\LabModuleController::class, 'examCatalog'])->name('lab.exams');
+Route::post('/lab/exams', [\App\Http\Controllers\LabModuleController::class, 'storeExam'])->name('lab.exams.store');
+Route::patch('/lab/exams/{id}', [\App\Http\Controllers\LabModuleController::class, 'updateExam'])->name('lab.exams.update');
+Route::delete('/lab/exams/{id}', [\App\Http\Controllers\LabModuleController::class, 'deleteExam'])->name('lab.exams.delete');
 Route::get('/lab/collection-queue', [\App\Http\Controllers\LabModuleController::class, 'collectionQueue'])->name('lab.collectionQueue');
 Route::get('/lab/result-entry', [\App\Http\Controllers\LabModuleController::class, 'resultEntryForm'])->name('lab.resultEntry');
 Route::get('/lab/exam-status', [\App\Http\Controllers\LabModuleController::class, 'examStatus'])->name('lab.examStatus');
