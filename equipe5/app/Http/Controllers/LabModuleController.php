@@ -19,6 +19,67 @@ class LabModuleController extends Controller
         return Inertia::render('Lab/ExamCatalog', $data);
     }
 
+    public function storeExam(Request $request, \App\Services\LabCatalogService $catalogService)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'nome' => 'required|string|max:255|unique:tipo_exame,nome',
+            'tipo' => ['required', new \Illuminate\Validation\Rules\Enum(\App\Enums\TipoExameEnum::class)],
+            'preco' => 'required|numeric|min:0',
+            'preparo' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exame = $catalogService->createExam($validator->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'exame' => $exame]);
+        }
+
+        return redirect()->back()->with('success', 'Exame cadastrado com sucesso!');
+    }
+
+    public function updateExam(Request $request, string $id, \App\Services\LabCatalogService $catalogService)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'nome' => 'required|string|max:255|unique:tipo_exame,nome,' . $id,
+            'tipo' => ['required', new \Illuminate\Validation\Rules\Enum(\App\Enums\TipoExameEnum::class)],
+            'preco' => 'required|numeric|min:0',
+            'preparo' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exame = $catalogService->updateExam($id, $validator->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'exame' => $exame]);
+        }
+
+        return redirect()->back()->with('success', 'Exame atualizado com sucesso!');
+    }
+
+    public function deleteExam(Request $request, string $id, \App\Services\LabCatalogService $catalogService)
+    {
+        $catalogService->deleteExam($id);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Exame removido com sucesso!');
+    }
+
     public function collectionQueue(\App\Services\LabCollectionQueueService $queueService)
     {
         $data = $queueService->getQueueData();

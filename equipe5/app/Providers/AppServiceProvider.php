@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
         );
         $this->app->bind(
             \App\Repositories\LabCatalogRepositoryInterface::class,
-            \App\Repositories\LabCatalogMockRepository::class
+            \App\Repositories\LabCatalogEloquentRepository::class
         );
         $this->app->bind(
             \App\Repositories\LabDashboardRepositoryInterface::class,

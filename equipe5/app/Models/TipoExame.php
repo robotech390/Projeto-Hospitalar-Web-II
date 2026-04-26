@@ -23,6 +23,9 @@ class TipoExame extends Model
 {
     protected $table = 'tipo_exame';
 
+    const CREATED_AT = 'data_criacao';
+    const UPDATED_AT = 'data_alteracao';
+
     protected $fillable = [
         'nome',
         'tipo',

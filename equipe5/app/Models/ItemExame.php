@@ -58,7 +58,7 @@ class ItemExame extends Model
     protected function arquivoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->arquivo ? Storage::disk('public')->url($this->arquivo) : null,
+            get: fn () => $this->arquivo ? asset('storage/' . $this->arquivo) : null,
         );
     }
 }
