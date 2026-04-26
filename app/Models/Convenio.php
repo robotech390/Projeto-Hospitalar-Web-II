@@ -12,6 +12,7 @@ class Convenio extends Model
 
     protected $primaryKey = 'id'; 
     protected $table = 'convenio';
+    public $timestamps = false;
     protected $fillable = ['nome', 'cnpj', 'telefone', 'email', 'id_endereco', 'data_criacao', 'data_atualizacao'];
 
 }

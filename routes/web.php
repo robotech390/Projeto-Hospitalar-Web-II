@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ConvenioController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,25 +23,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-require __DIR__.'/auth.php';
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Faturamento
-    Route::get('/faturamento/convenio', function () {
-        return Inertia::render('Faturamento/Convenio');
-    })->name('convenio');
-
+    Route::resource('/faturamento/convenio', ConvenioController::class);
     Route::get('/faturamento/plano', function () {
         return Inertia::render('Faturamento/Plano');
     })->name('plano');
-
-    Route::get('/faturamento/tipo-cobranca', function () {
-        return Inertia::render('Faturamento/TipoCobranca');
-    })->name('tipo-cobranca');
+    Route::get('/faturamento/tipo-cobertura', function () {
+        return Inertia::render('Faturamento/TipoCobertura');
+    })->name('tipo-cobertura');
 });
+
+require __DIR__.'/auth.php';
