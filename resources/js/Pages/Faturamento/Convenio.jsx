@@ -30,7 +30,7 @@ export default function Convenio({ convenios = [] }) {
           cnpj: convenio.cnpj || '',
           telefone: convenio.telefone || '',
           email: convenio.email || '',
-          rua: convenio.endereco?.rua || '',
+          rua: convenio.endereco?.logradouro || '',
           numero: convenio.endereco?.numero || '',
           cidade: convenio.endereco?.cidade || '',
           estado: convenio.endereco?.estado || '',
@@ -232,7 +232,7 @@ export default function Convenio({ convenios = [] }) {
                     <p className="truncate">{convenio.email}</p>
                     {convenio.endereco && (
                       <p>
-                        {convenio.endereco.rua}, {convenio.endereco.numero}
+                        {convenio.endereco.logradouro}, {convenio.endereco.numero}
                         <br />
                         {convenio.endereco.cidade} - {convenio.endereco.estado}
                       </p>

@@ -23,14 +23,19 @@ class ConvenioController extends Controller
             'nome' => 'required|string|max:255',
         ]);
 
-        $endereco = Endereco::create([
-            'logradouro' => $request->logradouro,
-            'numero' => $request->numero,
-            'bairro' => $request->bairro,
-            'cidade' => $request->cidade,
-            'estado' => $request->estado,
-            'cep' => preg_replace('/\D/', '', $request->cep),
-        ]);
+        $id_endereco = null;
+
+        if ($request->filled('rua') || $request->filled('numero') || $request->filled('cidade') || $request->filled('estado') || $request->filled('cep')) {
+            $endereco = Endereco::create([
+                'logradouro' => $request->rua,
+                'numero' => $request->numero,
+                'bairro' => $request->bairro,
+                'cidade' => $request->cidade,
+                'estado' => $request->estado,
+                'cep' => preg_replace('/\D/', '', $request->cep),
+            ]);
+            $id_endereco = $endereco->id;
+        }
 
         Convenio::create([
             'nome' => $request->nome,
@@ -43,27 +48,46 @@ class ConvenioController extends Controller
         return redirect()->back();
     }
 
-    public function update(Request $request, Convenio $convenio){
+    public function update(Request $request, Convenio $convenio)
+    {
         $data = $request->all();
         $data['cnpj'] = preg_replace('/\D/', '', $data['cnpj']);
 
-        $convenio ->update($data);
-        
-        if($convenio->id_endereco){
-            $convenio->endereco()->update([
-                'logradouro' => $request->logradouro,
-                'numero' => $request->numero,
-                'bairro' => $request->bairro,
-                'cidade' => $request->cidade,
-                'estado' => $request->estado,
-                'cep' => preg_replace('/\D/', '', $request->cep),
-            ]);
+        $convenio->update([
+            'nome' => $request->nome,
+            'cnpj' => preg_replace('/\D/', '', $request->cnpj),
+            'telefone' => preg_replace('/\D/', '', $request->telefone),
+            'email' => strtolower($request->email),
+        ]);
+
+        if($request->filled('rua') || $request->filled('numero') || $request->filled('cidade') || $request->filled('estado') || $request->filled('cep')) {
+            if($convenio->id_endereco) {
+                $convenio->endereco->update([
+                    'logradouro' => $request->rua,
+                    'numero' => $request->numero,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'estado' => $request->estado,
+                    'cep' => preg_replace('/\D/', '', $request->cep),
+                ]);
+            } else {
+                $endereco = Endereco::create([
+                    'logradouro' => $request->rua,
+                    'numero' => $request->numero,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'estado' => $request->estado,
+                    'cep' => preg_replace('/\D/', '', $request->cep),
+                ]);
+                $convenio->update(['id_endereco' => $endereco->id]);
+            }
         }
-        
+
         return redirect()->back();
     }
 
-    public function destroy(Convenio $convenio){
+    public function destroy(Convenio $convenio)
+    {
         $convenio->delete();
         return redirect()->back();
     }
