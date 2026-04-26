@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(
@@ -48,5 +50,15 @@ class ItemExame extends Model
     public function tipoExame(): BelongsTo
     {
         return $this->belongsTo(TipoExame::class, 'id_tipo_exame');
+    }
+
+    /**
+     * Get the file URL.
+     */
+    protected function arquivoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->arquivo ? Storage::disk('public')->url($this->arquivo) : null,
+        );
     }
 }

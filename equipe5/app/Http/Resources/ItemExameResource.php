@@ -21,6 +21,7 @@ class ItemExameResource extends JsonResource
             'status' => $this->status,
             'laudo' => $this->laudo,
             'arquivo' => $this->arquivo,
+            'arquivo_url' => $this->arquivo_url,
             'data_resultado' => $this->data_resultado,
             'tipo_exame' => new TipoExameResource($this->whenLoaded('tipoExame')),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

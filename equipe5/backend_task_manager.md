@@ -19,7 +19,7 @@
 - [x] **ItemExameController:** Criar controlador específico para operações em itens individuais.
 - [x] **Update de Item:** Endpoint para alterar status do item (`pendente` -> `coletado` -> `concluido`) e adicionar laudos/resultados.
 - [x] **Exclusão de Item:** Endpoint para remover um item de uma solicitação (respeitando integridade de negócio).
-- [ ] **Upload de Arquivos:** Implementar lógica de storage para anexar PDFs/Imagens aos itens.
+- [x] **Upload de Arquivos:** Implementar lógica de storage para anexar PDFs/Imagens aos itens.
 
 ### 3.2. Front-end: Integração React (Inertia)
 - [ ] **Service API:** Criar funções de chamada para o CRUD de itens no front-end.

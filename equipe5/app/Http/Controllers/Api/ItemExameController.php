@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ItemExameResource;
 use App\Models\ItemExame;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemExameController extends Controller
 {
@@ -78,8 +79,18 @@ class ItemExameController extends Controller
             'status' => 'sometimes|string',
             'laudo' => 'sometimes|nullable|string',
             'data_resultado' => 'sometimes|nullable|date',
-            'arquivo' => 'sometimes|nullable|string',
+            'arquivo' => 'sometimes|nullable|file|mimes:pdf,jpg,jpeg,png|max:10240', // Max 10MB
         ]);
+
+        if ($request->hasFile('arquivo')) {
+            // Remover arquivo antigo se existir
+            if ($item->arquivo) {
+                Storage::disk('public')->delete($item->arquivo);
+            }
+            
+            $path = $request->file('arquivo')->store('laudos', 'public');
+            $validated['arquivo'] = $path;
+        }
 
         $item->update($validated);
 
