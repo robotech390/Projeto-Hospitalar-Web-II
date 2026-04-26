@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             \App\Repositories\LabExamRepositoryInterface::class,
-            \App\Repositories\LabExamMockRepository::class
+            \App\Repositories\LabExamEloquentRepository::class
         );
         $this->app->bind(
             \App\Repositories\LabCatalogRepositoryInterface::class,

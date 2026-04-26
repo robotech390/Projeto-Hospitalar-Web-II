@@ -23,4 +23,9 @@ class LabResultEntryService
             'orders' => array_values($emAnalise),
         ];
     }
+
+    public function updateResult(int $id, array $data): \App\Models\ItemExame
+    {
+        return $this->examRepository->updateResult($id, $data);
+    }
 }

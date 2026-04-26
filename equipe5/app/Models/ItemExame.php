@@ -26,6 +26,9 @@ use Illuminate\Support\Facades\Storage;
 class ItemExame extends Model
 {
     protected $table = 'itens_exame';
+    
+    const CREATED_AT = 'data_criacao';
+    const UPDATED_AT = 'data_alteracao';
 
     protected $fillable = [
         'id_solicitacao',

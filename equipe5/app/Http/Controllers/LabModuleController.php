@@ -92,6 +92,29 @@ class LabModuleController extends Controller
         return Inertia::render('Lab/ResultEntryForm', $data);
     }
 
+    public function updateResultEntry(Request $request, string $id, \App\Services\LabResultEntryService $resultEntryService)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'laudo' => 'required|string',
+            'arquivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $itemExame = $resultEntryService->updateResult((int)$id, $validator->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'item' => $itemExame]);
+        }
+
+        return redirect()->back()->with('success', 'Resultado lançado com sucesso!');
+    }
+
     public function examStatus(\App\Services\LabExamStatusService $examStatusService)
     {
         $data = $examStatusService->getExamStatusData();

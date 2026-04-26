@@ -25,13 +25,16 @@ use Carbon\Carbon;
 class SolicitacaoExame extends Model
 {
     protected $table = 'solicitacao_exame';
-
+    
+    const CREATED_AT = 'data_criacao';
+    const UPDATED_AT = 'data_alteracao';
+    
     protected $fillable = [
         'data',
         'justificativa',
         'prioridade',
         'id_consulta',
-        'status',
+        //'status',
     ];
 
     // Status Constants
