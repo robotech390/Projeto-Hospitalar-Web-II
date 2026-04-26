@@ -25,3 +25,22 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Faturamento
+    Route::get('/faturamento/convenio', function () {
+        return Inertia::render('Faturamento/Convenio');
+    })->name('convenio');
+
+    Route::get('/faturamento/plano', function () {
+        return Inertia::render('Faturamento/Plano');
+    })->name('plano');
+
+    Route::get('/faturamento/tipo-cobranca', function () {
+        return Inertia::render('Faturamento/TipoCobranca');
+    })->name('tipo-cobranca');
+});
