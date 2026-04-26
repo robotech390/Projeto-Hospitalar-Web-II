@@ -27,21 +27,18 @@ class SolicitacaoExameSeeder extends Seeder
                 'justificativa' => 'Paciente apresenta sintomas de anemia e cansaço excessivo.',
                 'prioridade' => 1,
                 'id_consulta' => 101, // Exemplo de ID vindo de outra API
-                'status' => SolicitacaoExame::STATUS_PENDENTE,
             ],
             [
                 'data' => now()->subDay(),
                 'justificativa' => 'Check-up anual de rotina.',
                 'prioridade' => 2,
                 'id_consulta' => 102,
-                'status' => SolicitacaoExame::STATUS_EM_ANDAMENTO,
             ],
             [
                 'data' => now(),
                 'justificativa' => 'Suspeita de infecção urinária.',
                 'prioridade' => 1,
                 'id_consulta' => 103,
-                'status' => SolicitacaoExame::STATUS_PENDENTE,
             ],
         ];
 
@@ -54,9 +51,9 @@ class SolicitacaoExameSeeder extends Seeder
             foreach ($tiposParaVincular as $tipo) {
                 // Criando o ItemExame (pode ser via attach ou create no modelo ItemExame)
                 $solicitacao->tiposExame()->attach($tipo->id, [
-                    'status' => $solicitacao->status,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'status' => 'Pendente', // status existe na itens_exame, não na solicitacao_exame
+                    'data_criacao' => now(),
+                    'data_alteracao' => now(),
                 ]);
             }
         }
