@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         );
         $this->app->bind(
             \App\Repositories\LabDashboardRepositoryInterface::class,
-            \App\Repositories\LabDashboardMockRepository::class
+            \App\Repositories\LabDashboardEloquentRepository::class
         );
     }
 

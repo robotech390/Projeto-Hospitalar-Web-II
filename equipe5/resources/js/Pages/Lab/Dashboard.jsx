@@ -49,7 +49,7 @@ const statsConfig = [
 ];
 
 function formatCurrency(value) {
-  return `R$ ${Number(value).toFixed(1)}k`;
+  return `R$ ${Number(value).toFixed(2)}`;
 }
 
 export default function Dashboard() {

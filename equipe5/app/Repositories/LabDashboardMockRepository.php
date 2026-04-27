@@ -38,4 +38,9 @@ class LabDashboardMockRepository implements LabDashboardRepositoryInterface
         }
         return $revenueData;
     }
+
+    public function getRevenueToday(): float
+    {
+        return mt_rand(20, 50) / 10.0;
+    }
 }

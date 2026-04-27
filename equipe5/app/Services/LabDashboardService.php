@@ -24,7 +24,7 @@ class LabDashboardService
         $pendentes = count(array_filter($pedidosExames, fn($e) => $e['status'] === 'Pendente'));
         $emAnalise = count(array_filter($pedidosExames, fn($e) => $e['status'] === 'Em Análise'));
         $concluidosHoje = count(array_filter($pedidosExames, fn($e) => $e['status'] === 'Concluído'));
-        $receitaHoje = $concluidosHoje * (mt_rand(20, 50) / 100.0);
+        $receitaHoje = $this->dashboardRepository->getRevenueToday();
 
         $upcomingExams = array_filter($pedidosExames, function($e) {
             return in_array($e['status'], ['Pendente', 'Coletado']);
@@ -40,7 +40,7 @@ class LabDashboardService
         return [
             'pendentes' => [
                 'value' => $pendentes,
-                'trendValue' => 1,
+                'trendValue' => 0,
                 'trendPercentual' => false,
             ],
             'emAnalise' => [
@@ -55,7 +55,7 @@ class LabDashboardService
             ],
             'receitaHoje' => [
                 'value' => $receitaHoje,
-                'trendValue' => 10,
+                'trendValue' => 0,
                 'trendPercentual' => true,
             ],
             'weekData' => $weekData,
