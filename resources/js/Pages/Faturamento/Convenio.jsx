@@ -5,7 +5,6 @@ import { maskCNPJ, maskPhone, maskCEP, maskState } from '@/lib/masks';
 import { Head, router } from '@inertiajs/react';
 
 export default function Convenio({ convenios = [] }) {
-  //const [convenios, setConvenios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
@@ -18,7 +17,7 @@ export default function Convenio({ convenios = [] }) {
     estado: '',
     cep: '',
   });
-  //const [nextId, setNextId] = useState(1);
+  
   const [editingId, setEditingId] = useState(null);
 
   const handleOpenModal = (id = null) => {
@@ -58,60 +57,6 @@ export default function Convenio({ convenios = [] }) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
-  /*const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.nome.trim() || !formData.cnpj.trim()) {
-      alert('Por favor, preencha os campos obrigatórios');
-      return;
-    }
-
-    const convenioData = {
-      nome: formData.nome,
-      cnpj: formData.cnpj,
-      telefone: formData.telefone,
-      email: formData.email,
-      endereco: {
-        rua: formData.rua,
-        numero: formData.numero,
-        cidade: formData.cidade,
-        estado: formData.estado,
-        cep: formData.cep,
-      },
-    };
-
-    if (editingId) {
-      setConvenios(
-        convenios.map((convenio) =>
-          convenio.id === editingId
-            ? { ...convenio, ...convenioData }
-            : convenio
-        )
-      );
-    } else {
-      const novoConvenio = {
-        id: nextId,
-        ...convenioData,
-      };
-      setConvenios([...convenios, novoConvenio]);
-      setNextId(nextId + 1);
-    }
-
-    setFormData({
-      nome: '',
-      cnpj: '',
-      telefone: '',
-      email: '',
-      rua: '',
-      numero: '',
-      cidade: '',
-      estado: '',
-      cep: '',
-    });
-    setEditingId(null);
-    setIsModalOpen(false);
-  };*/
 
   const handleSubmit = (e) => {
     e.preventDefault();

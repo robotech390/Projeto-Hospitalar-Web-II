@@ -28,9 +28,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/faturamento/plano', function () {
         return Inertia::render('Faturamento/Plano');
     })->name('plano');
-    Route::get('/faturamento/tipo-cobertura', function () {
-        return Inertia::render('Faturamento/TipoCobertura');
-    })->name('tipo-cobertura');
+    Route::get('/faturamento/tipo-cobranca', function () {
+        return Inertia::render('Faturamento/TipoCobranca');
+    })->name('tipo-cobranca');
 });
 
 require __DIR__.'/auth.php';
