@@ -3,25 +3,38 @@
 namespace App\Repositories;
 
 use App\Models\ItemExame;
+use App\Services\ConsultationService;
 use Illuminate\Support\Facades\Storage;
 
 class LabExamEloquentRepository implements LabExamRepositoryInterface
 {
+    protected $consultationService;
+
+    public function __construct(ConsultationService $consultationService)
+    {
+        $this->consultationService = $consultationService;
+    }
+
     public function getAllExams(): array
     {
-        // Arrays para mockar dados não presentes em ItemExame sem a tabela de pacientes/médicos completa
-        $nomes = ['Maria Silva', 'João Souza', 'Carlos Lima', 'Ana Paula', 'Pedro Santos'];
-        $medicos = ['Dr. João', 'Dra. Ana', 'Dr. Pedro', 'Dra. Beatriz', 'Dr. Carlos'];
-
-        // Buscar itens reais do banco de dados, incluindo a relação com o tipo do exame
-        $items = ItemExame::with('tipoExame')->latest()->get();
+        // Buscar itens reais do banco de dados, incluindo a relação com o tipo do exame e a solicitação
+        $items = ItemExame::with(['tipoExame', 'solicitacaoExame'])->latest('data_criacao')->get();
 
         $result = [];
-        foreach ($items as $index => $item) {
-            $pacienteNome = $nomes[$index % count($nomes)];
-            $medicoNome = $medicos[$index % count($medicos)];
+        foreach ($items as $item) {
+            $pacienteNome = 'Desconhecido';
+            $medicoNome = 'Desconhecido';
             
-            // Gerar iniciais do nome do paciente mockado
+            // Buscar dados de consulta (paciente/médico) via serviço mockado
+            if ($item->solicitacaoExame && $item->solicitacaoExame->id_consulta) {
+                $consultation = $this->consultationService->getConsultationData($item->solicitacaoExame->id_consulta);
+                if ($consultation) {
+                    $pacienteNome = $consultation['paciente']['nome'] ?? 'Desconhecido';
+                    $medicoNome = $consultation['medico']['nome'] ?? 'Desconhecido';
+                }
+            }
+            
+            // Gerar iniciais do nome do paciente
             $words = explode(' ', $pacienteNome);
             $iniciais = strtoupper(substr($words[0], 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
 
@@ -30,10 +43,10 @@ class LabExamEloquentRepository implements LabExamRepositoryInterface
                 'paciente' => $pacienteNome,
                 'exame' => $item->tipoExame ? $item->tipoExame->nome : 'Exame Desconhecido',
                 'tipo' => $item->tipoExame ? $item->tipoExame->tipo : 'Outro',
-                'horario' => $item->created_at ? $item->created_at->format('H:i') : '00:00',
+                'horario' => $item->data_criacao ? $item->data_criacao->format('H:i') : '00:00',
                 'status' => $item->status,
                 'medico' => $medicoNome,
-                'dataSolicitacao' => $item->created_at ? $item->created_at->format('Y-m-d') : date('Y-m-d'),
+                'dataSolicitacao' => $item->data_criacao ? $item->data_criacao->format('Y-m-d') : date('Y-m-d'),
                 'iniciais' => $iniciais,
             ];
         }
