@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { FlaskConical, ClipboardList, Upload, BarChart3, LayoutDashboard } from 'lucide-react';
+import { FlaskConical, ClipboardList, Upload, BarChart3, LayoutDashboard, ListChecks } from 'lucide-react';
 
 
 function SidebarGroup({ label, children }) {
@@ -60,7 +60,7 @@ export default function AppLayout({ children }) {
             />
             <SidebarItem
               href="/lab/collection-queue"
-              icon={<ClipboardList className="h-5 w-5" />}
+              icon={<ListChecks className="h-5 w-5" />}
               label="Fila de Coleta"
               url={url}
             />
