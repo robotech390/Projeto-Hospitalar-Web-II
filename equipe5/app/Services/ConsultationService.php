@@ -27,4 +27,16 @@ class ConsultationService
             'status' => 'Concluída',
         ];
     }
+
+    /**
+     * Retorna todas as consultas (mockado).
+     */
+    public function getAllConsultations(): array
+    {
+        $consultations = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $consultations[] = $this->getConsultationData($i);
+        }
+        return $consultations;
+    }
 }

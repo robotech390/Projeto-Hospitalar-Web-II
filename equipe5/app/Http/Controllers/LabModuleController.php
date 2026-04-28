@@ -120,4 +120,56 @@ class LabModuleController extends Controller
         $data = $examStatusService->getExamStatusData();
         return Inertia::render('Lab/ExamStatus', $data);
     }
+
+    public function examSolicitations(\App\Services\LabSolicitationService $solicitationService)
+    {
+        $data = $solicitationService->getSolicitationsData();
+        return Inertia::render('Lab/ExamSolicitations', $data);
+    }
+
+    public function storeSolicitation(Request $request, \App\Services\LabSolicitationService $solicitationService)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'id_consulta' => 'required|integer',
+            'justificativa' => 'required|string',
+            'prioridade' => 'required|integer|min:1|max:3',
+            'itens' => 'required|array|min:1',
+            'itens.*.id_tipo_exame' => 'required|integer|exists:tipo_exame,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $solicitationService->createSolicitation($validator->validated());
+
+        return redirect()->back()->with('success', 'Solicitação cadastrada com sucesso!');
+    }
+
+    public function updateSolicitation(Request $request, string $id, \App\Services\LabSolicitationService $solicitationService)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'id_consulta' => 'required|integer',
+            'justificativa' => 'required|string',
+            'prioridade' => 'required|integer|min:1|max:3',
+            'itens' => 'required|array|min:1',
+            'itens.*.id' => 'nullable|integer|exists:itens_exame,id',
+            'itens.*.id_tipo_exame' => 'required|integer|exists:tipo_exame,id',
+            'itens.*.status' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $solicitationService->updateSolicitation((int)$id, $validator->validated());
+
+        return redirect()->back()->with('success', 'Solicitação atualizada com sucesso!');
+    }
+
+    public function deleteSolicitation(string $id, \App\Services\LabSolicitationService $solicitationService)
+    {
+        $solicitationService->deleteSolicitation((int)$id);
+        return redirect()->back()->with('success', 'Solicitação removida com sucesso!');
+    }
 }

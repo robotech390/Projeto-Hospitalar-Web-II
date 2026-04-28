@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\LabDashboardRepositoryInterface::class,
             \App\Repositories\LabDashboardEloquentRepository::class
         );
+        $this->app->bind(
+            \App\Repositories\LabSolicitationRepositoryInterface::class,
+            \App\Repositories\LabSolicitationEloquentRepository::class
+        );
     }
 
     /**

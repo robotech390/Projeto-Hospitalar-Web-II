@@ -24,6 +24,7 @@ import {
   SelectValue
 } from './components/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from './components/Dialog';
+import { toast } from './toast';
 
 export default function ExamCatalog() {
   const { props } = usePage();
@@ -80,6 +81,7 @@ export default function ExamCatalog() {
         // Substitui o ID temporário pelo ID real gerado pelo banco
         setExames((prev) => prev.map((e) => (e.id === tempId ? response.data.exame : e)));
       }
+      toast.success(isEditing ? 'Exame atualizado com sucesso!' : 'Exame cadastrado com sucesso!');
     } catch (error) {
       // Reverte a alteração visual em caso de falha na API
       setExames((prev) => 
@@ -92,10 +94,10 @@ export default function ExamCatalog() {
       if (error.response?.status === 422) {
         const validationErrors = error.response.data.errors;
         const messages = Object.values(validationErrors).flat().join('\n');
-        alert('Erros de validação:\n' + messages);
+        toast.error('Erros de validação: ' + messages);
       } else {
         console.error(error);
-        alert('Erro ao salvar exame. Verifique o console para mais detalhes.');
+        toast.error('Erro ao salvar exame. Verifique o console para mais detalhes.');
       }
     }
   };
@@ -109,13 +111,14 @@ export default function ExamCatalog() {
 
       try {
         await axios.delete(`/lab/exams/${id}`);
+        toast.success('Exame excluído com sucesso!');
       } catch (error) {
         // Reverte a exclusão caso a API falhe
         if (itemToDelete) {
           setExames((prev) => [...prev, itemToDelete]);
         }
         console.error(error);
-        alert('Erro ao excluir exame.');
+        toast.error('Erro ao excluir exame.');
       }
     }
   };
@@ -169,8 +172,8 @@ export default function ExamCatalog() {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleSave}>{editItem ? 'Salvar' : 'Cadastrar'}</Button>
               <DialogClose setOpen={setDialogOpen}>Cancelar</DialogClose>
+              <Button onClick={handleSave}>{editItem ? 'Salvar' : 'Cadastrar'}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

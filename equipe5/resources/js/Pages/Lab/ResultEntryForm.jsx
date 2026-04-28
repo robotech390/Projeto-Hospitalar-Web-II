@@ -10,6 +10,7 @@ import StatusBadge from './components/StatusBadge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './components/Dialog';
 import { Search, Upload, FileText, CheckCircle } from 'lucide-react';
 import AppLayout from './components/AppLayout';
+import { toast } from './toast';
 
 
 export default function ResultEntryForm({ orders = [] }) {
@@ -58,9 +59,10 @@ export default function ResultEntryForm({ orders = [] }) {
       // Atualização Otimista
       setExamOrders(prev => prev.filter(o => o.id !== selected.id));
       setDialogOpen(false);
+      toast.success('Resultado salvo com sucesso!');
     } catch (error) {
       console.error(error);
-      alert('Erro ao salvar resultado. Verifique os dados e tente novamente.');
+      toast.error('Erro ao salvar resultado. Verifique os dados e tente novamente.');
     } finally {
       setIsSubmitting(false);
     }

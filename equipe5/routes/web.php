@@ -1,22 +1,10 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('lab.dashboard');
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 
 // Rotas do módulo Laboratório e Exames
@@ -29,14 +17,7 @@ Route::get('/lab/collection-queue', [\App\Http\Controllers\LabModuleController::
 Route::get('/lab/result-entry', [\App\Http\Controllers\LabModuleController::class, 'resultEntryForm'])->name('lab.resultEntry');
 Route::post('/lab/result-entry/{id}', [\App\Http\Controllers\LabModuleController::class, 'updateResultEntry'])->name('lab.resultEntry.update');
 Route::get('/lab/exam-status', [\App\Http\Controllers\LabModuleController::class, 'examStatus'])->name('lab.examStatus');
-
-
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-});
-
-require __DIR__.'/auth.php';
+Route::get('/lab/solicitations', [\App\Http\Controllers\LabModuleController::class, 'examSolicitations'])->name('lab.solicitations');
+Route::post('/lab/solicitations', [\App\Http\Controllers\LabModuleController::class, 'storeSolicitation'])->name('lab.solicitations.store');
+Route::post('/lab/solicitations/update/{id}', [\App\Http\Controllers\LabModuleController::class, 'updateSolicitation'])->name('lab.solicitations.update');
+Route::post('/lab/solicitations/delete/{id}', [\App\Http\Controllers\LabModuleController::class, 'deleteSolicitation'])->name('lab.solicitations.delete');

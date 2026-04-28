@@ -53,6 +53,12 @@ export default function AppLayout({ children }) {
               url={url}
             />
             <SidebarItem
+              href="/lab/solicitations"
+              icon={<ClipboardList className="h-5 w-5" />}
+              label="Solicitações de Exame"
+              url={url}
+            />
+            <SidebarItem
               href="/lab/collection-queue"
               icon={<ClipboardList className="h-5 w-5" />}
               label="Fila de Coleta"
