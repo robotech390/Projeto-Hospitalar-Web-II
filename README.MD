@@ -13,3 +13,23 @@ Aqui vai uma lista de frameworks e bibliotecas padrões para utilizarmos, isso s
     Documentação Obrigatória: L5-Swagger
 
     Design: Tailwind CSS.
+
+EQUIPE 3
+
+para iniciar projeto
+-> C:\php precisa ser versao 8.3 ou maior
+-> Em php.ini precisa remover o ; (comentário) das extensões:
+extension=curl
+extension=fileinfo
+extension=mbstring
+extension=mysqli
+extension=openssl
+extension=pdo_mysql
+extension=sqlite3
+extension=zip
+
+-> Editar arquivo.env na pasta principal para incluir mysql com as informações do banco de dados (.env é gitignore, precisa adicionar/editar o arquivo depois de clonar)
+
+-> Executar na pasta: php artisan serve
+
+-> Depois só acessar http://localhost:8000
