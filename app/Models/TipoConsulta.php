@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TipoConsulta extends Model
+{
+    protected $table = 'tipo_consulta';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
+
+    protected $fillable = [
+        'descricao',
+        'valor',
+    ];
+}
