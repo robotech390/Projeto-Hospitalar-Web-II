@@ -8,10 +8,14 @@ use App\Http\Requests\ConsultaRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+//id, descricao(varchar), data(date), hora_inicio(time), hora_fim(time), data_check_in(datetime), status(varchar), id_tipo_consulta(int), id_paciente(int), id_medico(int)
 class ConsultaController extends Controller
 {
+    public function index(){
+        return view('prontuario.consultas');
+    }
     // GET /api/consultas
-    public function index(Request $request): JsonResponse
+    /*public function index(Request $request): JsonResponse
     {
         $query = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame']);
 
@@ -40,7 +44,7 @@ class ConsultaController extends Controller
                 'last_page'    => $consultas->lastPage(),
             ],
         ]);
-    }
+    }*/
 
     // POST /api/consultas
     public function store(ConsultaRequest $request): JsonResponse

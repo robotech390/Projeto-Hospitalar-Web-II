@@ -1,14 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ConsultaController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/consultas', function () {
-    return view('consultas');
-});
-Route::get('/consultas/form', function () {
-    return view('consultaForm');
-});
+Route::get('/consultas', [ConsultaController::class, 'index'])->name('consultas.index');
+Route::get('/consultas/form', [ConsultaController::class, 'create'])->name('consultas.form');
