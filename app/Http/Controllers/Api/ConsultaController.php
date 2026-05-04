@@ -14,46 +14,19 @@ use App\Models\Medico;
 //id, descricao(varchar), data(date), hora_inicio(time), hora_fim(time), data_check_in(datetime), status(varchar), id_tipo_consulta(int), id_paciente(int), id_medico(int)
 class ConsultaController extends Controller
 {
+    // GET /api/consultas
     public function index(){
         $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame'])->get();
         return view('prontuario.consultas', compact('consultas'));
     }
-    // GET /api/consultas
-    /*public function index(Request $request): JsonResponse
-    {
-        $query = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame']);
 
-        if ($request->filled('id_paciente')) {
-            $query->where('id_paciente', $request->id_paciente);
-        }
-        if ($request->filled('id_medico')) {
-            $query->where('id_medico', $request->id_medico);
-        }
-        if ($request->filled('data')) {
-            $query->whereDate('data', $request->data);
-        }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $consultas = $query->orderBy('data')->orderBy('hora_inicio')->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data'    => $consultas->items(),
-            'meta'    => [
-                'total'        => $consultas->total(),
-                'per_page'     => $consultas->perPage(),
-                'current_page' => $consultas->currentPage(),
-                'last_page'    => $consultas->lastPage(),
-            ],
-        ]);
-    }*/
-
+    // GET /api/consultas/form
     public function create(){
         $tipos_consulta = TipoConsulta::all();
-        $pacientes = Pessoa::all();
-        $medicos = Medico::with('pessoa')->get();
+        //Exclui pessoas que são médicos da lista de pacientes
+        $medicoPessoaIds = Medico::pluck('id_pessoa');//pluck retorna uma coleção de IDs de pessoas que são médicos
+        $pacientes = Pessoa::whereNotIn('id', $medicoPessoaIds)->get();//Retorna pessoas que não são médicos, ou seja, pacientes
+        $medicos = Medico::with('pessoa')->get();//Retorna médicos com seus dados de pessoa relacionados
         return view('prontuario.consultaForm', compact('tipos_consulta', 'pacientes', 'medicos'));
     }
 
@@ -107,7 +80,7 @@ class ConsultaController extends Controller
         $consulta = Consulta::findOrFail($id);
         $consulta->delete();
 
-        return view('prontuario.consultas')->with('success', 'Consulta deletada com sucesso.');
+        return redirect()->route('consultas.index')->with('success', 'Consulta deletada com sucesso.');
     }
 
     // GET /api/consultas/fila/hoje?id_medico=X
