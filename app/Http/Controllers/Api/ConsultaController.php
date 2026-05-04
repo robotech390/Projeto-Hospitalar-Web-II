@@ -14,6 +14,9 @@ class ConsultaController extends Controller
     public function index(){
         return view('prontuario.consultas');
     }
+    public function create(){
+        return view('prontuario.consultaForm');
+    }
     // GET /api/consultas
     /*public function index(Request $request): JsonResponse
     {

@@ -9,3 +9,4 @@ Route::get('/', function () {
 
 Route::get('/consultas', [ConsultaController::class, 'index'])->name('consultas.index');
 Route::get('/consultas/form', [ConsultaController::class, 'create'])->name('consultas.form');
+Route::post('/consultas', [ConsultaController::class, 'store'])->name('consultas.store');

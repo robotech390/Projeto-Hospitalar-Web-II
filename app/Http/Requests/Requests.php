@@ -31,8 +31,23 @@ class ConsultaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'hora_fim.after' => 'O horário de fim deve ser posterior ao horário de início.',
-            'status.in'      => 'Status inválido. Use: agendada, em_espera, em_andamento, concluida, cancelada.',
+            'data.required'             => 'A data da consulta é obrigatória.',
+            'data.date'                 => 'A data da consulta deve ser uma data válida.',
+            'hora_inicio.required'      => 'A hora de início da consulta é obrigatória.',
+            'hora_inicio.date_format'   => 'A hora de início deve estar no formato Y-m-d H:i:s.',
+            'hora_fim.required'         => 'A hora de término da consulta é obrigatória.',
+            'hora_fim.date_format'      => 'A hora de término deve estar no formato Y-m-d H:i:s.',
+            'hora_fim.after'            => 'A hora de término deve ser posterior à hora de início.',
+            'id_tipo_consulta.required' => 'O tipo da consulta é obrigatório.',
+            'id_tipo_consulta.integer'  => 'O tipo da consulta deve ser um número inteiro.',
+            'id_paciente.required'      => 'O paciente é obrigatório.',
+            'id_paciente.integer'       => 'O paciente deve ser um número inteiro.',
+            'id_medico.required'        => 'O médico é obrigatório.',
+            'id_medico.integer'         => 'O médico deve ser um número inteiro.',
+            'descricao.string'          => 'A descrição deve ser uma string.',
+            'descricao.max'             => 'A descrição não pode exceder 1000 caracteres.',
+            'status.in'                => 'Status inválido. Use agendada, em_espera, em_andamento, concluida ou cancelada.',
+            'data_check_in.date_format' => 'A data de check-in deve estar no formato Y-m-d H:i:s.',
         ];
     }
 
