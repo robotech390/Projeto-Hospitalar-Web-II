@@ -7,15 +7,16 @@ use App\Models\Consulta;
 use App\Http\Requests\ConsultaRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\TipoConsulta;
+use App\Models\Pessoa;
+use App\Models\Medico;
 
 //id, descricao(varchar), data(date), hora_inicio(time), hora_fim(time), data_check_in(datetime), status(varchar), id_tipo_consulta(int), id_paciente(int), id_medico(int)
 class ConsultaController extends Controller
 {
     public function index(){
-        return view('prontuario.consultas');
-    }
-    public function create(){
-        return view('prontuario.consultaForm');
+        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame'])->get();
+        return view('prontuario.consultas', compact('consultas'));
     }
     // GET /api/consultas
     /*public function index(Request $request): JsonResponse
@@ -49,16 +50,27 @@ class ConsultaController extends Controller
         ]);
     }*/
 
-    // POST /api/consultas
-    public function store(ConsultaRequest $request): JsonResponse
-    {
-        $consulta = Consulta::create($request->validated());
+    public function create(){
+        $tipos_consulta = TipoConsulta::all();
+        $pacientes = Pessoa::all();
+        $medicos = Medico::with('pessoa')->get();
+        return view('prontuario.consultaForm', compact('tipos_consulta', 'pacientes', 'medicos'));
+    }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Consulta criada com sucesso.',
-            'data'    => $consulta,
-        ], 201);
+    // POST /api/consultas
+    public function store(ConsultaRequest $request)
+    {
+        $data = $request->validated();
+        $data['data_criacao'] = now();
+        if (isset($data['hora_inicio'])) {
+            $data['hora_inicio'] = $data['data'] . ' ' . $data['hora_inicio'] . ':00';
+        }
+        if (isset($data['hora_fim'])) {
+            $data['hora_fim'] = $data['data'] . ' ' . $data['hora_fim'] . ':00';
+        }
+        $consulta = Consulta::create($data);
+
+        return redirect('/consultas')->with('success', 'Consulta criada com sucesso.');
     }
 
     // GET /api/consultas/{id}
@@ -90,15 +102,12 @@ class ConsultaController extends Controller
     }
 
     // DELETE /api/consultas/{id}
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id)
     {
         $consulta = Consulta::findOrFail($id);
         $consulta->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Consulta removida com sucesso.',
-        ]);
+        return view('prontuario.consultas')->with('success', 'Consulta deletada com sucesso.');
     }
 
     // GET /api/consultas/fila/hoje?id_medico=X

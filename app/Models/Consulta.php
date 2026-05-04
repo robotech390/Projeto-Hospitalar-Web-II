@@ -3,20 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Consulta extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'consulta';
+
+    const CREATED_AT = 'data_criacao';
+    const UPDATED_AT = 'data_alteracao';
 
     protected $fillable = [
         'descricao',
         'data',
+        'data_check_in',
         'hora_inicio',
         'hora_fim',
-        'data_check_in',
         'status',
         'id_tipo_consulta',
         'id_paciente',
@@ -25,6 +25,8 @@ class Consulta extends Model
 
     protected $casts = [
         'data'          => 'date',
+        'data_criacao'  => 'datetime',
+        'data_alteracao'=> 'datetime',
         'hora_inicio'   => 'datetime',
         'hora_fim'      => 'datetime',
         'data_check_in' => 'datetime',

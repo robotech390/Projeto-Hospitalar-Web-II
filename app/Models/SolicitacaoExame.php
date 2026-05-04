@@ -3,12 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SolicitacaoExame extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'solicitacao_exame';
 
     protected $fillable = ['data', 'justificativa', 'prioridade', 'id_consulta'];

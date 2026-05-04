@@ -8,6 +8,7 @@
 <body>
     <!-- lista de consultas com botões para deletar cada uma e botão para criar novas -->
     <h1>Lista de Consultas</h1>
+    
     <table>
         <thead>
             <tr>
