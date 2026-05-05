@@ -74,7 +74,9 @@
         <label for="id_medico">Médico:</label>
         <select id="id_medico" name="id_medico" required>
             @foreach($medicos as $medico)
-                <option value="{{ $medico->id }}" {{ $isEditing && $consulta->id_medico === $medico->id ? 'selected' : '' }}>{{ $medico->pessoa->nome }}</option>
+                @if($medico->pessoa)
+                    <option value="{{ $medico->id }}" {{ $isEditing && $consulta->id_medico === $medico->id ? 'selected' : '' }}>{{ $medico->pessoa->nome }}</option>
+                @endif
             @endforeach
         </select><br><br>
 

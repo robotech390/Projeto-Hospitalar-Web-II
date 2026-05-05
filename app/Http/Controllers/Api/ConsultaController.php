@@ -16,7 +16,7 @@ class ConsultaController extends Controller
 {
     // GET /api/consultas
     public function index(){
-        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame'])->get();
+        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente'])->get();
         return view('prontuario.consultas', compact('consultas'));
     }
 

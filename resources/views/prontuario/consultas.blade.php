@@ -14,6 +14,8 @@
             <tr>
                 <th>ID</th>
                 <th>Descrição</th>
+                <th>Paciente</th>
+                <th>Medico</th>
                 <th>Data</th>
                 <th>Hora Início</th>
                 <th>Hora Fim</th>
@@ -26,9 +28,11 @@
                 <tr>
                     <td>{{ $consulta->id }}</td>
                     <td>{{ $consulta->descricao }}</td>
-                    <td>{{ $consulta->data }}</td>
-                    <td>{{ $consulta->hora_inicio }}</td>
-                    <td>{{ $consulta->hora_fim }}</td>
+                    <td>{{ $consulta->paciente->nome ?? 'N/A' }}</td>
+                    <td>{{ $consulta->medico->pessoa->nome ?? 'N/A' }}</td>
+                    <td>{{ $consulta->data->format('d/m/Y') }}</td>
+                    <td>{{ $consulta->hora_inicio->format('H:i:s') }}</td>
+                    <td>{{ $consulta->hora_fim->format('H:i:s') }}</td>
                     <td>{{ $consulta->status }}</td>
                     <td>
                         <!-- botão para editar consulta -->

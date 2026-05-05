@@ -46,4 +46,14 @@ class Consulta extends Model
     {
         return $this->hasMany(SolicitacaoExame::class, 'id_consulta');
     }
+
+    public function paciente()
+    {
+        return $this->belongsTo(Pessoa::class, 'id_paciente');
+    }
+
+    public function medico()
+    {
+        return $this->belongsTo(Medico::class, 'id_medico');
+    }
 }
