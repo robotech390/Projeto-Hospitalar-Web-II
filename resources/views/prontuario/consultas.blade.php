@@ -31,6 +31,8 @@
                     <td>{{ $consulta->hora_fim }}</td>
                     <td>{{ $consulta->status }}</td>
                     <td>
+                        <!-- botão para editar consulta -->
+                        <button><a href="{{ route('consultas.edit', $consulta->id) }}">Editar</a></button>
                         <!-- botão para deletar consulta -->
                         <form action="{{ route('consultas.destroy', $consulta->id) }}" method="POST">
                             @csrf

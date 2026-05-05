@@ -30,6 +30,17 @@ class ConsultaController extends Controller
         return view('prontuario.consultaForm', compact('tipos_consulta', 'pacientes', 'medicos'));
     }
 
+    // GET /api/consultas/{id}/edit
+    public function edit(int $id){
+        $consulta = Consulta::findOrFail($id);
+        $tipos_consulta = TipoConsulta::all();
+        $medicoPessoaIds = Medico::pluck('id_pessoa');
+        $pacientes = Pessoa::whereNotIn('id', $medicoPessoaIds)->get();
+        $medicos = Medico::with('pessoa')->get();
+        
+        return view('prontuario.consultaForm', compact('consulta', 'tipos_consulta', 'pacientes', 'medicos'));
+    }
+
     // POST /api/consultas
     public function store(ConsultaRequest $request)
     {
@@ -47,7 +58,7 @@ class ConsultaController extends Controller
     }
 
     // GET /api/consultas/{id}
-    public function show(int $id): JsonResponse
+    public function show(int $id)
     {
         $consulta = Consulta::with([
             'diagnosticos',
@@ -55,23 +66,16 @@ class ConsultaController extends Controller
             'solicitacoesExame.itens',
         ])->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data'    => $consulta,
-        ]);
+        return view('consultas.index', compact('consulta'));
     }
 
     // PUT /api/consultas/{id}
-    public function update(ConsultaRequest $request, int $id): JsonResponse
+    public function update(ConsultaRequest $request, int $id)
     {
         $consulta = Consulta::findOrFail($id);
         $consulta->update($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Consulta atualizada com sucesso.',
-            'data'    => $consulta,
-        ]);
+        return redirect()->route('consultas.index')->with('success', 'Consulta atualizada com sucesso.');
     }
 
     // DELETE /api/consultas/{id}
