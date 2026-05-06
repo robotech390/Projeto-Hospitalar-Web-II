@@ -19,11 +19,11 @@ class TipoCobrancaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nome' => 'required|string|max:255',
+            'descricao' => 'required|string|max:255',
         ]);
 
         $data = $request->all();
-        $data['descricao'] = strtolower($data['email']);
+        $data['descricao'] = strtolower($data['descricao']);
 
         TipoCobranca::create($data);
 
