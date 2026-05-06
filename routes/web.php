@@ -24,20 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/faturamento/convenio', function () {
-        return Inertia::render('Faturamento/Convenio');
-    })->name('convenio');
-
-    // Route::post('faturamento/convenio', [ConvenioController::class, 'store']);
-
-    Route::get('/faturamento/plano', function () {
-        return Inertia::render('Faturamento/Plano');
-    })->name('plano');
-
-    Route::get('/faturamento/tipo-cobranca', function () {
-        return Inertia::render('Faturamento/TipoCobranca');
-    })->name('tipo-cobranca');
+    Route::get('/faturamento/convenio', [ConvenioController::class, 'index'])->name('convenio');
+    Route::post('/faturamento/convenio', [ConvenioController::class, 'store']);
+    Route::put('/faturamento/convenio/{convenio}', [ConvenioController::class, 'update']);
+    Route::delete('/faturamento/convenio/{convenio}', [ConvenioController::class, 'destroy']);
 
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
