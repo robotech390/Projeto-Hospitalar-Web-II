@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Faturamento/Convenio');
     })->name('convenio');
 
+    // Route::post('faturamento/convenio', [ConvenioController::class, 'store']);
+
     Route::get('/faturamento/plano', function () {
         return Inertia::render('Faturamento/Plano');
     })->name('plano');
