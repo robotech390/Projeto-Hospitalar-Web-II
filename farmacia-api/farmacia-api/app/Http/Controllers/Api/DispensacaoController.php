@@ -5,46 +5,74 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Lote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DispensacaoController extends Controller
 {
-    public function index()
+    public function show($id)
     {
-        // Só retorna lotes que estejam ativos E que tenham estoque real
-        return response()->json(
-            Lote::with('medicamento')
-                ->where('ativo', 1) 
-                ->where('quantidade_produtos', '>', 0)
-                ->get()
-        );
+        // 1. Busca na tabela medicamento_receita e cruza com medicamento
+        $itemReceita = DB::table('medicamento_receita')
+            ->join('medicamento', 'medicamento_receita.id_medicamento', '=', 'medicamento.id')
+            ->where('medicamento_receita.id', $id)
+            ->select(
+                'medicamento_receita.id as id_item',
+                'medicamento_receita.quantidade as qtd_receitada',
+                // Removida a busca pelo 'status' que estava quebrando o código
+                'medicamento.nome as nome_medicamento',
+                'medicamento.id as id_medicamento'
+            )->first();
+
+        if (!$itemReceita) {
+            return response()->json(['erro' => 'Item não encontrado na tabela medicamento_receita.'], 404);
+        }
+
+        // 2. Busca o lote ideal (Vence primeiro e tem estoque)
+        $lote = Lote::where('id_medicamento', $itemReceita->id_medicamento)
+            ->where('ativo', 1)
+            ->where('quantidade_produtos', '>=', $itemReceita->qtd_receitada)
+            ->orderBy('data_validade', 'asc')
+            ->first();
+
+        if (!$lote) {
+            return response()->json(['erro' => 'Não há lotes com estoque suficiente para a quantidade solicitada.'], 400);
+        }
+
+        return response()->json([
+            'id_item_receita' => $itemReceita->id_item,
+            'medicamento' => $itemReceita->nome_medicamento,
+            'qtd_receitada' => $itemReceita->qtd_receitada,
+            'lote' => [
+                'id' => $lote->id,
+                'numero' => $lote->numero,
+                'estoque_atual' => $lote->quantidade_produtos
+            ]
+        ]);
     }
 
     public function store(Request $request)
     {
-        try {
+        return DB::transaction(function () use ($request) {
             $lote = Lote::find($request->id_lote);
 
             if (!$lote || $lote->ativo == 0) {
-                return response()->json(['erro' => 'Lote não encontrado ou já desativado'], 404);
+                return response()->json(['erro' => 'Lote inválido ou inativo'], 404);
             }
 
             if ($lote->quantidade_produtos < $request->quantidade) {
-                return response()->json(['erro' => 'Estoque insuficiente no lote'], 400);
+                return response()->json(['erro' => 'Estoque físico insuficiente no lote'], 400);
             }
 
-            // Realiza a subtração
+            // Decrementa o estoque
             $lote->quantidade_produtos -= $request->quantidade;
-
-            // REGRA: Se zerar o estoque, passa o ativo para 0
             if ($lote->quantidade_produtos <= 0) {
                 $lote->ativo = 0;
             }
-
             $lote->save();
 
-            return response()->json(['mensagem' => 'Dispensação realizada com sucesso!']);
-        } catch (\Exception $e) {
-            return response()->json(['erro' => $e->getMessage()], 500);
-        }
+            // Removida a atualização do 'status' no banco de dados
+
+            return response()->json(['mensagem' => 'Dispensação confirmada e estoque atualizado!']);
+        });
     }
 }

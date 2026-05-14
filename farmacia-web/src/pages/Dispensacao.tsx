@@ -1,101 +1,97 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 export default function Dispensacao() {
-  const [prescricao, setPrescricao] = useState('');
-  const [idLoteSelecionado, setIdLoteSelecionado] = useState('');
-  const [quantidadeDesejada, setQuantidadeDesejada] = useState('');
-  const [lotes, setLotes] = useState<any[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [processando, setProcessando] = useState(false);
+  const [idBusca, setIdBusca] = useState('');
+  const [dados, setDados] = useState<any>(null);
+  const [carregando, setCarregando] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
 
-  const buscarLotes = () => {
+  const buscarDadosDispensacao = async () => {
+    if (!idBusca) return;
     setCarregando(true);
-    axios.get('http://localhost:8000/api/lotes-disponiveis')
-      .then(res => {
-        setLotes(res.data);
-        setCarregando(false);
-      })
-      .catch(() => {
-        setLotes([]);
-        setCarregando(false);
-      });
+    try {
+      const res = await axios.get(`http://localhost:8000/api/lote/${idBusca}`);
+      setDados(res.data);
+    } catch (err: any) {
+      alert(err.response?.data?.erro || "ID não encontrado.");
+      setDados(null);
+    } finally { 
+      setCarregando(false); 
+    }
   };
 
-  useEffect(() => { buscarLotes(); }, []);
-
-  const handleDispensar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setProcessando(true);
-    
+  const confirmarSaida = async () => {
+    setConfirmando(true);
     try {
-      const response = await axios.post('http://localhost:8000/api/dispensacao', {
-        id_lote: idLoteSelecionado,
-        quantidade: Number(quantidadeDesejada)
+      await axios.post('http://localhost:8000/api/dispensacao', {
+        id_lote: dados.lote.id,
+        quantidade: dados.qtd_receitada,
+        id_item_receita: dados.id_item_receita // Passa o ID para invalidar a receita
       });
-      
-      alert(response.data.mensagem);
-      setPrescricao('');
-      setIdLoteSelecionado('');
-      setQuantidadeDesejada('');
-      buscarLotes(); // Recarrega a lista (o lote zerado sumirá daqui pois o backend filtrará o 'ativo=0')
+      alert("Dispensação confirmada com sucesso!");
+      setDados(null);
+      setIdBusca('');
     } catch (err: any) {
-      alert(err.response?.data?.erro || "Falha na comunicação");
-    } finally {
-      setProcessando(false);
+      alert(err.response?.data?.erro || "Erro ao confirmar saída.");
+    } finally { 
+      setConfirmando(false); 
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-2xl font-semibold text-gray-700 mb-6">Dispensação de Medicamentos</h2>
+    <div className="bg-white rounded-lg shadow-sm p-6 max-w-5xl mx-auto">
+      <h2 className="text-2xl font-semibold text-gray-700 mb-6">Dispensação por Receita</h2>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <form onSubmit={handleDispensar} className="space-y-4 bg-gray-50 p-6 rounded border">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ID da Prescrição Médica</label>
-            <input type="text" required value={prescricao} onChange={e => setPrescricao(e.target.value)} className="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[var(--color-brand-light)]" placeholder="Ex: PRES-99812" />
-          </div>
+      <div className="flex gap-4 mb-8 bg-gray-50 p-4 rounded border">
+        <input 
+          type="number" 
+          placeholder="Digite o ID do Item da Receita..." 
+          className="flex-1 border p-3 rounded shadow-sm outline-none focus:ring-2 focus:ring-blue-400"
+          value={idBusca}
+          onChange={e => setIdBusca(e.target.value.replace(/\D/g, ''))} // Apenas números
+        />
+        <button 
+          onClick={buscarDadosDispensacao}
+          disabled={carregando || !idBusca}
+          className="bg-[var(--color-brand-dark)] text-white px-8 py-2 rounded font-bold shadow disabled:bg-gray-400"
+        >
+          {carregando ? 'Buscando...' : 'Buscar Receita'}
+        </button>
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Medicamento (Lote Ativo)</label>
-            <select 
-              required 
-              value={idLoteSelecionado} 
-              onChange={e => setIdLoteSelecionado(e.target.value)} 
-              className="w-full border rounded px-3 py-2 bg-white outline-none"
-            >
-              <option value="">{carregando ? 'Carregando lotes...' : 'Selecione um lote...'}</option>
-              {lotes.map(lote => (
-                <option key={lote.id} value={lote.id}>
-                  {/* Mostra o ID do Medicamento + Nome + Lote para facilitar a conferência */}
-                  ID {lote.id_medicamento} - {lote.medicamento?.nome || 'ERRO: Med. não encontrado'} - Lote: {lote.numero} (Qtd: {lote.quantidade_produtos})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
-            <input type="number" required min="1" value={quantidadeDesejada} onChange={e => setQuantidadeDesejada(e.target.value)} className="w-full border rounded px-3 py-2 outline-none" />
-          </div>
+      {dados && (
+        <div className="animate-in fade-in duration-500 border p-6 rounded-lg">
+          <h3 className="font-bold text-lg mb-4 text-gray-700">Resumo da Liberação</h3>
+          <table className="w-full border-collapse mb-8 text-left">
+            <thead>
+              <tr className="bg-gray-200 text-gray-700 text-sm">
+                <th className="p-3">Medicamento</th>
+                <th className="p-3">Qtd. Solicitada</th>
+                <th className="p-3">Lote Alocado (Automático)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b text-sm">
+                <td className="p-3">{dados.medicamento}</td>
+                <td className="p-3 font-bold text-blue-600">{dados.qtd_receitada} und.</td>
+                <td className="p-3">
+                  <span className="block font-medium">Nº: {dados.lote.numero}</span>
+                  <span className="text-xs text-gray-500">Estoque atual: {dados.lote.estoque_atual}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <button 
-            type="submit" 
-            disabled={processando || lotes.length === 0}
-            className="w-full bg-[var(--color-brand-dark)] text-white px-4 py-3 rounded shadow hover:bg-opacity-90 transition font-semibold disabled:bg-gray-400 flex items-center justify-center"
+            onClick={confirmarSaida}
+            disabled={confirmando}
+            className="w-full bg-green-600 text-white py-4 rounded font-bold shadow-lg hover:bg-green-700 transition uppercase disabled:bg-gray-400"
           >
-            {processando ? 'Processando baixa...' : 'Confirmar Saída de Estoque'}
+            {confirmando ? 'BAIXANDO ESTOQUE...' : 'CONFIRMAR ENTREGA DO MEDICAMENTO'}
           </button>
-        </form>
-
-        <div className="bg-blue-50 p-6 rounded border border-blue-100">
-          <h3 className="text-lg font-medium text-blue-800 mb-2">Regra de Negócio Automática</h3>
-          <p className="text-sm text-blue-700 leading-relaxed">
-            Ao confirmar a dispensação, o sistema subtrai a quantidade do banco de dados. Caso o saldo chegue a zero, o lote é automaticamente marcado como <strong>Inativo (ativo = 0)</strong> e não aparecerá mais nesta listagem.
-          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 }
