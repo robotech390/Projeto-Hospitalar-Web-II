@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'microservices' => [
+        'users' => env('USERS_MICROSERVICE_URL'),
+        'auth' => env('AUTH_MICROSERVICE_URL'),
+        'logs' => env('LOGS_MICROSERVICE_URL'),
+    ],
+
 ];
