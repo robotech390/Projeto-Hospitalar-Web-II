@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ConvenioController;
+use App\Http\Controllers\PlanoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/faturamento/convenio', [ConvenioController::class, 'store']);
     Route::put('/faturamento/convenio/{convenio}', [ConvenioController::class, 'update']);
     Route::delete('/faturamento/convenio/{convenio}', [ConvenioController::class, 'destroy']);
+
+    Route::get('/faturamento/plano', [PlanoController::class, 'index'])->name('plano');
+    Route::post('/faturamento/plano', [PlanoController::class, 'store']);
+    Route::put('/faturamento/plano/{plano}', [PlanoController::class, 'update']);
+    Route::delete('/faturamento/plano/{plano}', [PlanoController::class, 'destroy']);
 
 });
 
