@@ -27,6 +27,7 @@ extension=openssl
 extension=pdo_mysql
 extension=sqlite3
 extension=zip
+extension=iconv
 
 -> Editar arquivo.env na pasta principal para incluir mysql com as informações do banco de dados (.env é gitignore, precisa adicionar/editar o arquivo depois de clonar)
 APP_NAME=Laravel

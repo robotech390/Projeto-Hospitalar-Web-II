@@ -11,7 +11,26 @@ use Illuminate\Http\JsonResponse;
 
 class ReceitaController extends Controller
 {
-    // GET /api/consultas/{idConsulta}/receitas
+    /**
+     * @OA\Get(
+     *     path="/api/consultas/{idConsulta}/receitas",
+     *     tags={"Receita"},
+     *     summary="Obter todas as receitas de uma consulta",
+     *     description="Retorna todas as receitas de uma consulta específica com base no ID fornecido.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="path",
+     *         description="ID da consulta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Receitas encontradas com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     )
+     * )
+     */
     public function index(int $idConsulta): JsonResponse
     {
         $receitas = Receita::with('medicamentos')
@@ -21,7 +40,35 @@ class ReceitaController extends Controller
         return response()->json(['success' => true, 'data' => $receitas]);
     }
 
-    // POST /api/consultas/{idConsulta}/receitas
+    /**
+     * @OA\POST(
+     *     path="/api/consultas/{idConsulta}/receitas",
+     *     tags={"Receita"},
+     *     summary="Criar uma nova receita",
+     *     description="Cria uma nova receita para uma consulta específica com base no ID fornecido.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="path",
+     *         description="ID da consulta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Receita criada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     )
+     * )
+     */
     public function store(ReceitaRequest $request, int $idConsulta): JsonResponse
     {
         $receita = Receita::create(
@@ -46,7 +93,33 @@ class ReceitaController extends Controller
         ], 201);
     }
 
-    // GET /api/consultas/{idConsulta}/receitas/{id}
+    /**
+     * @OA\Get(
+     *     path="/api/consultas/{idConsulta}/receitas/{id}",
+     *     tags={"Receita"},
+     *     summary="Obter detalhes de uma receita",
+     *     description="Retorna os detalhes de uma receita específica com base no ID fornecido.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="path",
+     *         description="ID da consulta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da receita",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Receita encontrada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     )
+     * )
+     */
     public function show(int $idConsulta, int $id): JsonResponse
     {
         $receita = Receita::with('medicamentos')
@@ -56,7 +129,42 @@ class ReceitaController extends Controller
         return response()->json(['success' => true, 'data' => $receita]);
     }
 
-    // PUT /api/consultas/{idConsulta}/receitas/{id}
+    /**
+     * @OA\Put(
+     *     path="/api/consultas/{idConsulta}/receitas/{id}",
+     *     tags={"Receita"},
+     *     summary="Atualizar uma receita existente",
+     *     description="Atualiza uma receita específica para uma consulta com base nos IDs fornecidos.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="path",
+     *         description="ID da consulta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da receita",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Receita atualizada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     )
+     * )
+     */
     public function update(ReceitaRequest $request, int $idConsulta, int $id): JsonResponse
     {
         $receita = Receita::where('id_consulta', $idConsulta)->findOrFail($id);
@@ -70,6 +178,33 @@ class ReceitaController extends Controller
     }
 
     // DELETE /api/consultas/{idConsulta}/receitas/{id}
+    /**
+     * @OA\Delete(
+     *     path="/api/consultas/{idConsulta}/receitas/{id}",
+     *     tags={"Receita"},
+     *     summary="Remover uma receita existente",
+     *     description="Remove uma receita específica para uma consulta com base nos IDs fornecidos.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="path",
+     *         description="ID da consulta",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da receita",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Receita removida com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     )
+     * )
+     */
     public function destroy(int $idConsulta, int $id): JsonResponse
     {
         $receita = Receita::where('id_consulta', $idConsulta)->findOrFail($id);
@@ -82,7 +217,37 @@ class ReceitaController extends Controller
         ]);
     }
 
-    // POST /api/consultas/{idConsulta}/receitas/{id}/medicamentos
+    /**
+     * @OA\POST(
+     *    path="/api/consultas/{idConsulta}/receitas/{id}/medicamentos",
+     *    tags={"Receita"},
+     *    summary="Adicionar um medicamento à receita",
+     *    description="Adiciona um medicamento a uma receita específica para uma consulta com base nos IDs fornecidos.",
+     *    @OA\Parameter(
+     *        name="idConsulta",
+     *        in="path",
+     *        description="ID da consulta",
+     *        required=true,
+     *        @OA\Schema(type="integer")
+     *    ),
+     *    @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        description="ID da receita",
+     *        required=true,
+     *        @OA\Schema(type="integer")
+     *    ),
+     *    @OA\RequestBody(
+     *        required=true,
+     *        @OA\JsonContent(ref="#/components/schemas/MedicamentoReceita")
+     *    ),
+     *    @OA\Response(
+     *        response=201,
+     *        description="Medicamento adicionado à receita com sucesso",
+     *        @OA\JsonContent(ref="#/components/schemas/MedicamentoReceita")
+     *    )
+     * )
+     */
     public function adicionarMedicamento(MedicamentoReceitaRequest $request, int $idConsulta, int $id): JsonResponse
     {
         $receita = Receita::where('id_consulta', $idConsulta)->findOrFail($id);
@@ -97,7 +262,40 @@ class ReceitaController extends Controller
         ], 201);
     }
 
-    // DELETE /api/consultas/{idConsulta}/receitas/{id}/medicamentos/{idItem}
+    /**
+     * @OA\Delete(
+     *    path="/api/consultas/{idConsulta}/receitas/{id}/medicamentos/{idItem}",
+     *    tags={"Receita"},
+     *    summary="Remover um medicamento da receita",
+     *    description="Remove um medicamento de uma receita específica para uma consulta com base nos IDs fornecidos.",
+     *    @OA\Parameter(
+     *        name="idConsulta",
+     *        in="path",
+     *        description="ID da consulta",
+     *        required=true,
+     *        @OA\Schema(type="integer")
+     *    ),
+     *    @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        description="ID da receita",
+     *        required=true,
+     *        @OA\Schema(type="integer")
+     *    ),
+     *    @OA\Parameter(
+     *        name="idItem",
+     *        in="path",
+     *        description="ID do medicamento na receita",
+     *        required=true,
+     *        @OA\Schema(type="integer")
+     *    ),
+     *    @OA\Response(
+     *        response=200,
+     *        description="Medicamento removido da receita com sucesso",
+     *        @OA\JsonContent(ref="#/components/schemas/MedicamentoReceita")
+     *    )
+     * )
+     */
     public function removerMedicamento(int $idConsulta, int $id, int $idItem): JsonResponse
     {
         $receita = Receita::where('id_consulta', $idConsulta)->findOrFail($id);

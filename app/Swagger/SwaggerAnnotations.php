@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Http\Controllers;
-
 /**
  * @OA\Info(
  *     title="Hospital API — Equipe 3: Prontuário eletrônico do paciente",
@@ -18,21 +16,10 @@ namespace App\Http\Controllers;
  * @OA\Tag(name="Consulta",       description="Registro de consultas, diagnósticos e evolução dos pacientes")
  * @OA\Tag(name="Receita",        description="Gerenciamento de receitas de medicamentos")
  * @OA\Tag(name="Exames",         description="Gerenciamento de pedidos de exames")
- * 
+ *
  * @OA\Schema(
  *     schema="RespostaErro",
  *     @OA\Property(property="mensagem", type="string", example="Dados inválidos."),
  *     @OA\Property(property="erros",    type="object")
  * )
  */
-abstract class Controller
-{
-    //
-}
-//Swagger Annotations for API Documentation
-/*
-php artisan l5-swagger:clear
-php artisan l5-swagger:generate
-
-http://127.0.0.1:8000/api/documentation
-*/
