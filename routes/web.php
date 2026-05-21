@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/pacientes', [AgendamentoController::class, 'pacientes'])->name('pacientes');
         Route::get('/disponibilidade', [AgendamentoController::class, 'disponibilidade'])->name('disponibilidade');
         Route::post('/agendamento', [AgendamentoController::class, 'store'])->name('agendamento.store');
+        Route::get('/agendamento/{id}/editar', [AgendamentoController::class, 'edit'])->name('agendamento.edit');
+        Route::put('/agendamento/{id}', [AgendamentoController::class, 'update'])->name('agendamento.update');
         Route::delete('/agendamento/{id}', [AgendamentoController::class, 'destroy'])->name('agendamento.destroy');
     });
 
