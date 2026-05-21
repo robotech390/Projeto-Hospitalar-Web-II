@@ -14,6 +14,26 @@ Aqui vai uma lista de frameworks e bibliotecas padrões para utilizarmos, isso s
 
     Design: Tailwind CSS.
 
+API:
+Rotas web:
+GET    /consultas                                       retorna a view com a lista de consultas através do método index de ConsultaController
+GET    /consultas/form                                  retorna a view com o formulário para criar uma nova consulta através do método create de ConsultaController
+POST   /consultas                                       recebe os dados do formulário e salva a nova consulta no banco de dados através do método store
+DELETE /consultas/{consulta}                            recebe o id da consulta a ser deletada e remove do banco de dados através do método destroy
+GET    /consultas/{consulta}                            recebe o id da consulta e retorna a view com os detalhes da consulta através do método show
+GET    /consultas/{consulta}/edit                       recebe o id da consulta e retorna a view com o formulário para editar a consulta através do método edit
+PUT    /consultas/{consulta}                            recebe os dados do formulário de edição e atualiza a consulta no banco de dados através do método update
+
+Rotas api:
+GET    consultas/fila/hoje                              retorna a lista de consultas agendadas para o dia atual, incluindo os detalhes de cada consulta (diagnósticos, receitas e solicitações de exame)
+GET    pacientes/{idPaciente}/historico                 retorna o histórico de consultas de um paciente específico através do método historico
+
+GET    consultas/{idConsulta}/receitas                  retorna a lista de receitas associadas à consulta
+GET    consultas/{idConsulta}/receitas/{id}             retorna os detalhes da receita, incluindo os medicamentos prescritos
+
+GET    consultas/{idConsulta}/solicitacoes-exame        lista as solicitações de exame de uma consulta
+GET    consultas/{idConsulta}/solicitacoes-exame/{id}   retorna a solicitação de exame com os detalhes, incluindo os itens solicitados
+
 EQUIPE 3
 
 para iniciar projeto
@@ -29,73 +49,11 @@ extension=sqlite3
 extension=zip
 extension=iconv
 
--> Editar arquivo.env na pasta principal para incluir mysql com as informações do banco de dados (.env é gitignore, precisa adicionar/editar o arquivo depois de clonar)
-APP_NAME=Laravel
-APP_ENV=local
-APP_KEY=base64:SqLDBA+JLuDN+dbcm+nNBzIBZLS8rcEJ7JzQS1adIBg=
-APP_DEBUG=true
-APP_URL=http://localhost
+-> Copiar arquivo .env.example e renomear para .env
 
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
-APP_FAKER_LOCALE=en_US
-
-APP_MAINTENANCE_DRIVER=file
-# APP_MAINTENANCE_STORE=database
-
-# PHP_CLI_SERVER_WORKERS=4
-
-BCRYPT_ROUNDS=12
-
-LOG_CHANNEL=stack
-LOG_STACK=single
-LOG_DEPRECATIONS_CHANNEL=null
-LOG_LEVEL=debug
-
-DB_CONNECTION=mysql
-DB_HOST=
-DB_PORT=
-DB_DATABASE=hospital
-DB_USERNAME=
-DB_PASSWORD=
-
-SESSION_DRIVER=database
-SESSION_LIFETIME=120
-SESSION_ENCRYPT=false
-SESSION_PATH=/
-SESSION_DOMAIN=null
-
-BROADCAST_CONNECTION=log
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=database
-
-CACHE_STORE=database
-# CACHE_PREFIX=
-
-MEMCACHED_HOST=127.0.0.1
-
-REDIS_CLIENT=phpredis
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-
-MAIL_MAILER=log
-MAIL_SCHEME=null
-MAIL_HOST=127.0.0.1
-MAIL_PORT=2525
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_FROM_ADDRESS="hello@example.com"
-MAIL_FROM_NAME="${APP_NAME}"
-
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=
-AWS_USE_PATH_STYLE_ENDPOINT=false
-
-VITE_APP_NAME="${APP_NAME}"
+-> Editar arquivo .env na pasta principal para incluir mysql ao invés de sqlite com as informações do banco de dados (.env é gitignore, precisa adicionar/editar o arquivo depois de clonar)
 
 -> Executar na pasta: php artisan serve
 
 -> Depois só acessar http://localhost:8000
+    -> adicionar /consultas para acessar a lista de consultas
