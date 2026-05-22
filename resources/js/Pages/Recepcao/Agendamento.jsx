@@ -4,6 +4,7 @@ import RecepcaoLayout from '@/Layouts/RecepcaoLayout';
 import Calendario from '@/Components/Recepcao/Calendario';
 import SlotHorario from '@/Components/Recepcao/SlotHorario';
 import ModalConfirmacao from '@/Components/Recepcao/ModalConfirmacao';
+import ModalEdicao from '@/Components/Recepcao/ModalEdicao';
 
 export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
     const hoje = new Date();
@@ -23,6 +24,9 @@ export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
 
     const [modalAberto, setModalAberto] = useState(false);
     const [consultasDoDia, setConsultasDoDia] = useState([]);
+
+    const [modalEdicaoAberto, setModalEdicaoAberto] = useState(false);
+    const [consultaEmEdicao, setConsultaEmEdicao] = useState(null);
 
     useEffect(() => {
         fetch(route('recepcao.medicos'))
@@ -104,6 +108,11 @@ export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
         }
     }
 
+    function handleEditarConsulta(consulta) {
+        setConsultaEmEdicao(consulta);
+        setModalEdicaoAberto(true);
+    }
+
     const statusLabel = { agendado: 'Agendado', cancelado: 'Cancelado', realizado: 'Realizado' };
     const statusCor = {
         agendado: 'text-teal-700 bg-teal-50',
@@ -155,12 +164,20 @@ export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
                                             {statusLabel[c.status] ?? c.status}
                                         </span>
                                         {c.status === 'agendado' && (
-                                            <button
-                                                onClick={() => handleCancelarConsulta(c.id)}
-                                                className="text-red-500 hover:text-red-700 text-xs"
-                                            >
-                                                Cancelar
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleEditarConsulta(c)}
+                                                    className="text-teal-600 hover:text-teal-800 text-xs"
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    onClick={() => handleCancelarConsulta(c.id)}
+                                                    className="text-red-500 hover:text-red-700 text-xs"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -298,6 +315,18 @@ export default function Agendamento({ consultas = [], tiposConsulta = [] }) {
                 onClose={() => setModalAberto(false)}
                 onConfirm={handleConfirmar}
                 resumo={resumoAgendamento()}
+            />
+
+            <ModalEdicao
+                isOpen={modalEdicaoAberto}
+                onClose={() => {
+                    setModalEdicaoAberto(false);
+                    setConsultaEmEdicao(null);
+                }}
+                consulta={consultaEmEdicao}
+                medicos={medicos}
+                pacientes={pacientes}
+                tiposConsulta={tiposConsulta}
             />
         </RecepcaoLayout>
     );
