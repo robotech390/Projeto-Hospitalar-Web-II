@@ -19,12 +19,12 @@ Route::middleware('auth.jwt')->group(function () {
         return view('home');
     });
 
-    // ── CONSULTAS ─────────────────────────────────────────────────────────────
+    // -- CONSULTAS -----------------------------------------------------
     Route::get('consultas/fila/hoje',              [ConsultaController::class, 'fila']);
     Route::get('pacientes/{idPaciente}/historico', [ConsultaController::class, 'historico']);
     Route::apiResource('consultas', ConsultaController::class);
 
-    // ── DIAGNÓSTICOS ──────────────────────────────────────────────────────────
+    // -- DIAGNÓSTICOS --------------------------------------------------
     Route::prefix('consultas/{idConsulta}')->group(function () {
         Route::get('diagnosticos',         [DiagnosticoController::class, 'index']);
         Route::post('diagnosticos',        [DiagnosticoController::class, 'store']);
@@ -33,7 +33,7 @@ Route::middleware('auth.jwt')->group(function () {
         Route::delete('diagnosticos/{id}', [DiagnosticoController::class, 'destroy']);
     });
 
-    // ── RECEITAS ──────────────────────────────────────────────────────────────
+    // -- RECEITAS -----------------------------------------------------
     Route::prefix('consultas/{idConsulta}')->group(function () {
         Route::get('receitas',                               [ReceitaController::class, 'index']);
         Route::post('receitas',                              [ReceitaController::class, 'store']);
@@ -44,7 +44,7 @@ Route::middleware('auth.jwt')->group(function () {
         Route::delete('receitas/{id}/medicamentos/{idItem}', [ReceitaController::class, 'removerMedicamento']);
     });
 
-    // ── SOLICITAÇÕES DE EXAME ─────────────────────────────────────────────────
+    // -- SOLICITAÇÕES DE EXAME -----------------------------------------------------
     Route::prefix('consultas/{idConsulta}')->group(function () {
         Route::get('solicitacoes-exame',                          [SolicitacaoExameController::class, 'index']);
         Route::post('solicitacoes-exame',                         [SolicitacaoExameController::class, 'store']);
@@ -55,6 +55,17 @@ Route::middleware('auth.jwt')->group(function () {
         Route::delete('solicitacoes-exame/{id}/itens/{idItem}',   [SolicitacaoExameController::class, 'removerItem']);
     });
 
-    // ── RESULTADOS DE EXAME (leitura do Grupo 5) ──────────────────────────────
+    // -- RESULTADOS DE EXAME (leitura do Grupo 5) -------------------------
     Route::get('pacientes/{idPaciente}/resultados-exame', [SolicitacaoExameController::class, 'resultadosPaciente']);
+    // -- AGENDAMENTOS (leitura do Grupo 2) -------------------------
+    Route::get('pacientes/{idPaciente}/agendamentos', [ConsultaController::class, 'agendamentosPaciente']);
+    /*
+    Entrada: 
+        Lê agendamentos do Grupo 2: 
+        Lê resultados de exames do Grupo 5:
+    Saída: 
+        Envia a receita para o Grupo 4:
+        pedido de exame para o Grupo 5: 
+     * (essas rotas já estão definidas acima, dentro do prefixo 'consultas/{idConsulta}')
+    */
 });

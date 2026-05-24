@@ -10,191 +10,64 @@ use Illuminate\Http\JsonResponse;
 
 class DiagnosticoController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/consultas/{idConsulta}/diagnosticos",
-     *     tags={"Diagnóstico"},
-     *     summary="Obter diagnosticos de uma consulta",
-     *     description="Retorna os diagnosticos de uma consulta específica com base no ID fornecido.",
-     *     @OA\Parameter(
-     *         name="idConsulta",
-     *         in="path",
-     *         description="ID da consulta",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Diagnosticos encontrados com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Consulta não encontrada",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
-     */
-    public function index(int $idConsulta): JsonResponse
-    {
-        $diagnosticos = Diagnostico::where('id_consulta', $idConsulta)->get();
+    // ========== MÉTODOS WEB ==========
 
-        return response()->json(['success' => true, 'data' => $diagnosticos]);
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/api/diagnosticos",
-     *     tags={"Diagnóstico"},
-     *     summary="Obter todos os diagnosticos",
-     *     description="Retorna uma lista de todos os diagnosticos.",
-     *     @OA\Response(
-     *         response=200,
-     *         description="Diagnosticos encontrados com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     )
-     * )
-     */
-    public function diagnosticos()
+    // View: lista de diagnósticos (documentação OpenAPI mantida nas rotas API)
+    public function lista()
     {
         $diagnosticos = Diagnostico::with('consulta')->get();
         return view('prontuario.diagnosticos', compact('diagnosticos'));
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/diagnosticos/form",
-     *     tags={"Diagnóstico"},
-     *     summary="Exibir formulário para criar um novo diagnóstico",
-     *     description="Retorna a view do formulário para criar um novo diagnóstico.",
-     *     @OA\Parameter(
-     *         name="idConsulta",
-     *         in="query",
-     *         description="ID da consulta",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Formulário exibido com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     )
-     * )
-     */
-    public function diagnosticoForm(int $consultaId = null)
+    // View: formulário de diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function formulario(?int $consultaId = null)
     {
         $consultas = Consulta::all();
         $selectedConsulta = $consultaId;
-
         return view('prontuario.diagnosticoForm', compact('consultas', 'selectedConsulta'));
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/diagnosticos",
-     *     tags={"Diagnóstico"},
-     *     summary="Criar um novo diagnóstico",
-     *     description="Recebe os dados do formulário e salva um novo diagnóstico no banco de dados.",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Diagnóstico criado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Dados inválidos",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
-     */
-    public function diagnosticoStore(DiagnosticoRequest $request)
+    // Web: salvar diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function salvar(DiagnosticoRequest $request)
     {
-        $data = $request->validated();
-        $data['id_consulta'] = $request->input('id_consulta');
-
-        Diagnostico::create($data);
-
+        Diagnostico::create($request->validated());
         return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico criado com sucesso.');
     }
 
-    /** 
-     * @OA\Get(
-     *     path="/api/diagnosticos/{id}/edit",
-     *     tags={"Diagnóstico"},
-     *     summary="Exibir formulário para editar um diagnóstico",
-     *     description="Retorna a view do formulário para editar um diagnóstico específico com base no ID fornecido.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",         description="ID do diagnóstico",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Formulário exibido com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Diagnóstico não encontrado",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
-    */
-    public function diagnosticoEdit(int $id)
+    // View: detalhes de diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function mostrar(int $id)
+    {
+        $diagnostico = Diagnostico::with('consulta')->findOrFail($id);
+        return view('prontuario.diagnosticoDetalhes', compact('diagnostico'));
+    }
+
+    // View: editar diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function editar(int $id)
     {
         $diagnostico = Diagnostico::findOrFail($id);
         $consultas = Consulta::all();
-
         return view('prontuario.diagnosticoForm', compact('diagnostico', 'consultas'));
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/diagnosticos/{id}",
-     *     tags={"Diagnóstico"},
-     *     summary="Atualizar um diagnóstico existente",
-     *     description="Recebe os dados do formulário de edição e atualiza um diagnóstico específico no banco de dados com base no ID fornecido.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID do diagnóstico",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Diagnóstico atualizado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Dados inválidos",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Diagnóstico não encontrado",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
-     */
-    public function diagnosticoUpdate(DiagnosticoRequest $request, int $id)
+    // Web: atualizar diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function atualizar(DiagnosticoRequest $request, int $id)
     {
         $diagnostico = Diagnostico::findOrFail($id);
-        $data = $request->validated();
-        $data['id_consulta'] = $request->input('id_consulta');
-
-        $diagnostico->update($data);
-
+        $diagnostico->update($request->validated());
         return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico atualizado com sucesso.');
+    }
+
+    // Web: remover diagnóstico (documentação OpenAPI mantida nas rotas API)
+    public function remover(int $id)
+    {
+        $diagnostico = Diagnostico::findOrFail($id);
+        $diagnostico->delete();
+        return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico deletado com sucesso.');
+    }
+    public function index(int $idConsulta): JsonResponse
+    {
+        $diagnosticos = Diagnostico::where('id_consulta', $idConsulta)->get();
+        return response()->json(['success' => true, 'data' => $diagnosticos]);
     }
 
     /**
@@ -231,7 +104,6 @@ class DiagnosticoController extends Controller
         $diagnostico = Diagnostico::create(
             array_merge($request->validated(), ['id_consulta' => $idConsulta])
         );
-
         return response()->json([
             'success' => true,
             'message' => 'Diagnóstico registrado com sucesso.',
@@ -274,7 +146,6 @@ class DiagnosticoController extends Controller
     public function show(int $idConsulta, int $id): JsonResponse
     {
         $diagnostico = Diagnostico::where('id_consulta', $idConsulta)->findOrFail($id);
-
         return response()->json(['success' => true, 'data' => $diagnostico]);
     }
 
@@ -323,7 +194,6 @@ class DiagnosticoController extends Controller
     {
         $diagnostico = Diagnostico::where('id_consulta', $idConsulta)->findOrFail($id);
         $diagnostico->update($request->validated());
-
         return response()->json([
             'success' => true,
             'message' => 'Diagnóstico atualizado com sucesso.',
@@ -370,7 +240,6 @@ class DiagnosticoController extends Controller
     {
         $diagnostico = Diagnostico::where('id_consulta', $idConsulta)->findOrFail($id);
         $diagnostico->delete();
-
         return response()->json([
             'success' => true,
             'message' => 'Diagnóstico removido com sucesso.',

@@ -53,150 +53,47 @@ class ConsultaController extends Controller
      *     )
      * )
     */
-    public function index(){
+    public function index(): JsonResponse
+    {
+        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente'])->get();
+        return response()->json(['success' => true, 'data' => $consultas]);
+    }
+
+    public function lista()
+    {
         $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente'])->get();
         return view('prontuario.consultas', compact('consultas'));
     }
 
-    /** 
-     * @OA\Get(
-     *     path="/consultas/create",
-     *     tags={"Consulta"},
-     *     summary="Exibir formulário de criação de consulta",
-     *     description="Retorna os dados necessários para exibir o formulário de criação de uma nova consulta, incluindo os tipos de consulta disponíveis, lista de pacientes e médicos.",
-     *     @OA\Response(
-     *         response=200,
-     *         description="Dados para formulário de criação de consulta retornados com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="tipos_consulta",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="descricao", type="string", example="Consulta de rotina")
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="pacientes",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=5),
-     *                         @OA\Property(property="nome", type="string", example="João Silva")
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="medicos",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=3),
-     *                         @OA\Property(property="nome", type="string", example="Dra. Maria Oliveira")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Erro interno do servidor",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
-    */
-    public function create(){
+    // View: formulário de criação/edição de consulta (documentação OpenAPI mantida nas rotas API)
+    public function formulario(?int $consultaId = null)
+    {
         $tipos_consulta = TipoConsulta::all();
-        //Exclui pessoas que são médicos da lista de pacientes
-        $medicoPessoaIds = Medico::pluck('id_pessoa');//pluck retorna uma coleção de IDs de pessoas que são médicos
-        $pacientes = Pessoa::whereNotIn('id', $medicoPessoaIds)->get();//Retorna pessoas que não são médicos, ou seja, pacientes
-        $medicos = Medico::with('pessoa')->get();//Retorna médicos com seus dados de pessoa relacionados
-        return view('prontuario.consultaForm', compact('tipos_consulta', 'pacientes', 'medicos'));
+        $medicoPessoaIds = Medico::pluck('id_pessoa');
+        $pacientes = Pessoa::whereNotIn('id', $medicoPessoaIds)->get();
+        $medicos = Medico::with('pessoa')->get();
+        $selectedConsulta = $consultaId;
+        return view('prontuario.consultaForm', compact('tipos_consulta', 'pacientes', 'medicos', 'selectedConsulta'));
     }
 
-    /**
-     * @OA\Get(
-     *     path="/consultas/{id}/edit",
-     *     tags={"Consulta"},
-     *     summary="Exibir formulário de edição de consulta",
-     *     description="Retorna os dados necessários para exibir o formulário de edição de uma consulta existente, incluindo os detalhes da consulta a ser editada, tipos de consulta disponíveis, lista de pacientes e médicos.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID da consulta a ser editada",
-     *         required=true,
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Dados para formulário de edição de consulta retornados com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="consulta",
-     *                     type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="descricao", type="string", example="Consulta de rotina"),
-     *                     @OA\Property(property="data", type="string", format="date", example="2024-06-01"),
-     *                     @OA\Property(property="hora_inicio", type="string", format="time", example="14:00:00"),
-     *                     @OA\Property(property="hora_fim", type="string", format="time", example="14:30:00"),
-     *                     @OA\Property(property="data_check_in", type="string", format="date-time", example="2024-06-01T13:45:00Z"),
-     *                     @OA\Property(property="status", type="string", example="em_espera"),
-     *                     @OA\Property(property="id_tipo_consulta", type="integer", example=2),
-     *                     @OA\Property(property="id_paciente", type="integer", example=5),
-     *                     @OA\Property(property="id_medico", type="integer", example=3)
-     *                 ),
-     *                 @OA\Property(
-     *                     property="tipos_consulta",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="descricao", type="string", example="Consulta de rotina")
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="pacientes",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=5),
-     *                         @OA\Property(property="nome", type="string", example="João Silva")
-     *                     )
-     *                 ),
-     *                 @OA\Property(
-     *                     property="medicos",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=3),
-     *                         @OA\Property(property="nome", type="string", example="Dra. Maria Oliveira")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Consulta não encontrada",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Erro interno do servidor",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")     *     )
-     * )
-     */
-    public function edit(int $id){
+    public function salvar(ConsultaRequest $request)
+    {
+        $data = $request->validated();
+        $data['data_criacao'] = now();
+        if (isset($data['hora_inicio'])) {
+            $data['hora_inicio'] = $data['data'] . ' ' . $data['hora_inicio'] . ':00';
+        }
+        if (isset($data['hora_fim'])) {
+            $data['hora_fim'] = $data['data'] . ' ' . $data['hora_fim'] . ':00';
+        }
+        $consulta = Consulta::create($data);
+
+        return redirect('/consultas')->with('success', 'Consulta criada com sucesso.');
+    }
+
+    // View: formulário de edição de consulta (documentação OpenAPI mantida nas rotas API)
+    public function editar(int $id)
+    {
         $consulta = Consulta::findOrFail($id);
         $tipos_consulta = TipoConsulta::all();
         $medicoPessoaIds = Medico::pluck('id_pessoa');
@@ -204,6 +101,22 @@ class ConsultaController extends Controller
         $medicos = Medico::with('pessoa')->get();
         
         return view('prontuario.consultaForm', compact('consulta', 'tipos_consulta', 'pacientes', 'medicos'));
+    }
+
+    public function atualizar(ConsultaRequest $request, int $id)
+    {
+        $consulta = Consulta::findOrFail($id);
+        $consulta->update($request->validated());
+
+        return redirect()->route('consultas.index')->with('success', 'Consulta atualizada com sucesso.');
+    }
+
+    public function remover(int $id)
+    {
+        $consulta = Consulta::findOrFail($id);
+        $consulta->delete();
+
+        return redirect()->route('consultas.index')->with('success', 'Consulta deletada com sucesso.');
     }
 
     /**
@@ -250,7 +163,18 @@ class ConsultaController extends Controller
         }
         $consulta = Consulta::create($data);
 
-        return redirect('/consultas')->with('success', 'Consulta criada com sucesso.');
+        return response()->json(['success' => true, 'data' => $consulta], 201);
+    }
+
+    public function mostrar(int $id)
+    {
+        $consulta = Consulta::with([
+            'diagnosticos',
+            'receitas.medicamentos',
+            'solicitacoesExame.itens',
+        ])->findOrFail($id);
+
+        return view('prontuario.consultaForm', compact('consulta'));
     }
 
     /**
@@ -278,7 +202,7 @@ class ConsultaController extends Controller
      *     )
      * )
      */
-    public function show(int $id)
+    public function show(int $id): JsonResponse
     {
         $consulta = Consulta::with([
             'diagnosticos',
@@ -286,7 +210,7 @@ class ConsultaController extends Controller
             'solicitacoesExame.itens',
         ])->findOrFail($id);
 
-        return view('consultas.index', compact('consulta'));
+        return response()->json(['success' => true, 'data' => $consulta]);
     }
 
     /**
@@ -317,12 +241,12 @@ class ConsultaController extends Controller
      *     )
      * )
      */
-    public function update(ConsultaRequest $request, int $id)
+    public function update(ConsultaRequest $request, int $id): JsonResponse
     {
         $consulta = Consulta::findOrFail($id);
         $consulta->update($request->validated());
 
-        return redirect()->route('consultas.index')->with('success', 'Consulta atualizada com sucesso.');
+        return response()->json(['success' => true, 'data' => $consulta]);
     }
 
     /**
@@ -350,12 +274,12 @@ class ConsultaController extends Controller
      *     )
      * )
      */
-    public function destroy(int $id)
+    public function destroy(int $id): JsonResponse
     {
         $consulta = Consulta::findOrFail($id);
         $consulta->delete();
 
-        return redirect()->route('consultas.index')->with('success', 'Consulta deletada com sucesso.');
+        return response()->json(['success' => true, 'message' => 'Consulta deletada com sucesso.']);
     }
 
     /**
@@ -430,6 +354,26 @@ class ConsultaController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $consultas,
+        ]);
+    }
+
+    /**
+     * Obter agendamentos de um paciente (leitura do Grupo 2)
+     */
+    public function agendamentosPaciente(int $idPaciente): JsonResponse
+    {
+        $agendamentos = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa'])
+            ->where('id_paciente', $idPaciente)
+            ->where(function ($q) {
+                $q->where('status', 'agendada')
+                  ->orWhereDate('data', '>=', now()->toDateString());
+            })
+            ->orderBy('data')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $agendamentos,
         ]);
     }
 }
