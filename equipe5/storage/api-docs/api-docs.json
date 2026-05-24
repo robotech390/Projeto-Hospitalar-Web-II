@@ -1,0 +1,656 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Laboratório e Exames - Equipe 5",
+        "description": "Documentação interativa das APIs para controle de solicitações de exames, tipos de exames e laudos do módulo de Laboratório.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "Servidor Base da API"
+        }
+    ],
+    "paths": {
+        "/tipos-exame": {
+            "get": {
+                "tags": [
+                    "TipoExame"
+                ],
+                "summary": "Listar todos os tipos de exame",
+                "operationId": "223eb3e9b03916086ea933b525617f2a",
+                "responses": {
+                    "200": {
+                        "description": "Lista de tipos de exame retornada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "Hemograma Completo"
+                                            },
+                                            "tipo": {
+                                                "type": "string",
+                                                "example": "Sangue"
+                                            },
+                                            "preco": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 45.5
+                                            },
+                                            "preparo": {
+                                                "type": "string",
+                                                "example": "Jejum de 8 horas"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "TipoExame"
+                ],
+                "summary": "Criar um novo tipo de exame",
+                "operationId": "ab8a9654b05f40386c3c7050994b71e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "tipo",
+                                    "preco"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Eletrocardiograma"
+                                    },
+                                    "tipo": {
+                                        "type": "string",
+                                        "example": "Cardio"
+                                    },
+                                    "preco": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 120
+                                    },
+                                    "preparo": {
+                                        "type": "string",
+                                        "example": "Não tomar café antes do exame"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tipo de exame criado com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "nome": {
+                                            "type": "string",
+                                            "example": "Eletrocardiograma"
+                                        },
+                                        "tipo": {
+                                            "type": "string",
+                                            "example": "Cardio"
+                                        },
+                                        "preco": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 120
+                                        },
+                                        "preparo": {
+                                            "type": "string",
+                                            "example": "Não tomar café antes do exame"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inválidos."
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/solicitacoes": {
+            "get": {
+                "tags": [
+                    "SolicitacaoExame"
+                ],
+                "summary": "Listar todas as solicitações de exame",
+                "operationId": "372c072030f6b3f593c311bc6f95894d",
+                "responses": {
+                    "200": {
+                        "description": "Lista de solicitações retornada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "data": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2026-05-24T16:00:00Z"
+                                            },
+                                            "justificativa": {
+                                                "type": "string",
+                                                "example": "Suspeita de anemia severa"
+                                            },
+                                            "prioridade": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "id_consulta": {
+                                                "type": "integer",
+                                                "example": 12
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "Pendente"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "SolicitacaoExame"
+                ],
+                "summary": "Criar uma nova solicitação de exame",
+                "operationId": "f9be8b83baff0ccc8f300d4a5c9bbc8d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "data",
+                                    "justificativa",
+                                    "prioridade",
+                                    "id_consulta",
+                                    "tipos_exame"
+                                ],
+                                "properties": {
+                                    "data": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-05-24T16:00:00Z"
+                                    },
+                                    "justificativa": {
+                                        "type": "string",
+                                        "example": "Avaliação pré-operatória"
+                                    },
+                                    "prioridade": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_consulta": {
+                                        "type": "integer",
+                                        "example": 15
+                                    },
+                                    "tipos_exame": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Solicitação criada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 6
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-05-24T16:00:00Z"
+                                        },
+                                        "justificativa": {
+                                            "type": "string",
+                                            "example": "Avaliação pré-operatória"
+                                        },
+                                        "prioridade": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "id_consulta": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Pendente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inválidos."
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/solicitacoes/{id}": {
+            "get": {
+                "tags": [
+                    "SolicitacaoExame"
+                ],
+                "summary": "Mostrar detalhes de uma solicitação",
+                "operationId": "82cab4c7344e660f9b3495fee99f2384",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da solicitação de exame",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes da solicitação retornados com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-05-24T16:00:00Z"
+                                        },
+                                        "justificativa": {
+                                            "type": "string",
+                                            "example": "Suspeita de anemia severa"
+                                        },
+                                        "prioridade": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "id_consulta": {
+                                            "type": "integer",
+                                            "example": 12
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Pendente"
+                                        },
+                                        "tipos_exame": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nome": {
+                                                        "type": "string",
+                                                        "example": "Hemograma Completo"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Solicitação não encontrada."
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/itens-exame": {
+            "get": {
+                "tags": [
+                    "ItemExame"
+                ],
+                "summary": "Listar todos os itens de exame",
+                "operationId": "d42b1514e3065f67de514f79f288966a",
+                "responses": {
+                    "200": {
+                        "description": "Lista de itens de exame retornada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 20
+                                            },
+                                            "id_solicitacao": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "id_tipo_exame": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "Pendente"
+                                            },
+                                            "laudo": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "data_resultado": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": null,
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/itens-exame/{id}": {
+            "get": {
+                "tags": [
+                    "ItemExame"
+                ],
+                "summary": "Mostrar detalhes de um item de exame",
+                "operationId": "149bffc6879e3245fd392466377fd0ea",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do item de exame",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do item de exame retornados com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "id_solicitacao": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "id_tipo_exame": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Coletado"
+                                        },
+                                        "laudo": {
+                                            "type": "string",
+                                            "example": "Níveis normais de glicose.",
+                                            "nullable": true
+                                        },
+                                        "data_resultado": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-05-24T17:00:00Z",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Item de exame não encontrado."
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "ItemExame"
+                ],
+                "summary": "Atualizar um item de exame (ex: laudo, status)",
+                "operationId": "cf94ce5ed84c40011692c149b82ba4e5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do item de exame",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "Concluído"
+                                    },
+                                    "laudo": {
+                                        "type": "string",
+                                        "example": "Hemoglobina: 14 g/dL. Quadro dentro da normalidade."
+                                    },
+                                    "data_resultado": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-05-24"
+                                    },
+                                    "arquivo": {
+                                        "description": "Upload do laudo assinado em PDF",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item de exame atualizado com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Concluído"
+                                        },
+                                        "laudo": {
+                                            "type": "string",
+                                            "example": "Hemoglobina: 14 g/dL. Quadro dentro da normalidade."
+                                        },
+                                        "data_resultado": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-05-24T17:15:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inválidos."
+                    },
+                    "404": {
+                        "description": "Item de exame não encontrado."
+                    },
+                    "401": {
+                        "description": "Não autorizado."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Insira o Token JWT recebido no login da Equipe 1 no formato: Bearer {seu_token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "TipoExame",
+            "description": "TipoExame"
+        },
+        {
+            "name": "SolicitacaoExame",
+            "description": "SolicitacaoExame"
+        },
+        {
+            "name": "ItemExame",
+            "description": "ItemExame"
+        }
+    ]
+}
