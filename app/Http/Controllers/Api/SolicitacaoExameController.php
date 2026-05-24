@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Consulta;
 use App\Models\SolicitacaoExame;
 use App\Models\ItensExame;
 use App\Http\Requests\SolicitacaoExameRequest;
@@ -11,6 +12,96 @@ use Illuminate\Http\JsonResponse;
 
 class SolicitacaoExameController extends Controller
 {
+    // ========== MÉTODOS WEB ==========
+
+    // View: lista de solicitações (documentação OpenAPI mantida nas rotas API)
+    public function lista()
+    {
+        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')->get();
+        return view('prontuario.solicitacoesExame', compact('solicitacoes'));
+    }
+
+    // View: formulário de solicitação (documentação OpenAPI mantida nas rotas API)
+    public function formulario(?int $consultaId = null)
+    {
+        $consultas = Consulta::all();
+        $selectedConsulta = $consultaId;
+        return view('prontuario.solicitacaoExameForm', compact('consultas', 'selectedConsulta'));
+    }
+
+    // Web: salvar solicitação (documentação OpenAPI mantida nas rotas API)
+    public function salvar(SolicitacaoExameRequest $request)
+    {
+        $solicitacao = SolicitacaoExame::create([
+            'data'          => now(),
+            'justificativa' => $request->justificativa,
+            'prioridade'    => $request->prioridade,
+            'id_consulta'   => $request->id_consulta,
+        ]);
+
+        if ($request->filled('itens')) {
+            foreach ($request->itens as $item) {
+                ItensExame::create([
+                    'id_solicitacao' => $solicitacao->id,
+                    'id_tipo_exame'  => $item['id_tipo_exame'],
+                    'status'         => 'pendente',
+                ]);
+            }
+        }
+
+        return redirect()->route('solicitacoesExame.index')->with('success', 'Solicitação de exame criada com sucesso.');
+    }
+
+    // View: detalhes da solicitação (documentação OpenAPI mantida nas rotas API)
+    public function mostrar(int $id)
+    {
+        $solicitacao = SolicitacaoExame::with('consulta', 'itens')->findOrFail($id);
+        return view('prontuario.solicitacaoExameDetalhes', compact('solicitacao'));
+    }
+
+    // View: editar solicitação (documentação OpenAPI mantida nas rotas API)
+    public function editar(int $id)
+    {
+        $solicitacao = SolicitacaoExame::with('itens')->findOrFail($id);
+        $consultas = Consulta::all();
+        return view('prontuario.solicitacaoExameForm', compact('solicitacao', 'consultas'));
+    }
+
+    // Web: atualizar solicitação (documentação OpenAPI mantida nas rotas API)
+    public function atualizar(SolicitacaoExameRequest $request, int $id)
+    {
+        $solicitacao = SolicitacaoExame::findOrFail($id);
+        $solicitacao->update([
+            'justificativa' => $request->justificativa,
+            'prioridade'    => $request->prioridade,
+            'id_consulta'   => $request->id_consulta,
+        ]);
+
+        $solicitacao->itens()->delete();
+        if ($request->filled('itens')) {
+            foreach ($request->itens as $item) {
+                ItensExame::create([
+                    'id_solicitacao' => $solicitacao->id,
+                    'id_tipo_exame'  => $item['id_tipo_exame'],
+                    'status'         => 'pendente',
+                ]);
+            }
+        }
+
+        return redirect()->route('solicitacoesExame.index')->with('success', 'Solicitação de exame atualizada com sucesso.');
+    }
+
+    // Web: remover solicitação (documentação OpenAPI mantida nas rotas API)
+    public function remover(int $id)
+    {
+        $solicitacao = SolicitacaoExame::findOrFail($id);
+        $solicitacao->itens()->delete();
+        $solicitacao->delete();
+        return redirect()->route('solicitacoesExame.index')->with('success', 'Solicitação de exame deletada com sucesso.');
+    }
+
+    // ========== MÉTODOS API ==========
+
     /**
      * @OA\Get(
      *     path="/api/consultas/{idConsulta}/solicitacoes-exame",
@@ -299,12 +390,12 @@ class SolicitacaoExameController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Item removido da solicitação de exame com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *         description="Item removido da solicitação com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/ItensExame")
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Solicitação de exame ou item não encontrado",
+     *         description="Item não encontrado",
      *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
      *     )
      * )
@@ -316,38 +407,27 @@ class SolicitacaoExameController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Exame removido da solicitação.',
+            'message' => 'Item removido da solicitação.',
         ]);
     }
 
     /**
-     * @OA\Get(
-     *     path="/api/pacientes/{idPaciente}/resultados-exame",
-     *     tags={"Solicitação de Exame"},
-     *     summary="Obter resultados de exames para um paciente",
-     *     description="Retorna os resultados de exames concluídos para um paciente específico.",
-     *     @OA\Parameter(
-     *         name="idPaciente",
-     *         in="path",
-     *         description="ID do paciente",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Resultados de exames obtidos com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
-     *     )
-     * )
+     * Lê resultados de exames de um paciente (leitura do Grupo 5)
      */
     public function resultadosPaciente(int $idPaciente): JsonResponse
     {
-        $itens = ItensExame::with(['solicitacao.consulta'])
-            ->whereHas('solicitacao.consulta', fn($q) => $q->where('id_paciente', $idPaciente))
-            ->where('status', 'concluido')
-            ->orderByDesc('data_resultado')
+        $itens = ItensExame::with(['solicitacao'])
+            ->whereHas('solicitacao', function ($q) use ($idPaciente) {
+                $q->whereHas('consulta', function ($qq) use ($idPaciente) {
+                    $qq->where('id_paciente', $idPaciente);
+                });
+            })
+            ->whereNotNull('data_resultado')
             ->get();
 
-        return response()->json(['success' => true, 'data' => $itens]);
+        return response()->json([
+            'success' => true,
+            'data'    => $itens,
+        ]);
     }
 }

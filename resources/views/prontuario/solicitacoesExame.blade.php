@@ -51,10 +51,10 @@ preparo
                     <td>{{ $solicitacao->prioridade }}</td>
                     <td><a href="{{ route('consultas.show', $solicitacao->id_consulta) }}">{{ $solicitacao->consulta->descricao ?? 'N/A' }}</a></td>
                     <td>
-                        <!-- botão para editar diagnóstico -->
-                        <button><a href="{{ route('diagnosticos.edit', $diagnostico->id) }}">Editar</a></button>
-                        <!-- botão para deletar diagnóstico -->
-                        <form action="{{ route('diagnosticos.destroy', $diagnostico->id) }}" method="POST">
+                        <!-- botão para editar solicitação de exame -->
+                        <button><a href="{{ route('solicitacoesExame.edit', $solicitacao->id) }}">Editar</a></button>
+                        <!-- botão para deletar solicitação de exame -->
+                        <form action="{{ route('solicitacoesExame.destroy', $solicitacao->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit">Deletar</button>
@@ -64,6 +64,6 @@ preparo
             @endforeach
         </tbody>
     </table>
-    <button><a href="{{ route('diagnosticos.form') }}">Novo Diagnóstico</a></button>
+    <button><a href="{{ route('solicitacoesExame.form') }}">Nova Solicitação de Exame</a></button>
 </body>
 </html>

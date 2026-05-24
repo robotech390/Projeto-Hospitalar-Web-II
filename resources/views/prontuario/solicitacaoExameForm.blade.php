@@ -30,7 +30,7 @@ preco
 preparo
 -->
 <body>
-    <button><a href="{{ route('solicitacoes.index') }}">X</a></button>
+    <button><a href="{{ route('solicitacoesExame.index') }}">X</a></button>
     
     <h1>Formulário de Solicitações de Exame</h1>
 
@@ -46,7 +46,7 @@ preparo
 
     @php
         $isEditing = isset($solicitacao);
-        $action = $isEditing ? route('solicitacoes.update', $solicitacao->id) : route('solicitacoes.store');
+        $action = $isEditing ? route('solicitacoesExame.update', $solicitacao->id) : route('solicitacoesExame.store');
     @endphp
     
     <form action="{{ $action }}" method="POST">
