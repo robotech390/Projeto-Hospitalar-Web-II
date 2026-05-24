@@ -42,12 +42,45 @@ class DiagnosticoController extends Controller
         return response()->json(['success' => true, 'data' => $diagnosticos]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/diagnosticos",
+     *     tags={"Diagnóstico"},
+     *     summary="Obter todos os diagnosticos",
+     *     description="Retorna uma lista de todos os diagnosticos.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Diagnosticos encontrados com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     )
+     * )
+     */
     public function diagnosticos()
     {
         $diagnosticos = Diagnostico::with('consulta')->get();
         return view('prontuario.diagnosticos', compact('diagnosticos'));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/diagnosticos/form",
+     *     tags={"Diagnóstico"},
+     *     summary="Exibir formulário para criar um novo diagnóstico",
+     *     description="Retorna a view do formulário para criar um novo diagnóstico.",
+     *     @OA\Parameter(
+     *         name="idConsulta",
+     *         in="query",
+     *         description="ID da consulta",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Formulário exibido com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     )
+     * )
+     */
     public function diagnosticoForm(int $consultaId = null)
     {
         $consultas = Consulta::all();
@@ -56,6 +89,28 @@ class DiagnosticoController extends Controller
         return view('prontuario.diagnosticoForm', compact('consultas', 'selectedConsulta'));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/diagnosticos",
+     *     tags={"Diagnóstico"},
+     *     summary="Criar um novo diagnóstico",
+     *     description="Recebe os dados do formulário e salva um novo diagnóstico no banco de dados.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Diagnóstico criado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     )
+     * )
+     */
     public function diagnosticoStore(DiagnosticoRequest $request)
     {
         $data = $request->validated();
@@ -66,6 +121,30 @@ class DiagnosticoController extends Controller
         return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico criado com sucesso.');
     }
 
+    /** 
+     * @OA\Get(
+     *     path="/api/diagnosticos/{id}/edit",
+     *     tags={"Diagnóstico"},
+     *     summary="Exibir formulário para editar um diagnóstico",
+     *     description="Retorna a view do formulário para editar um diagnóstico específico com base no ID fornecido.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",         description="ID do diagnóstico",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Formulário exibido com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Diagnóstico não encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     )
+     * )
+    */
     public function diagnosticoEdit(int $id)
     {
         $diagnostico = Diagnostico::findOrFail($id);
@@ -74,6 +153,39 @@ class DiagnosticoController extends Controller
         return view('prontuario.diagnosticoForm', compact('diagnostico', 'consultas'));
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/diagnosticos/{id}",
+     *     tags={"Diagnóstico"},
+     *     summary="Atualizar um diagnóstico existente",
+     *     description="Recebe os dados do formulário de edição e atualiza um diagnóstico específico no banco de dados com base no ID fornecido.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do diagnóstico",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Diagnóstico atualizado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Diagnostico")     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Diagnóstico não encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/RespostaErro")
+     *     )
+     * )
+     */
     public function diagnosticoUpdate(DiagnosticoRequest $request, int $id)
     {
         $diagnostico = Diagnostico::findOrFail($id);
