@@ -55,8 +55,10 @@ export default function ExamSolicitations() {
   }, [props.solicitations]);
 
   const filtered = solicitations.filter((s) => {
-    const matchSearch = s.paciente.toLowerCase().includes(search.toLowerCase()) || 
-                      s.justificativa.toLowerCase().includes(search.toLowerCase());
+    const pacienteName = s.paciente || '';
+    const justificativaText = s.justificativa || '';
+    const matchSearch = pacienteName.toLowerCase().includes(search.toLowerCase()) || 
+                      justificativaText.toLowerCase().includes(search.toLowerCase());
     return matchSearch;
   });
 
@@ -71,9 +73,9 @@ export default function ExamSolicitations() {
     setEditItem(item);
     setForm({
       id_consulta: String(item.id_consulta),
-      justificativa: item.justificativa,
+      justificativa: item.justificativa || '',
       prioridade: String(item.prioridade),
-      itens: item.itens_exame.map(i => ({ 
+      itens: (item.itens_exame || []).map(i => ({ 
         id: i.id,
         id_tipo_exame: String(i.id_tipo_exame),
         status: i.status || 'Pendente',
@@ -115,8 +117,8 @@ export default function ExamSolicitations() {
       ...form,
       id_consulta: Number(form.id_consulta),
       prioridade: Number(form.prioridade),
-      paciente: selectedConsultation?.paciente?.nome || 'Desconhecido',
-      medico: selectedConsultation?.medico?.nome || 'Desconhecido',
+      paciente: selectedConsultation?.paciente?.nome || selectedConsultation?.paciente || 'Desconhecido',
+      medico: selectedConsultation?.medico?.nome || selectedConsultation?.medico || 'Desconhecido',
       itens_exame: form.itens.map(i => ({
         ...i,
         status: i.status || 'Pendente',
@@ -207,11 +209,15 @@ export default function ExamSolicitations() {
                       <SelectValue placeholder="Selecione a consulta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {consultations.map(c => (
-                        <SelectItem key={c.id} value={String(c.id)}>
-                          Consulta #{c.id} - {c.paciente.nome} (Dr. {c.medico.nome})
-                        </SelectItem>
-                      ))}
+                      {(consultations || []).map(c => {
+                        const patientName = c.paciente?.nome || c.paciente || 'Desconhecido';
+                        const doctorName = c.medico?.nome || c.medico || 'Desconhecido';
+                        return (
+                          <SelectItem key={c.id} value={String(c.id)}>
+                            Consulta #{c.id} - {patientName} (Dr. {doctorName})
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -370,7 +376,7 @@ export default function ExamSolicitations() {
                   <td className="py-4 px-3">
                     <div className="flex flex-wrap gap-2 max-w-[200px]">
                       {Object.entries(
-                        s.itens_exame.reduce((acc, i) => {
+                        (s.itens_exame || []).reduce((acc, i) => {
                           acc[i.status] = (acc[i.status] || 0) + 1;
                           return acc;
                         }, {})
@@ -383,7 +389,7 @@ export default function ExamSolicitations() {
                           <StatusBadge status={status} />
                         </div>
                       ))}
-                      {s.itens_exame.length === 0 && <span className="text-gray-400 italic text-xs">Sem itens</span>}
+                      {(s.itens_exame || []).length === 0 && <span className="text-gray-400 italic text-xs">Sem itens</span>}
                     </div>
                   </td>
                   <td className="py-4 px-3">
