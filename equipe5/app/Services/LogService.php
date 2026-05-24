@@ -43,7 +43,7 @@ class LogService
             Log::error('LogService: failed to create log [' . $response->status() . '] ' . $response->body());
             return false;
         } catch (\Throwable $e) {
-            Log::error('LogService: error creating log - ' . $e->getMessage());
+            Log::er'ror('LogService: error creating log - ' . $e->getMessage());
             return false;
         }
     }

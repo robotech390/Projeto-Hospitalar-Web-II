@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 class ConsultationService
 {
     protected $patientService;
@@ -14,29 +17,66 @@ class ConsultationService
     }
 
     /**
-     * Busca dados da consulta, incluindo paciente e médico.
-     * Atualmente mockado, futuramente via microserviço.
+     * Retorna a URL base da API da Equipe 3.
      */
-    public function getConsultationData(int $id): ?array
+    protected function getBaseUrl(): string
     {
-        return [
-            'id' => $id,
-            'paciente' => $this->patientService->getPatientData($id),
-            'medico' => $this->doctorService->getDoctorData($id),
-            'data_consulta' => date('Y-m-d H:i:s'),
-            'status' => 'Concluída',
-        ];
+        return env('API_URL', 'http://127.0.0.1:8000/api');
     }
 
     /**
-     * Retorna todas as consultas (mockado).
+     * Retorna todas as consultas da fila de hoje via API do Grupo 3.
      */
     public function getAllConsultations(): array
     {
-        $consultations = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $consultations[] = $this->getConsultationData($i);
+        try {
+            $token = app(\App\Services\TokenService::class)->getToken();
+            $request = Http::timeout(5);
+            
+            if ($token) {
+                $request = $request->withToken($token);
+            }
+
+            $response = $request->get($this->getBaseUrl() . '/consultas/fila/hoje');
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                $consultations = is_array($data) ? $data : [];
+                
+                // Enriquecer as consultas com dados do paciente e do médico se não vierem aninhados
+                foreach ($consultations as &$consultation) {
+                    if (is_array($consultation)) {
+                        if (!isset($consultation['paciente']) && isset($consultation['id_paciente'])) {
+                            $consultation['paciente'] = $this->patientService->getPatientData((int)$consultation['id_paciente']);
+                        }
+                        if (!isset($consultation['medico']) && isset($consultation['id_medico'])) {
+                            $consultation['medico'] = $this->doctorService->getDoctorData((int)$consultation['id_medico']);
+                        }
+                    }
+                }
+                unset($consultation);
+                
+                return $consultations;
+            }
+        } catch (\Exception $e) {
+            Log::error("Erro ao buscar fila de consultas da Equipe 3: " . $e->getMessage());
         }
-        return $consultations;
+        
+        return [];
+    }
+
+    /**
+     * Busca dados da consulta, procurando na fila de hoje.
+     */
+    public function getConsultationData(int $id): ?array
+    {
+        $consultations = $this->getAllConsultations();
+        foreach ($consultations as $consultation) {
+            if (isset($consultation['id']) && $consultation['id'] == $id) {
+                return $consultation;
+            }
+        }
+        
+        return null;
     }
 }
