@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ConsultaController;
+use App\Http\Controllers\Api\DiagnosticoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,3 +15,10 @@ Route::delete('/consultas/{consulta}', [ConsultaController::class, 'destroy'])->
 Route::get('/consultas/{consulta}', [ConsultaController::class, 'show'])->name('consultas.show');//recebe o id da consulta e retorna a view com os detalhes da consulta
 Route::get('/consultas/{consulta}/edit', [ConsultaController::class, 'edit'])->name('consultas.edit');//recebe o id da consulta e retorna a view com o formulário para editar a consulta
 Route::put('/consultas/{consulta}', [ConsultaController::class, 'update'])->name('consultas.update');//recebe os dados do formulário de edição e atualiza a consulta no banco de dados
+
+Route::get('/diagnosticos', [DiagnosticoController::class, 'diagnosticos'])->name('diagnosticos.index');//retorna a view com a lista de diagnósticos
+Route::get('/diagnosticos/form', [DiagnosticoController::class, 'diagnosticoForm'])->name('diagnosticos.form');//retorna a view com o formulário para criar um novo diagnóstico
+Route::get('/diagnosticos/form/{consulta}', [DiagnosticoController::class, 'diagnosticoForm'])->name('diagnosticos.create');//retorna a view com o formulário para criar um novo diagnóstico já vinculado à consulta
+Route::post('/diagnosticos', [DiagnosticoController::class, 'diagnosticoStore'])->name('diagnosticos.store');//recebe os dados do formulário e salva o novo diagnóstico no banco de dados
+Route::get('/diagnosticos/{diagnostico}/edit', [DiagnosticoController::class, 'diagnosticoEdit'])->name('diagnosticos.edit');//recebe o id do diagnóstico e retorna a view com o formulário para editar o diagnóstico
+Route::put('/diagnosticos/{diagnostico}', [DiagnosticoController::class, 'diagnosticoUpdate'])->name('diagnosticos.update');//recebe os dados do formulário de edição e atualiza o diagnóstico

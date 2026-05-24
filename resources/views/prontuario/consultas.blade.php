@@ -35,6 +35,8 @@
                     <td>{{ $consulta->hora_fim->format('H:i:s') }}</td>
                     <td>{{ $consulta->status }}</td>
                     <td>
+                        <!-- botão para criar diagnóstico -->
+                        <button><a href="{{ route('diagnosticos.create', $consulta->id) }}">Diagnóstico</a></button>
                         <!-- botão para editar consulta -->
                         <button><a href="{{ route('consultas.edit', $consulta->id) }}">Editar</a></button>
                         <!-- botão para deletar consulta -->

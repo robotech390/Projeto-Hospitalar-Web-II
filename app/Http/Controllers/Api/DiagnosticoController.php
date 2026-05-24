@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Consulta;
 use App\Models\Diagnostico;
 use App\Http\Requests\DiagnosticoRequest;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +40,49 @@ class DiagnosticoController extends Controller
         $diagnosticos = Diagnostico::where('id_consulta', $idConsulta)->get();
 
         return response()->json(['success' => true, 'data' => $diagnosticos]);
+    }
+
+    public function diagnosticos()
+    {
+        $diagnosticos = Diagnostico::with('consulta')->get();
+        return view('prontuario.diagnosticos', compact('diagnosticos'));
+    }
+
+    public function diagnosticoForm(int $consultaId = null)
+    {
+        $consultas = Consulta::all();
+        $selectedConsulta = $consultaId;
+
+        return view('prontuario.diagnosticoForm', compact('consultas', 'selectedConsulta'));
+    }
+
+    public function diagnosticoStore(DiagnosticoRequest $request)
+    {
+        $data = $request->validated();
+        $data['id_consulta'] = $request->input('id_consulta');
+
+        Diagnostico::create($data);
+
+        return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico criado com sucesso.');
+    }
+
+    public function diagnosticoEdit(int $id)
+    {
+        $diagnostico = Diagnostico::findOrFail($id);
+        $consultas = Consulta::all();
+
+        return view('prontuario.diagnosticoForm', compact('diagnostico', 'consultas'));
+    }
+
+    public function diagnosticoUpdate(DiagnosticoRequest $request, int $id)
+    {
+        $diagnostico = Diagnostico::findOrFail($id);
+        $data = $request->validated();
+        $data['id_consulta'] = $request->input('id_consulta');
+
+        $diagnostico->update($data);
+
+        return redirect()->route('diagnosticos.index')->with('success', 'Diagnóstico atualizado com sucesso.');
     }
 
     /**
