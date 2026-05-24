@@ -34,6 +34,7 @@
                     <td>{{ $consulta->hora_inicio->format('H:i:s') }}</td>
                     <td>{{ $consulta->hora_fim->format('H:i:s') }}</td>
                     <td>{{ $consulta->status }}</td>
+                    <td>{{ $consulta->tipo_consulta->descricao ?? 'N/A' }}, {{ $consulta->tipo_consulta->valor ?? 'N/A' }}</td><!-- id_tipo_consulta -> "descricao, valor" -->
                     <td>
                         <!-- botão para criar diagnóstico -->
                         <button><a href="{{ route('diagnosticos.create', $consulta->id) }}">Diagnóstico</a></button>

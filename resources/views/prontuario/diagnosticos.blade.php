@@ -24,7 +24,7 @@
                     <td>{{ $diagnostico->id }}</td>
                     <td>{{ $diagnostico->descricao }}</td>
                     <td>{{ $diagnostico->cid }}</td>
-                    <td><a href="{{ route('consultas.show', $diagnostico->id_consulta) }}">Ver Consulta</a></td>
+                    <td><a href="{{ route('consultas.show', $diagnostico->id_consulta) }}">{{ $diagnostico->consulta->descricao ?? 'N/A' }}</a></td>
                     <td>
                         <!-- botão para editar diagnóstico -->
                         <button><a href="{{ route('diagnosticos.edit', $diagnostico->id) }}">Editar</a></button>
