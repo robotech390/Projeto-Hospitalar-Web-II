@@ -90,6 +90,26 @@ Todas as rotas abaixo estão protegidas por autenticação em `routes/api.php`.
 | `PUT` / `PATCH` | `/api/itens-exame/{id}` | Atualiza um item de exame |
 | `DELETE` | `/api/itens-exame/{id}` | Remove um item de exame |
 
+## Documentação da API (Swagger)
+
+A API do Laboratório conta com uma documentação interativa e completa gerada com o **L5-Swagger**. Esta documentação segue a especificação **OpenAPI** e permite que outras equipes visualizem, interajam e testem todos os endpoints diretamente do navegador.
+
+### Como Acessar
+
+1. Certifique-se de que a aplicação está rodando (`php artisan serve`).
+2. Acesse a seguinte URL no seu navegador:
+   ```
+   http://127.0.0.1:8000/api/documentation
+   ```
+
+### Funcionalidades do Painel:
+- **Visualização Completa dos Schemas:** Descrição detalhada dos parâmetros de entrada e dos modelos de resposta JSON para todos os 8 endpoints reais.
+- **Teste de Endpoints ("Try it out"):** Envie requisições reais diretamente da documentação pelo navegador.
+- **Autenticação com JWT:**
+  1. Clique no botão **"Authorize"** (cadeado verde) no topo da tela.
+  2. Insira o token JWT retornado pelo login da Equipe 1 no formato `Bearer <seu_token>`.
+  3. Clique em *Authorize*. Pronto! Todas as chamadas de teste serão interceptadas e validadas de forma transparente pelo nosso middleware central `auth.jwt`.
+
 ## Fluxo de integração recomendado
 
 ### 1. Autenticar no serviço de auth da Equipe 1
