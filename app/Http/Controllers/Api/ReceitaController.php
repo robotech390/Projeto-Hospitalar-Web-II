@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Consulta;
+use App\Models\Medicamento;
 use App\Models\Receita;
 use App\Models\MedicamentoReceita;
 use App\Http\Requests\ReceitaRequest;
@@ -11,6 +13,95 @@ use Illuminate\Http\JsonResponse;
 
 class ReceitaController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/receitas",
+     *     tags={"Receita"},
+     *     summary="Obter lista de receitas",
+     *     description="Retorna uma lista de todas as receitas.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de receitas retornado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Receita")
+     *     )
+     * )
+     */
+    public function lista()
+    {
+        $receitas = Receita::with('consulta')->get();
+        return view('prontuario.receitas', compact('receitas'));
+    }
+
+    public function formulario(?int $consultaId = null)
+    {
+        $consultas = Consulta::all();
+        $medicamentos = Medicamento::all();
+        $selectedConsulta = $consultaId;
+
+        return view('prontuario.receitaForm', compact('consultas', 'medicamentos', 'selectedConsulta'));
+    }
+
+    public function salvar(ReceitaRequest $request)
+    {
+        $receita = Receita::create($request->safe()->except('medicamentos'));
+
+        if ($request->filled('medicamentos')) {
+            foreach ($request->medicamentos as $med) {
+                MedicamentoReceita::create([
+                    'id_receita'     => $receita->id,
+                    'id_medicamento' => $med['id_medicamento'],
+                    'posologia'      => $med['posologia'] ?? null,
+                    'quantidade'     => $med['quantidade'] ?? 1,
+                ]);
+            }
+        }
+
+        return redirect()->route('receitas.index')->with('success', 'Receita criada com sucesso.');
+    }
+
+    public function mostrar(int $id)
+    {
+        return redirect()->route('receitas.index');
+    }
+
+    public function editar(int $id)
+    {
+        $receita = Receita::with('medicamentos')->findOrFail($id);
+        $consultas = Consulta::all();
+        $medicamentos = Medicamento::all();
+
+        return view('prontuario.receitaForm', compact('receita', 'consultas', 'medicamentos'));
+    }
+
+    public function atualizar(ReceitaRequest $request, int $id)
+    {
+        $receita = Receita::findOrFail($id);
+        $receita->update($request->safe()->except('medicamentos'));
+
+        $receita->medicamentos()->delete();
+        if ($request->filled('medicamentos')) {
+            foreach ($request->medicamentos as $med) {
+                MedicamentoReceita::create([
+                    'id_receita'     => $receita->id,
+                    'id_medicamento' => $med['id_medicamento'],
+                    'posologia'      => $med['posologia'] ?? null,
+                    'quantidade'     => $med['quantidade'] ?? 1,
+                ]);
+            }
+        }
+
+        return redirect()->route('receitas.index')->with('success', 'Receita atualizada com sucesso.');
+    }
+
+    public function remover(int $id)
+    {
+        $receita = Receita::findOrFail($id);
+        $receita->medicamentos()->delete();
+        $receita->delete();
+
+        return redirect()->route('receitas.index')->with('success', 'Receita removida com sucesso.');
+    }
+
     /**
      * @OA\Get(
      *     path="/api/consultas/{idConsulta}/receitas",
@@ -177,7 +268,6 @@ class ReceitaController extends Controller
         ]);
     }
 
-    // DELETE /api/consultas/{idConsulta}/receitas/{id}
     /**
      * @OA\Delete(
      *     path="/api/consultas/{idConsulta}/receitas/{id}",
