@@ -173,8 +173,12 @@ class ConsultaController extends Controller
             'receitas.medicamentos',
             'solicitacoesExame.itens',
         ])->findOrFail($id);
+        $tipos_consulta = TipoConsulta::all();
+        $medicoPessoaIds = Medico::pluck('id_pessoa');
+        $pacientes = Pessoa::whereNotIn('id', $medicoPessoaIds)->get();
+        $medicos = Medico::with('pessoa')->get();
 
-        return view('prontuario.consultaForm', compact('consulta'));
+        return view('prontuario.consultaForm', compact('consulta', 'tipos_consulta', 'pacientes', 'medicos'));
     }
 
     /**
