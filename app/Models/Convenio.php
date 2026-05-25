@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Convenio extends Model
 {
-    /** @use HasFactory<\Database\Factories\ConvenioFactory> */
-    use HasFactory;
-
-    protected $primaryKey = 'id'; 
     protected $table = 'convenio';
-    public $timestamps = false;
-    protected $fillable = ['nome', 'cnpj', 'telefone', 'email', 'id_endereco', 'data_criacao', 'data_atualizacao'];
 
-    public function endereco(){
-        return $this->belongsTo(Endereco::class, 'id_endereco');
+    protected $fillable = [
+        'nome',
+        'cnpj',
+        'telefone',
+        'email',
+    ];
+
+    public function planos()
+    {
+        return $this->hasMany(Plano::class, 'id_convenio');
     }
 }

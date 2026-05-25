@@ -1,10 +1,26 @@
 <?php
 
-class Plano extends Model{
-    use HasFactory;
+namespace App\Models;
 
-    protected $primaryKey = 'id';
+use Illuminate\Database\Eloquent\Model;
+
+class Plano extends Model
+{
     protected $table = 'plano';
-    public $timestamps = false;
-    protected $fillable = ['descricao', 'id_tipo_cobranca', 'id_convenio'];
+
+    protected $fillable = [
+        'descricao',
+        'id_tipo_cobranca',
+        'id_convenio',
+    ];
+
+    public function convenio()
+    {
+        return $this->belongsTo(Convenio::class, 'id_convenio');
+    }
+
+    public function tipoCobranca()
+    {
+        return $this->belongsTo(TipoCobranca::class, 'id_tipo_cobranca');
+    }
 }

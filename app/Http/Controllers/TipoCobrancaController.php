@@ -2,44 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\TipoCobranca;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\TipoCobranca;
 
 class TipoCobrancaController extends Controller
 {
     public function index()
     {
         return Inertia::render('Faturamento/TipoCobranca', [
-            'tiposCobranca' => TipoCobranca::all()
+            'tipoCobrancas' => TipoCobranca::orderBy('descricao')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $dados = $request->validate([
             'descricao' => 'required|string|max:255',
         ]);
 
-        $data = $request->all();
-        $data['descricao'] = strtolower($data['descricao']);
+        TipoCobranca::create($dados);
 
-        TipoCobranca::create($data);
-
-        return redirect()->back();
+        return redirect()
+            ->route('tipo-cobranca')
+            ->with('success', 'Tipo de cobrança cadastrado com sucesso.');
     }
 
-    public function update(Request $request, TipoCobranca $tipoCobranca){
-        $data = $request->all();
-        $data['descricao'] = preg_replace('/\D/', '', $data['descricao']);
+    public function update(Request $request, TipoCobranca $tipoCobranca)
+    {
+        $dados = $request->validate([
+            'descricao' => 'required|string|max:255',
+        ]);
 
-        $tipoCobranca->update($request->all());
-        return redirect()->back();
+        $tipoCobranca->update($dados);
+
+        return redirect()
+            ->route('tipo-cobranca')
+            ->with('success', 'Tipo de cobrança atualizado com sucesso.');
     }
 
-    public function destroy(TipoCobranca $tipoCobranca){
+    public function destroy(TipoCobranca $tipoCobranca)
+    {
         $tipoCobranca->delete();
-        return redirect()->back();
+
+        return redirect()
+            ->route('tipo-cobranca')
+            ->with('success', 'Tipo de cobrança excluído com sucesso.');
     }
 }

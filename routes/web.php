@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ConvenioController;
 use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\TipoCobrancaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,6 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/faturamento/plano/{plano}', [PlanoController::class, 'update']);
     Route::delete('/faturamento/plano/{plano}', [PlanoController::class, 'destroy']);
 
+    Route::get('/faturamento/tipo-cobranca', [TipoCobrancaController::class, 'index'])->name('tipo-cobranca');
+    Route::post('/faturamento/tipo-cobranca', [TipoCobrancaController::class, 'store']);
+    Route::put('/faturamento/tipo-cobranca/{tipoCobranca}', [TipoCobrancaController::class, 'update']);
+    Route::delete('/faturamento/tipo-cobranca/{tipoCobranca}', [TipoCobrancaController::class, 'destroy']);
 });
 
 require __DIR__ . '/auth.php';

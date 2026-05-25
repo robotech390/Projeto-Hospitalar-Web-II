@@ -1,31 +1,36 @@
 import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import FaturamentoLayout from '@/Components/Faturamento/FaturamentoLayout';
 import Modal from '@/Components/Faturamento/Modal';
 
-export default function TipoCobranca() {
-  const [tiposCobranca, setTiposCobranca] = useState([]);
+export default function TipoCobranca({ tipoCobrancas = [] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ descricao: '' });
-  const [nextId, setNextId] = useState(1);
   const [editingId, setEditingId] = useState(null);
 
   const handleOpenModal = (id = null) => {
     if (id) {
-      const tipo = tiposCobranca.find((t) => t.id === id);
+      const tipo = tipoCobrancas.find((t) => t.id === id);
+
       if (tipo) {
-        setFormData({ descricao: tipo.descricao });
+        setFormData({
+          descricao: tipo.descricao || '',
+        });
+
         setEditingId(id);
       }
     } else {
       setFormData({ descricao: '' });
       setEditingId(null);
     }
+
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setFormData({ descricao: '' });
+    setEditingId(null);
   };
 
   const handleSubmit = (e) => {
@@ -37,30 +42,19 @@ export default function TipoCobranca() {
     }
 
     if (editingId) {
-      setTiposCobranca(
-        tiposCobranca.map((tipo) =>
-          tipo.id === editingId
-            ? { ...tipo, descricao: formData.descricao }
-            : tipo
-        )
-      );
+      router.put(`/faturamento/tipo-cobranca/${editingId}`, formData, {
+        onSuccess: () => handleCloseModal(),
+      });
     } else {
-      const novoTipo = {
-        id: nextId,
-        descricao: formData.descricao,
-      };
-      setTiposCobranca([...tiposCobranca, novoTipo]);
-      setNextId(nextId + 1);
+      router.post('/faturamento/tipo-cobranca', formData, {
+        onSuccess: () => handleCloseModal(),
+      });
     }
-
-    setFormData({ descricao: '' });
-    setEditingId(null);
-    setIsModalOpen(false);
   };
 
   const handleDelete = (id) => {
     if (confirm('Tem certeza que deseja deletar este tipo de cobrança?')) {
-      setTiposCobranca(tiposCobranca.filter((tipo) => tipo.id !== id));
+      router.delete(`/faturamento/tipo-cobranca/${id}`);
     }
   };
 
@@ -69,7 +63,6 @@ export default function TipoCobranca() {
       <Head title="Tipos de Cobrança" />
 
       <div className="space-y-6">
-        
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 mb-1">
@@ -79,6 +72,7 @@ export default function TipoCobranca() {
               Gerencie os diferentes tipos de cobrança disponíveis no sistema
             </p>
           </div>
+
           <button
             onClick={() => handleOpenModal()}
             className="px-4 py-2 bg-[#00767F] text-white rounded-lg hover:bg-[#00989F] transition-colors font-medium shadow-sm"
@@ -87,7 +81,7 @@ export default function TipoCobranca() {
           </button>
         </div>
 
-        {tiposCobranca.length === 0 ? (
+        {tipoCobrancas.length === 0 ? (
           <div className="p-12 bg-white rounded-xl shadow-sm border border-gray-100 text-center">
             <div className="flex justify-center mb-4">
               <div className="p-4 bg-gray-50 rounded-full">
@@ -106,9 +100,11 @@ export default function TipoCobranca() {
                 </svg>
               </div>
             </div>
+
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
               Nenhum tipo de cobrança cadastrado
             </h3>
+
             <p className="text-gray-500 text-sm">
               Comece criando um novo tipo de cobrança clicando no botão acima.
             </p>
@@ -129,8 +125,9 @@ export default function TipoCobranca() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
-                {tiposCobranca.map((tipo, index) => (
+                {tipoCobrancas.map((tipo, index) => (
                   <tr
                     key={tipo.id}
                     className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
@@ -140,9 +137,11 @@ export default function TipoCobranca() {
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                       #{tipo.id}
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {tipo.descricao}
                     </td>
+
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -150,17 +149,38 @@ export default function TipoCobranca() {
                           className="p-1.5 hover:bg-gray-200 rounded-md transition-colors text-blue-600"
                           title="Editar"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                            />
                           </svg>
                         </button>
+
                         <button
                           onClick={() => handleDelete(tipo.id)}
                           className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-red-600"
                           title="Deletar"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
                           </svg>
                         </button>
                       </div>
@@ -183,6 +203,7 @@ export default function TipoCobranca() {
             <label className="block text-sm font-medium text-gray-900 mb-2">
               Descrição *
             </label>
+
             <input
               type="text"
               value={formData.descricao}
@@ -201,6 +222,7 @@ export default function TipoCobranca() {
             >
               Cancelar
             </button>
+
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-[#00767F] text-white rounded-lg hover:bg-[#00989F] transition-colors font-medium"
