@@ -9,6 +9,7 @@ class ConsultationService
 {
     protected $patientService;
     protected $doctorService;
+    private $cachedConsultations = null;
 
     public function __construct(PatientService $patientService, DoctorService $doctorService)
     {
@@ -29,6 +30,10 @@ class ConsultationService
      */
     public function getAllConsultations(): array
     {
+        if ($this->cachedConsultations !== null) {
+            return $this->cachedConsultations;
+        }
+
         try {
             $token = app(\App\Services\TokenService::class)->getToken();
             $request = Http::timeout(5);
@@ -56,12 +61,14 @@ class ConsultationService
                 }
                 unset($consultation);
                 
+                $this->cachedConsultations = $consultations;
                 return $consultations;
             }
         } catch (\Exception $e) {
             Log::error("Erro ao buscar fila de consultas da Equipe 3: " . $e->getMessage());
         }
         
+        $this->cachedConsultations = [];
         return [];
     }
 
