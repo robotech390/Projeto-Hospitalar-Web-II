@@ -109,7 +109,7 @@ preco
                     </div>
                     <div>
                         <label>Posologia</label><br>
-                        <input type="text" data-name="medicamentos[INDEX][posologia]" name="medicamentos[{{ $index }}][posologia]" value="{{ $item['posologia'] ?? '' }}" placeholder="Posologia">
+                        <input type="text" data-name="medicamentos[INDEX][posologia]" name="medicamentos[{{ $index }}][posologia]" value="{{ $item['posologia'] ?? '' }}" required>
                     </div>
                     <div>
                         <label>Quantidade</label><br>
@@ -128,7 +128,7 @@ preco
             <div class="medicamento-row" style="margin-bottom: 1rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
                 <div>
                     <label>Medicamento</label><br>
-                    <select data-name="medicamentos[INDEX][id_medicamento]" required>
+                    <select data-name="medicamentos[INDEX][id_medicamento]" required disabled>
                         <option value="">Selecione um medicamento</option>
                         @if(!empty($medicamentos))
                             @foreach($medicamentos as $medicamento)
@@ -141,11 +141,11 @@ preco
                 </div>
                 <div>
                     <label>Posologia</label><br>
-                    <input type="text" data-name="medicamentos[INDEX][posologia]" placeholder="Posologia">
+                    <input type="text" data-name="medicamentos[INDEX][posologia]" required disabled>
                 </div>
                 <div>
                     <label>Quantidade</label><br>
-                    <input type="number" data-name="medicamentos[INDEX][quantidade]" value="1" min="1" style="width:5rem;">
+                    <input type="number" data-name="medicamentos[INDEX][quantidade]" value="1" min="1" style="width:5rem;" disabled>
                 </div>
                 <div>
                     <button type="button" class="remove-med" style="margin-top:1.75rem;">Remover</button>
@@ -173,6 +173,9 @@ preco
             function addMedicamentoRow() {
                 const clone = templateWrapper.firstElementChild.cloneNode(true);
                 clone.style.display = 'flex';
+                clone.querySelectorAll('[data-name]').forEach((input) => {
+                    input.disabled = false;
+                });
                 attachRemoveHandler(clone);
                 medicamentoList.appendChild(clone);
                 updateIndexes();

@@ -36,6 +36,8 @@ preco
                 <th>Observações</th>
                 <th>Farmácia</th>
                 <th>Data de Emissão</th>
+                <th>Data de Criação</th>
+                <th>Data de Alteração</th>
                 <th>Consulta</th><!--id_consulta-->
             </tr>
         </thead>
@@ -46,7 +48,15 @@ preco
                     <td>{{ $receita->observacoes }}</td>
                     <td>{{ $receita->farmacia }}</td>
                     <td>{{ $receita->data_emissao }}</td>
-                    <td><a href="{{ route('consultas.show', $receita->id_consulta) }}">{{ $receita->consulta->descricao ?? 'N/A' }}</a></td>
+                    <td>{{ $receita->data_criacao }}</td>
+                    <td>{{ $receita->data_alteracao }}</td>
+                    <td>
+                        @if($receita->id_consulta)
+                            <a href="{{ route('consultas.show', ['consulta' => $receita->id_consulta]) }}">{{ $receita->consulta->descricao ?? 'N/A' }}</a>
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td>
                         <!-- botão para editar receita -->
                         <button><a href="{{ route('receitas.edit', $receita->id) }}">Editar</a></button>
