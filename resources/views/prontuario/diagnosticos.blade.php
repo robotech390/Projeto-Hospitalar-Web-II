@@ -15,6 +15,8 @@
                 <th>ID</th>
                 <th>Descrição</th>
                 <th>Cid</th>
+                <th>Data de Criação</th>
+                <th>Data de Alteração</th>
                 <th>Consulta</th><!--id_consulta-->
             </tr>
         </thead>
@@ -24,6 +26,8 @@
                     <td>{{ $diagnostico->id }}</td>
                     <td>{{ $diagnostico->descricao }}</td>
                     <td>{{ $diagnostico->cid }}</td>
+                    <td>{{ $diagnostico->data_criacao->format('d/m/Y H:i:s') }}</td>
+                    <td>{{ $diagnostico->data_alteracao->format('d/m/Y H:i:s') }}</td>
                     <td><a href="{{ route('consultas.show', $diagnostico->id_consulta) }}">{{ $diagnostico->consulta->descricao ?? 'N/A' }}</a></td>
                     <td>
                         <!-- botão para editar diagnóstico -->
