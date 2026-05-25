@@ -20,6 +20,7 @@
                 <th>Hora Início</th>
                 <th>Hora Fim</th>
                 <th>Status</th>
+                <th>Tipo de Consulta</th>
                 <th>Ações</th>
             </tr>
         </thead>

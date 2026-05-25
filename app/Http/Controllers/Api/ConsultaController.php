@@ -55,13 +55,13 @@ class ConsultaController extends Controller
     */
     public function index(): JsonResponse
     {
-        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente'])->get();
+        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente', 'tipo_consulta'])->get();
         return response()->json(['success' => true, 'data' => $consultas]);
     }
 
     public function lista()
     {
-        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente'])->get();
+        $consultas = Consulta::with(['diagnosticos', 'receitas', 'solicitacoesExame', 'medico.pessoa', 'paciente', 'tipo_consulta'])->get();
         return view('prontuario.consultas', compact('consultas'));
     }
 

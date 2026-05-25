@@ -56,4 +56,9 @@ class Consulta extends Model
     {
         return $this->belongsTo(Medico::class, 'id_medico');
     }
+
+    public function tipo_consulta()
+    {
+        return $this->belongsTo(TipoConsulta::class, 'id_tipo_consulta');
+    }
 }
