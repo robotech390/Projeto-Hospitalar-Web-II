@@ -65,39 +65,32 @@ export default function TipoCobranca() {
   };
 
   return (
-    <FaturamentoLayout
-      currentPage="tipo-cobranca"
-      header={
-        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-          Tipos de Cobrança
-        </h2>
-      }
-    >
+    <FaturamentoLayout currentPage="tipo-cobranca">
       <Head title="Tipos de Cobrança" />
 
       <div className="space-y-6">
-       
+        
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-800 mb-1">
               Tipos de Cobrança
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-500 text-sm">
               Gerencie os diferentes tipos de cobrança disponíveis no sistema
             </p>
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+            className="px-4 py-2 bg-[#00767F] text-white rounded-lg hover:bg-[#00989F] transition-colors font-medium shadow-sm"
           >
             + Novo Tipo
           </button>
         </div>
 
         {tiposCobranca.length === 0 ? (
-          <div className="p-12 bg-white rounded-lg border border-gray-200 text-center">
+          <div className="p-12 bg-white rounded-xl shadow-sm border border-gray-100 text-center">
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-gray-100 rounded-full">
+              <div className="p-4 bg-gray-50 rounded-full">
                 <svg
                   className="w-10 h-10 text-gray-400"
                   fill="none"
@@ -113,25 +106,25 @@ export default function TipoCobranca() {
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
               Nenhum tipo de cobrança cadastrado
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-500 text-sm">
               Comece criando um novo tipo de cobrança clicando no botão acima.
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                     ID
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                     Descrição
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                     Ações
                   </th>
                 </tr>
@@ -140,8 +133,8 @@ export default function TipoCobranca() {
                 {tiposCobranca.map((tipo, index) => (
                   <tr
                     key={tipo.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                     }`}
                   >
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
@@ -154,17 +147,21 @@ export default function TipoCobranca() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenModal(tipo.id)}
-                          className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-blue-600"
+                          className="p-1.5 hover:bg-gray-200 rounded-md transition-colors text-blue-600"
                           title="Editar"
                         >
-                          Editar
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
                         </button>
                         <button
                           onClick={() => handleDelete(tipo.id)}
-                          className="p-2 hover:bg-red-100 rounded-lg transition-colors text-red-600"
+                          className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-red-600"
                           title="Deletar"
                         >
-                          X
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -176,7 +173,6 @@ export default function TipoCobranca() {
         )}
       </div>
 
-      
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -193,7 +189,7 @@ export default function TipoCobranca() {
               onChange={(e) =>
                 setFormData({ ...formData, descricao: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00767F]"
             />
           </div>
 
@@ -207,7 +203,7 @@ export default function TipoCobranca() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+              className="flex-1 px-4 py-2 bg-[#00767F] text-white rounded-lg hover:bg-[#00989F] transition-colors font-medium"
             >
               Salvar
             </button>
