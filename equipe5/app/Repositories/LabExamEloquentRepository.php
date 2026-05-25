@@ -46,7 +46,7 @@ class LabExamEloquentRepository implements LabExamRepositoryInterface
                 'horario' => $item->data_criacao ? $item->data_criacao->format('H:i') : '00:00',
                 'status' => $item->status,
                 'medico' => $medicoNome,
-                'dataSolicitacao' => $item->data_criacao ? $item->data_criacao->format('Y-m-d') : date('Y-m-d'),
+                'dataSolicitacao' => $item->data_criacao ? $item->data_criacao->format('d-m-Y') : date('d-m-Y'),
                 'iniciais' => $iniciais,
             ];
         }

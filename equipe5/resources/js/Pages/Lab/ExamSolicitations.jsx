@@ -209,15 +209,21 @@ export default function ExamSolicitations() {
                       <SelectValue placeholder="Selecione a consulta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(consultations || []).map(c => {
-                        const patientName = c.paciente?.nome || c.paciente || 'Desconhecido';
-                        const doctorName = c.medico?.nome || c.medico || 'Desconhecido';
-                        return (
-                          <SelectItem key={c.id} value={String(c.id)}>
-                            Consulta #{c.id} - {patientName} (Dr. {doctorName})
-                          </SelectItem>
-                        );
-                      })}
+                      {(!consultations || consultations.length === 0) ? (
+                        <SelectItem disabled value="none" className="text-gray-400 italic text-xs">
+                          Nenhuma consulta disponível
+                        </SelectItem>
+                      ) : (
+                        consultations.map(c => {
+                          const patientName = c.paciente?.nome || c.paciente || 'Desconhecido';
+                          const doctorName = c.medico?.nome || c.medico || 'Desconhecido';
+                          return (
+                            <SelectItem key={c.id} value={String(c.id)}>
+                              Consulta #{c.id} - {patientName} (Dr. {doctorName})
+                            </SelectItem>
+                          );
+                        })
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
