@@ -28,7 +28,13 @@
                     <td>{{ $diagnostico->cid }}</td>
                     <td>{{ $diagnostico->data_criacao->format('d/m/Y H:i:s') }}</td>
                     <td>{{ $diagnostico->data_alteracao->format('d/m/Y H:i:s') }}</td>
-                    <td><a href="{{ route('consultas.show', $diagnostico->id_consulta) }}">{{ $diagnostico->consulta->descricao ?? 'N/A' }}</a></td>
+                    <td>
+                        @if($diagnostico->id_consulta)
+                            <a href="{{ route('consultas.show', ['consulta' => $diagnostico->id_consulta]) }}">{{ $diagnostico->consulta->descricao ?? 'N/A' }}</a>
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td>
                         <!-- botão para editar diagnóstico -->
                         <button><a href="{{ route('diagnosticos.edit', $diagnostico->id) }}">Editar</a></button>

@@ -49,7 +49,13 @@ preparo
                     <td>{{ $solicitacao->data }}</td>
                     <td>{{ $solicitacao->justificativa }}</td>
                     <td>{{ $solicitacao->prioridade }}</td>
-                    <td><a href="{{ route('consultas.show', $solicitacao->id_consulta) }}">{{ $solicitacao->consulta->descricao ?? 'N/A' }}</a></td>
+                    <td>
+                        @if($solicitacao->id_consulta)
+                            <a href="{{ route('consultas.show', ['consulta' => $solicitacao->id_consulta]) }}">{{ $solicitacao->consulta->descricao ?? 'N/A' }}</a>
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td>
                         <!-- botão para editar solicitação de exame -->
                         <button><a href="{{ route('solicitacoesExame.edit', $solicitacao->id) }}">Editar</a></button>
