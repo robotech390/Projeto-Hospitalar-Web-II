@@ -8,9 +8,12 @@ class SolicitacaoExame extends Model
 {
     protected $table = 'solicitacao_exame';
 
-    protected $fillable = ['data', 'justificativa', 'prioridade', 'id_consulta'];
+    const CREATED_AT = 'data_criacao';
+    const UPDATED_AT = 'data_alteracao';
 
-    protected $casts = ['data' => 'datetime'];
+    protected $fillable = ['data', 'justificativa', 'prioridade', 'id_consulta', 'data_criacao', 'data_alteracao'];
+
+    protected $casts = ['data' => 'datetime', 'data_criacao' => 'datetime', 'data_alteracao' => 'datetime'];
 
     public function consulta()
     {

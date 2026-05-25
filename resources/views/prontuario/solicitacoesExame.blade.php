@@ -39,6 +39,8 @@ preparo
                 <th>data</th>
                 <th>justificativa</th>
                 <th>prioridade</th>
+                <th>Data de Criação</th>
+                <th>Data de Alteração</th>
                 <th>Consulta</th><!--id_consulta-->
             </tr>
         </thead>
@@ -49,6 +51,8 @@ preparo
                     <td>{{ $solicitacao->data }}</td>
                     <td>{{ $solicitacao->justificativa }}</td>
                     <td>{{ $solicitacao->prioridade }}</td>
+                    <td>{{ $solicitacao->data_criacao }}</td>
+                    <td>{{ $solicitacao->data_alteracao }}</td>
                     <td>
                         @if($solicitacao->id_consulta)
                             <a href="{{ route('consultas.show', ['consulta' => $solicitacao->id_consulta]) }}">{{ $solicitacao->consulta->descricao ?? 'N/A' }}</a>
