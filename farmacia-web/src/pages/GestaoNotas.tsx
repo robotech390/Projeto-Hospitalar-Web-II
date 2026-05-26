@@ -12,15 +12,6 @@ export default function GestaoNotas() {
     axios.get('http://localhost:8000/api/medicamentos').then(res => setMedicamentos(res.data));
   }, []);
 
-  // Máscara Dinâmica para CPF/CNPJ
-  const aplicarMascaraDocumento = (valor: string) => {
-    const limpo = valor.replace(/\D/g, '');
-    if (limpo.length <= 11) {
-      return limpo.replace(/(\={3})(\={3})(\={3})(\={2})/g, '$1.$2.$3-$4').replace(/(.*)\.\d?$/, '$1'); // Simplificado para exemplo
-    }
-    return limpo.substring(0, 14); // CNPJ limit
-  };
-
   const adicionarNaLista = () => {
     if (!itemAtual.id_medicamento || !itemAtual.quantidade) return alert("Preencha todos os campos do item");
     setItens([...itens, itemAtual]);
@@ -30,7 +21,6 @@ export default function GestaoNotas() {
   const processarNota = async () => {
     setProcessando(true);
     try {
-      // O tipo agora é fixo 'E' (Entrada)
       await axios.post('http://localhost:8000/api/notas-fiscais', { ...nf, tipo: 'E', itens });
       alert("Estoque alimentado com sucesso!");
       setItens([]);
@@ -50,7 +40,23 @@ export default function GestaoNotas() {
           placeholder="CPF/CNPJ do Fornecedor" 
           className="border p-2 rounded" 
           value={nf.cpf_cnpj} 
-          onChange={e => setNf({...nf, cpf_cnpj: e.target.value.replace(/\D/g, '')})} 
+          maxLength={18}
+          onChange={e => {
+            let v = e.target.value.replace(/\D/g, '');
+            
+            if (v.length <= 11) { // Máscara de CPF
+              v = v.replace(/(\d{3})(\d)/, '$1.$2');
+              v = v.replace(/(\d{3})(\d)/, '$1.$2');
+              v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            } else { // Máscara de CNPJ
+              v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+              v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+              v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+              v = v.replace(/(\d{4})(\d)/, '$1-$2');
+            }
+            
+            setNf({...nf, cpf_cnpj: v});
+          }} 
         />
         <input type="date" className="border p-2 rounded" value={nf.data} onChange={e => setNf({...nf, data: e.target.value})} />
       </div>

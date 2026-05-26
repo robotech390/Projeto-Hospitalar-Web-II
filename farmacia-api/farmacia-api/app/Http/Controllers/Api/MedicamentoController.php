@@ -16,8 +16,6 @@ class MedicamentoController extends Controller
 
     public function store(Request $request)
     {
-        // Risco: Não estamos validando os dados (Request Validation) por enquanto. 
-        // Se o React mandar um texto no lugar do preço, o MySQL vai rejeitar.
         try {
             $medicamento = Medicamento::create($request->all());
             return response()->json($medicamento, 201);
@@ -32,7 +30,6 @@ class MedicamentoController extends Controller
             $medicamento = Medicamento::find($id);
             if (!$medicamento) return response()->json(['erro' => 'Não encontrado'], 404);
 
-            // Remove o principio_ativo do request para impedir que ele seja editado
             $dados = $request->except(['principio_ativo']);
             
             $medicamento->update($dados);

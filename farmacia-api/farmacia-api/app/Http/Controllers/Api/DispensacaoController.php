@@ -11,7 +11,6 @@ class DispensacaoController extends Controller
 {
     public function show($id)
     {
-        // 1. Busca na tabela medicamento_receita e cruza com medicamento
         $itemReceita = DB::table('medicamento_receita')
             ->join('medicamento', 'medicamento_receita.id_medicamento', '=', 'medicamento.id')
             ->where('medicamento_receita.id', $id)
@@ -27,7 +26,6 @@ class DispensacaoController extends Controller
             return response()->json(['erro' => 'Item não encontrado na tabela medicamento_receita.'], 404);
         }
 
-        // 2. Busca o lote ideal (Vence primeiro e tem estoque)
         $lote = Lote::where('id_medicamento', $itemReceita->id_medicamento)
             ->where('ativo', 1)
             ->where('quantidade_produtos', '>=', $itemReceita->qtd_receitada)
@@ -63,14 +61,11 @@ class DispensacaoController extends Controller
                 return response()->json(['erro' => 'Estoque físico insuficiente no lote'], 400);
             }
 
-            // Decrementa o estoque
             $lote->quantidade_produtos -= $request->quantidade;
             if ($lote->quantidade_produtos <= 0) {
                 $lote->ativo = 0;
             }
             $lote->save();
-
-            // Removida a atualização do 'status' no banco de dados
 
             return response()->json(['mensagem' => 'Dispensação confirmada e estoque atualizado!']);
         });

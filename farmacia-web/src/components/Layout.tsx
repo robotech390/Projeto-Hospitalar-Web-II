@@ -4,9 +4,13 @@ export default function Layout() {
   return (
     <div className="flex h-screen bg-[var(--color-brand-bg)] font-sans">
       <aside className="w-64 bg-[var(--color-brand-dark)] text-white flex flex-col">
-        <div className="p-6 text-2xl font-bold border-b border-[var(--color-brand-primary)]">
-          SAÚDE+VC
-        </div>
+      <div className="p-4 border-b border-[var(--color-brand-primary)] flex justify-center items-center">
+        <img 
+          src="./public/logo.png" 
+          alt="Logo Farmácia" 
+          className="w-32 h-auto object-contain drop-shadow-md"
+        />
+      </div>
         <nav className="flex-1 p-4 space-y-2">
           <div className="text-xs text-[var(--color-brand-light)] font-semibold mb-4 mt-2">
             MÓDULO FARMÁCIA
