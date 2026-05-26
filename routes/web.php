@@ -49,3 +49,6 @@ Route::delete('/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::
 Route::get('/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::class, 'mostrar'])->name('solicitacoesExame.show');
 Route::get('/solicitacoes-exame/{solicitacao}/edit', [SolicitacaoExameController::class, 'editar'])->name('solicitacoesExame.edit');
 Route::put('/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::class, 'atualizar'])->name('solicitacoesExame.update');
+
+// Web: rota organizada para o prontuário — lista de solicitações de exame (view)
+Route::get('/prontuario/solicitacoes-exame', [SolicitacaoExameController::class, 'lista'])->name('prontuario.solicitacoesExame.index');

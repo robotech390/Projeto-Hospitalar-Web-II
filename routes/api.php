@@ -19,6 +19,9 @@ Route::middleware('auth.jwt')->group(function () {
         return view('home');
     });
 
+    // Top-level API endpoints (listas gerais)
+    Route::get('solicitacoes-exame', [SolicitacaoExameController::class, 'all']);
+    Route::get('receitas', [ReceitaController::class, 'all']);
     // -- CONSULTAS -----------------------------------------------------
     Route::get('consultas/fila/hoje',              [ConsultaController::class, 'fila']);
     Route::get('pacientes/{idPaciente}/historico', [ConsultaController::class, 'historico']);
@@ -54,11 +57,6 @@ Route::middleware('auth.jwt')->group(function () {
         Route::post('solicitacoes-exame/{id}/itens',              [SolicitacaoExameController::class, 'adicionarItem']);
         Route::delete('solicitacoes-exame/{id}/itens/{idItem}',   [SolicitacaoExameController::class, 'removerItem']);
     });
-
-    // -- RESULTADOS DE EXAME (leitura do Grupo 5) -------------------------
-    Route::get('pacientes/{idPaciente}/resultados-exame', [SolicitacaoExameController::class, 'resultadosPaciente']);
-    // -- AGENDAMENTOS (leitura do Grupo 2) -------------------------
-    Route::get('pacientes/{idPaciente}/agendamentos', [ConsultaController::class, 'agendamentosPaciente']);
     /*
     Entrada: 
         Lê agendamentos do Grupo 2: 

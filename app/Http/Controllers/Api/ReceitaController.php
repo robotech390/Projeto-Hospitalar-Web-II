@@ -13,25 +13,13 @@ use Illuminate\Http\JsonResponse;
 
 class ReceitaController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/receitas",
-     *     tags={"Receita"},
-     *     summary="Obter lista de receitas",
-     *     description="Retorna uma lista de todas as receitas.",
-     *     @OA\Response(
-     *         response=200,
-     *         description="Lista de receitas retornado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Receita")
-     *     )
-     * )
-     */
+    // View: lista de receitas (documentação OpenAPI mantida nas rotas API)
     public function lista()
     {
         $receitas = Receita::with('consulta')->get();
         return view('prontuario.receitas', compact('receitas'));
     }
-
+    // View: formulário de receita
     public function formulario(?int $consultaId = null)
     {
         $consultas = Consulta::all();
@@ -40,7 +28,7 @@ class ReceitaController extends Controller
 
         return view('prontuario.receitaForm', compact('consultas', 'medicamentos', 'selectedConsulta'));
     }
-
+    // Ações de criação, leitura, atualização e remoção
     public function salvar(ReceitaRequest $request)
     {
         $receita = Receita::create($request->safe()->except('medicamentos'));
@@ -58,12 +46,11 @@ class ReceitaController extends Controller
 
         return redirect()->route('receitas.index')->with('success', 'Receita criada com sucesso.');
     }
-
     public function mostrar(int $id)
     {
         return redirect()->route('receitas.index');
     }
-
+    // View: formulário de edição de receita
     public function editar(int $id)
     {
         $receita = Receita::with('medicamentos')->findOrFail($id);
@@ -72,7 +59,7 @@ class ReceitaController extends Controller
 
         return view('prontuario.receitaForm', compact('receita', 'consultas', 'medicamentos'));
     }
-
+    // Ação de atualização de receita
     public function atualizar(ReceitaRequest $request, int $id)
     {
         $receita = Receita::findOrFail($id);
@@ -92,7 +79,7 @@ class ReceitaController extends Controller
 
         return redirect()->route('receitas.index')->with('success', 'Receita atualizada com sucesso.');
     }
-
+    // Ação de remoção de receita
     public function remover(int $id)
     {
         $receita = Receita::findOrFail($id);
@@ -394,6 +381,29 @@ class ReceitaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Medicamento removido da receita.',
+        ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/receitas",
+     *     tags={"Receita"},
+     *     summary="Obter lista de receitas",
+     *     description="Retorna uma lista de todas as receitas do sistema.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de receitas retornada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Receita"))
+     *     )
+     * )
+     */
+    public function all(): JsonResponse
+    {
+        $receitas = Receita::with('medicamentos', 'consulta')->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $receitas,
         ]);
     }
 }

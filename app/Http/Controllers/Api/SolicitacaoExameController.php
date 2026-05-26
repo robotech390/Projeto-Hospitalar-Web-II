@@ -430,4 +430,27 @@ class SolicitacaoExameController extends Controller
             'data'    => $itens,
         ]);
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/solicitacoes-exame",
+     *     tags={"Solicitação de Exame"},
+     *     summary="Listar todas as solicitações de exame",
+     *     description="Retorna todas as solicitações de exame do sistema.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de solicitações retornada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/SolicitacaoExame"))
+     *     )
+     * )
+     */
+    public function all(): JsonResponse
+    {
+        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $solicitacoes,
+        ]);
+    }
 }
