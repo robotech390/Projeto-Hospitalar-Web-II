@@ -1,18 +1,36 @@
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { authApi } from '../api/auth'
 import { senhaForte } from '../utils/validadores'
 import { useToast } from '../contexts/ToastContext'
 import AuthLayout from '../components/layout/AuthLayout'
 
-export default function AlterarSenha() {
-  const { state } = useLocation()
-  const navigate  = useNavigate()
+export default function RedefinirSenha() {
+  const [params]    = useSearchParams()
+  const navigate    = useNavigate()
   const { mostrar } = useToast()
 
-  const [form, setForm]       = useState({ nova_senha: '', nova_senha_confirmation: '' })
-  const [erro, setErro]       = useState('')
+  const tokenUrl = params.get('token') || ''
+  const emailUrl = params.get('email') || ''
+
+  const [form, setForm] = useState({ nova_senha: '', nova_senha_confirmation: '' })
+  const [erro, setErro] = useState('')
   const [loading, setLoading] = useState(false)
+
+  if (!tokenUrl || !emailUrl) {
+    return (
+      <AuthLayout etiqueta="Redefinição de senha">
+        <h1 className="text-2xl font-semibold text-slate-800 mb-2">Link inválido</h1>
+        <p className="text-sm text-slate-500 mb-6">
+          O link de redefinição é inválido ou está incompleto. Solicite um novo no formulário "Esqueci minha senha".
+        </p>
+        <Link to="/esqueci-senha" className="btn-primary w-full block text-center">
+          Solicitar novo link
+        </Link>
+      </AuthLayout>
+    )
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,31 +47,27 @@ export default function AlterarSenha() {
 
     setLoading(true)
     try {
-      const { data } = await authApi.alterarSenhaPrimeiroAcesso({
-        email:                   state?.email,
-        senha_atual:             state?.senhaAtual,
+      await authApi.redefinirSenha({
+        email: emailUrl,
+        token: tokenUrl,
         nova_senha:              form.nova_senha,
         nova_senha_confirmation: form.nova_senha_confirmation,
       })
-
-      if (data?.token) {
-        localStorage.setItem('token', data.token)
-      }
-
-      mostrar('Senha cadastrada com sucesso!', 'sucesso')
-      navigate('/')
+      mostrar('Senha redefinida! Faça login com a nova senha.', 'sucesso')
+      navigate('/login')
     } catch (err) {
-      setErro(err.mensagemAmigavel || 'Não foi possível alterar a senha. Tente novamente.')
+      setErro(err.mensagemAmigavel || 'Não foi possível redefinir sua senha. O link pode ter expirado.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <AuthLayout etiqueta="Primeiro acesso">
-      <h1 className="text-2xl font-semibold text-slate-800 mb-1">Defina sua senha</h1>
+    <AuthLayout etiqueta="Nova senha">
+      <h1 className="text-2xl font-semibold text-slate-800 mb-1">Redefinir senha</h1>
       <p className="text-sm text-slate-400 mb-7">
-        Por segurança, crie uma senha pessoal com ao menos 8 caracteres, uma letra e um número.
+        Para <strong className="text-slate-700">{emailUrl}</strong>. Crie uma senha com ao menos 8 caracteres,
+        uma letra e um número.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,6 +79,7 @@ export default function AlterarSenha() {
             placeholder="Mínimo 8 caracteres"
             className="input" />
         </div>
+
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1.5">Confirme a senha</label>
           <input type="password" required
@@ -82,9 +97,14 @@ export default function AlterarSenha() {
           className="btn-primary w-full py-2.5 flex items-center justify-center">
           {loading
             ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            : 'Salvar e entrar'}
+            : 'Salvar nova senha'}
         </button>
       </form>
+
+      <Link to="/login"
+        className="mt-6 text-sm text-slate-500 hover:text-brand flex items-center gap-1.5 justify-center transition-colors">
+        <ArrowLeft size={14} /> Voltar para o login
+      </Link>
     </AuthLayout>
   )
 }

@@ -3,58 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegistrarUsuarioRequest;
+use App\Models\Pessoa;
 use App\Models\Usuario;
 use App\Services\LogService;
 use App\Services\SenhaService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-/**
- * Gerenciamento de usuários do sistema.
- *
- * O endpoint principal é POST /api/usuarios/registrar, chamado pelas
- * outras equipes quando criam uma entidade que precisa de acesso ao sistema
- * (ex: Grupo 2 cria um paciente → chama este endpoint para criar o login dele).
- */
 class UsuarioController extends Controller
 {
-    // ─── Registrar usuário (chamado pelas outras equipes) ─────────────────────
-
     /**
      * @OA\Post(
      *     path="/usuarios/registrar",
      *     tags={"Usuários"},
-     *     summary="Registrar novo usuário (endpoint para as outras equipes)",
-     *     description="Cria um usuário no sistema de autenticação. Deve ser chamado quando outra equipe cria uma entidade que precisará se logar (ex: novo paciente, novo farmacêutico). Gera uma senha aleatória de primeiro acesso e a envia por e-mail ao usuário.",
+     *     summary="Registrar novo usuário",
+     *     description="Cria um usuário no sistema. Gera senha aleatória e envia por e-mail. Para administradores o campo id_cadastro é opcional.",
      *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email","funcao","id_cadastro","nome"},
-     *             @OA\Property(property="email",       type="string", format="email", example="maria.santos@email.com",
-     *                 description="E-mail do usuário. Será usado como login e receberá a senha de primeiro acesso."),
-     *             @OA\Property(property="funcao",      type="string", example="paciente",
-     *                 description="Papel do usuário. Valores aceitos: administrador | medico | farmaceutico | recepcionista | paciente"),
-     *             @OA\Property(property="id_cadastro", type="integer", example=42,
-     *                 description="ID do cadastro do usuário no sistema de origem (ex: ID do paciente na tabela do Grupo 2)."),
-     *             @OA\Property(property="nome",        type="string", example="Maria Santos",
-     *                 description="Nome completo do usuário.")
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"email","funcao","nome"},
+     *             @OA\Property(property="email",       type="string", format="email", example="maria@email.com"),
+     *             @OA\Property(property="funcao",      type="string", example="paciente"),
+     *             @OA\Property(property="id_cadastro", type="integer", example=42),
+     *             @OA\Property(property="nome",        type="string", example="Maria Santos")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Usuário criado com sucesso. Senha enviada por e-mail.",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="mensagem",     type="string",  example="Usuário criado com sucesso. A senha de primeiro acesso foi enviada para o e-mail informado."),
-     *             @OA\Property(property="id_usuario",   type="integer", example=10),
-     *             @OA\Property(property="email",        type="string",  example="maria.santos@email.com"),
-     *             @OA\Property(property="funcao",       type="string",  example="paciente"),
-     *             @OA\Property(property="id_cadastro",  type="integer", example=42)
-     *         )
-     *     ),
+     *     @OA\Response(response=201, description="Usuário criado. Senha enviada por e-mail."),
      *     @OA\Response(response=422, ref="#/components/schemas/RespostaErro"),
-     *     @OA\Response(response=401, description="Token JWT ausente ou inválido")
+     *     @OA\Response(response=401, description="Token inválido")
      * )
      */
     public function registrar(RegistrarUsuarioRequest $request): JsonResponse
@@ -70,7 +48,6 @@ class UsuarioController extends Controller
             'primeiro_acesso' => true,
         ]);
 
-        // Envia a senha por e-mail
         SenhaService::enviarSenhaPrimeiroAcesso(
             email:  $request->email,
             nome:   $request->nome,
@@ -78,14 +55,14 @@ class UsuarioController extends Controller
             senha:  $senhaPrimeiroAcesso,
         );
 
-        $usuarioLogado = JWTAuth::parseToken()->authenticate();
+        $logado = JWTAuth::parseToken()->authenticate();
         LogService::registrar(
-            $usuarioLogado,
-            "Usuário {$usuarioLogado->usuario} registrou o novo usuário '{$request->nome}' ({$request->funcao}) com e-mail {$request->email}."
+            $logado,
+            "Usuário {$logado->usuario} registrou o novo usuário '{$request->nome}' ({$request->funcao}) com e-mail {$request->email}."
         );
 
         return response()->json([
-            'mensagem'    => 'Usuário criado com sucesso. A senha de primeiro acesso foi enviada para o e-mail informado.',
+            'mensagem'    => 'Usuário criado com sucesso. A senha de primeiro acesso foi enviada por e-mail.',
             'id_usuario'  => $usuario->id,
             'email'       => $usuario->email,
             'funcao'      => $usuario->funcao,
@@ -93,35 +70,55 @@ class UsuarioController extends Controller
         ], 201);
     }
 
-    // ─── Listar usuários ──────────────────────────────────────────────────────
+    /**
+     * @OA\Post(
+     *     path="/usuarios/{id}/reenviar-senha",
+     *     tags={"Usuários"},
+     *     summary="Reenviar senha de primeiro acesso",
+     *     description="Gera uma nova senha temporária para o usuário e a envia por e-mail. Marca o usuário como primeiro_acesso = true, forçando a troca no próximo login.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Nova senha enviada por e-mail"),
+     *     @OA\Response(response=404, description="Usuário não encontrado")
+     * )
+     */
+    public function reenviarSenha(int $id): JsonResponse
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        SenhaService::reenviarSenhaPrimeiroAcesso($usuario);
+
+        $logado = JWTAuth::parseToken()->authenticate();
+        LogService::registrar(
+            $logado,
+            "Usuário {$logado->usuario} reenviou a senha de primeiro acesso para '{$usuario->usuario}' ({$usuario->email})."
+        );
+
+        return response()->json([
+            'mensagem' => "Nova senha temporária enviada para {$usuario->email}.",
+        ]);
+    }
 
     /**
      * @OA\Get(
      *     path="/usuarios",
      *     tags={"Usuários"},
      *     summary="Listar usuários",
-     *     description="Retorna a lista de todos os usuários do sistema. Suporta filtro por funcao via query string.",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="funcao", in="query", required=false,
-     *         description="Filtra por função: administrador | medico | farmaceutico | recepcionista | paciente",
-     *         @OA\Schema(type="string", example="medico")
-     *     ),
+     *     @OA\Parameter(name="funcao", in="query", @OA\Schema(type="string", example="medico")),
      *     @OA\Response(response=200, description="Lista de usuários"),
-     *     @OA\Response(response=401, description="Token inválido ou ausente")
+     *     @OA\Response(response=401, description="Token inválido")
      * )
      */
     public function index(): JsonResponse
     {
-        $funcao   = request('funcao');
-        $usuarios = Usuario::when($funcao, fn($q) => $q->where('funcao', $funcao))
-            ->select('id', 'usuario', 'email', 'funcao', 'id_cadastro', 'primeiro_acesso', 'data_criacao', 'data_alteracao')
+        $usuarios = Usuario::when(request('funcao'), fn($q) => $q->where('funcao', request('funcao')))
+            ->select('id', 'usuario', 'email', 'funcao', 'id_pessoa', 'id_cadastro', 'primeiro_acesso', 'data_criacao', 'data_alteracao')
             ->orderBy('usuario')
             ->get();
 
         return response()->json($usuarios);
     }
-
-    // ─── Exibir usuário ───────────────────────────────────────────────────────
 
     /**
      * @OA\Get(
@@ -129,21 +126,18 @@ class UsuarioController extends Controller
      *     tags={"Usuários"},
      *     summary="Buscar usuário por ID",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer", example=1)),
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Dados do usuário"),
-     *     @OA\Response(response=404, description="Usuário não encontrado"),
-     *     @OA\Response(response=401, description="Token inválido ou ausente")
+     *     @OA\Response(response=404, description="Não encontrado")
      * )
      */
     public function show(int $id): JsonResponse
     {
-        $usuario = Usuario::select('id', 'usuario', 'email', 'funcao', 'id_cadastro', 'primeiro_acesso', 'data_criacao', 'data_alteracao')
+        $usuario = Usuario::select('id', 'usuario', 'email', 'funcao', 'id_pessoa', 'id_cadastro', 'primeiro_acesso', 'data_criacao', 'data_alteracao')
             ->findOrFail($id);
 
         return response()->json($usuario);
     }
-
-    // ─── Atualizar usuário ────────────────────────────────────────────────────
 
     /**
      * @OA\Put(
@@ -151,25 +145,30 @@ class UsuarioController extends Controller
      *     tags={"Usuários"},
      *     summary="Atualizar usuário",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer", example=1)),
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(property="nome",   type="string",  example="João da Silva Atualizado"),
-     *             @OA\Property(property="funcao", type="string",  example="administrador")
-     *         )
-     *     ),
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(@OA\JsonContent(
+     *         @OA\Property(property="nome",   type="string", example="João da Silva"),
+     *         @OA\Property(property="email",  type="string", format="email"),
+     *         @OA\Property(property="funcao", type="string", example="recepcionista")
+     *     )),
      *     @OA\Response(response=200, description="Usuário atualizado"),
-     *     @OA\Response(response=404, description="Usuário não encontrado"),
-     *     @OA\Response(response=401, description="Token inválido ou ausente")
+     *     @OA\Response(response=404, description="Não encontrado"),
+     *     @OA\Response(response=422, ref="#/components/schemas/RespostaErro")
      * )
      */
-    public function update(int $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $usuario = Usuario::findOrFail($id);
 
-        $dados = request()->validate([
-            'nome'   => ['sometimes', 'string', 'max:100'],
+        $dados = $request->validate([
+            'nome'   => ['sometimes', 'string', 'min:3', 'max:100'],
+            'email'  => ['sometimes', 'email', 'max:345', Rule::unique('usuario', 'email')->ignore($usuario->id)],
             'funcao' => ['sometimes', 'string', 'in:administrador,medico,farmaceutico,recepcionista,paciente'],
+        ], [
+            'nome.min'     => 'O nome deve ter ao menos 3 caracteres.',
+            'email.email'  => 'Informe um e-mail válido.',
+            'email.unique' => 'Este e-mail já está em uso por outro usuário.',
+            'funcao.in'    => 'Função inválida.',
         ]);
 
         if (isset($dados['nome'])) {
@@ -179,13 +178,24 @@ class UsuarioController extends Controller
 
         $usuario->update($dados);
 
-        $usuarioLogado = JWTAuth::parseToken()->authenticate();
-        LogService::registrar($usuarioLogado, "Usuário {$usuarioLogado->usuario} atualizou o usuário ID {$id}.");
+        if ($usuario->id_pessoa) {
+            $pessoa = Pessoa::find($usuario->id_pessoa);
+            if ($pessoa) {
+                $pessoa->update(array_filter([
+                    'nome'  => $dados['usuario'] ?? null,
+                    'email' => $dados['email']   ?? null,
+                ], fn($v) => !is_null($v)));
+            }
+        }
 
-        return response()->json(['mensagem' => 'Usuário atualizado com sucesso.', 'usuario' => $usuario]);
+        $logado = JWTAuth::parseToken()->authenticate();
+        LogService::registrar($logado, "Usuário {$logado->usuario} atualizou o usuário ID {$id}.");
+
+        return response()->json([
+            'mensagem' => 'Usuário atualizado com sucesso.',
+            'usuario'  => $usuario->fresh(),
+        ]);
     }
-
-    // ─── Remover usuário ──────────────────────────────────────────────────────
 
     /**
      * @OA\Delete(
@@ -193,10 +203,9 @@ class UsuarioController extends Controller
      *     tags={"Usuários"},
      *     summary="Remover usuário",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer", example=1)),
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Usuário removido"),
-     *     @OA\Response(response=404, description="Usuário não encontrado"),
-     *     @OA\Response(response=401, description="Token inválido ou ausente")
+     *     @OA\Response(response=404, description="Não encontrado")
      * )
      */
     public function destroy(int $id): JsonResponse
@@ -205,8 +214,8 @@ class UsuarioController extends Controller
         $nomeRemovido = $usuario->usuario;
         $usuario->delete();
 
-        $usuarioLogado = JWTAuth::parseToken()->authenticate();
-        LogService::registrar($usuarioLogado, "Usuário {$usuarioLogado->usuario} removeu o usuário '{$nomeRemovido}' (ID {$id}).");
+        $logado = JWTAuth::parseToken()->authenticate();
+        LogService::registrar($logado, "Usuário {$logado->usuario} removeu o usuário '{$nomeRemovido}' (ID {$id}).");
 
         return response()->json(['mensagem' => 'Usuário removido com sucesso.']);
     }

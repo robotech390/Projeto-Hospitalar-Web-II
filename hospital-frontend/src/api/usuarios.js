@@ -7,12 +7,15 @@ export const usuariosApi = {
   buscar: (id) =>
     client.get(`/usuarios/${id}`),
 
-  registrar: (data) =>
-    client.post('/usuarios/registrar', data),
+  registrar: (dados) =>
+    client.post('/usuarios/registrar', dados),
 
-  atualizar: (id, data) =>
-    client.put(`/usuarios/${id}`, data),
+  atualizar: (id, dados) =>
+    client.put(`/usuarios/${id}`, dados),
 
   remover: (id) =>
     client.delete(`/usuarios/${id}`),
+
+  reenviarSenha: (id) =>
+    client.post(`/usuarios/${id}/reenviar-senha`),
 }

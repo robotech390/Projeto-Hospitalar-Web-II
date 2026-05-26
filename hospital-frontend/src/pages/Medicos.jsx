@@ -1,22 +1,28 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, UserX, UserCheck, Pencil } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import { medicosApi } from '../api/medicos'
+import { mascararCpf, mascararTelefone } from '../utils/mascaras'
 import Badge from '../components/ui/Badge'
 import Tooltip from '../components/ui/Tooltip'
+import DialogoConfirmacao from '../components/ui/DialogoConfirmacao'
+import { useToast } from '../contexts/ToastContext'
 
-const STATUS_OPTIONS = [
-  { value: 'A', label: 'Ativos'   },
-  { value: 'I', label: 'Inativos' },
-  { value: '',  label: 'Todos'    },
+const STATUS_OPCOES = [
+  { valor: 'A', label: 'Ativos'   },
+  { valor: 'I', label: 'Inativos' },
+  { valor: '',  label: 'Todos'    },
 ]
 
 export default function Medicos() {
   const qc       = useQueryClient()
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
+  const { mostrar } = useToast()
+
+  const [busca, setBusca]   = useState('')
   const [status, setStatus] = useState('A')
+  const [confirmar, setConfirmar] = useState(null)
 
   const { data: medicos = [], isLoading } = useQuery({
     queryKey: ['medicos', status],
@@ -25,24 +31,37 @@ export default function Medicos() {
 
   const inativar = useMutation({
     mutationFn: (id) => medicosApi.inativar(id),
-    onSuccess: () => qc.invalidateQueries(['medicos']),
+    onSuccess: () => {
+      qc.invalidateQueries(['medicos'])
+      mostrar('Médico inativado.', 'sucesso')
+    },
+    onError: () => mostrar('Não foi possível inativar o médico.', 'erro'),
   })
 
-  // Reativar: envia status A via atualizar
   const reativar = useMutation({
-    mutationFn: (id) => medicosApi.atualizar(id, { status: 'A' }),
-    onSuccess: () => qc.invalidateQueries(['medicos']),
+    mutationFn: (medico) => medicosApi.atualizar(medico.id, {
+      nome:   medico.nome,
+      cpf:    medico.cpf,
+      email:  medico.email,
+      crm:    medico.crm,
+      uf_crm: medico.uf_crm,
+      status: 'A',
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries(['medicos'])
+      mostrar('Médico reativado.', 'sucesso')
+    },
+    onError: () => mostrar('Não foi possível reativar o médico.', 'erro'),
   })
 
-  const filtered = medicos.filter((m) =>
-    m.nome?.toLowerCase().includes(search.toLowerCase()) ||
-    m.crm?.includes(search) ||
-    m.especialidade?.toLowerCase().includes(search.toLowerCase())
+  const medicosFiltrados = medicos.filter((m) =>
+    m.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+    m.crm?.includes(busca) ||
+    m.especialidade?.toLowerCase().includes(busca.toLowerCase())
   )
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">Médicos</h1>
@@ -55,21 +74,19 @@ export default function Medicos() {
         </Tooltip>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
+          <input value={busca} onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por nome, CRM..." className="input pl-8" />
         </div>
 
-        {/* Filtro de status com tabs */}
         <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden">
-          {STATUS_OPTIONS.map((opt) => (
-            <button key={opt.value}
-              onClick={() => setStatus(opt.value)}
+          {STATUS_OPCOES.map((opt) => (
+            <button key={opt.valor}
+              onClick={() => setStatus(opt.valor)}
               className={`px-4 py-1.5 text-sm transition-colors border-r last:border-r-0 border-slate-200 ${
-                status === opt.value
+                status === opt.valor
                   ? 'bg-brand text-white font-medium'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
@@ -80,12 +97,11 @@ export default function Medicos() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="card p-0 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100">
-              {['Nome', 'CRM', 'Especialidade', 'Tipo', 'Status', 'Ações'].map((h) => (
+              {['Nome', 'CRM', 'CPF', 'Especialidade', 'Status', 'Ações'].map((h) => (
                 <th key={h} className={`px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider ${
                   h === 'Ações' ? 'text-right' : 'text-left'
                 }`}>{h}</th>
@@ -95,17 +111,17 @@ export default function Medicos() {
           <tbody className="divide-y divide-slate-50">
             {isLoading ? (
               <tr><td colSpan={6} className="text-center py-10 text-slate-400 text-sm">Carregando...</td></tr>
-            ) : filtered.length === 0 ? (
+            ) : medicosFiltrados.length === 0 ? (
               <tr><td colSpan={6} className="text-center py-10 text-slate-400 text-sm">Nenhum médico encontrado.</td></tr>
-            ) : filtered.map((m) => (
+            ) : medicosFiltrados.map((m) => (
               <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-5 py-3">
                   <p className="font-medium text-slate-700">{m.nome}</p>
                   <p className="text-xs text-slate-400">{m.email}</p>
                 </td>
                 <td className="px-5 py-3 text-slate-500">{m.crm}-{m.uf_crm}</td>
+                <td className="px-5 py-3 text-slate-500">{m.cpf ? mascararCpf(m.cpf) : '—'}</td>
                 <td className="px-5 py-3 text-slate-500">{m.especialidade || '—'}</td>
-                <td className="px-5 py-3 text-slate-500">{m.tipo || '—'}</td>
                 <td className="px-5 py-3">
                   <Badge variant={m.status === 'A' ? 'active' : 'inactive'}>
                     {m.status === 'A' ? 'Ativo' : 'Inativo'}
@@ -122,19 +138,15 @@ export default function Medicos() {
 
                     {m.status === 'A' ? (
                       <Tooltip text="Inativar médico">
-                        <button
-                          onClick={() => { if (confirm(`Inativar Dr(a). ${m.nome}?`)) inativar.mutate(m.id) }}
-                          className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 text-slate-400 transition-colors"
-                        >
+                        <button onClick={() => setConfirmar({ ...m, acao: 'inativar' })}
+                          className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 text-slate-400 transition-colors">
                           <UserX size={15} />
                         </button>
                       </Tooltip>
                     ) : (
                       <Tooltip text="Reativar médico">
-                        <button
-                          onClick={() => { if (confirm(`Reativar Dr(a). ${m.nome}?`)) reativar.mutate(m.id) }}
-                          className="p-1.5 rounded-lg hover:bg-green-50 hover:text-green-600 text-slate-400 transition-colors"
-                        >
+                        <button onClick={() => setConfirmar({ ...m, acao: 'reativar' })}
+                          className="p-1.5 rounded-lg hover:bg-green-50 hover:text-green-600 text-slate-400 transition-colors">
                           <UserCheck size={15} />
                         </button>
                       </Tooltip>
@@ -146,6 +158,24 @@ export default function Medicos() {
           </tbody>
         </table>
       </div>
+
+      <DialogoConfirmacao
+        aberto={Boolean(confirmar)}
+        titulo={confirmar?.acao === 'inativar' ? 'Inativar médico?' : 'Reativar médico?'}
+        mensagem={
+          confirmar?.acao === 'inativar'
+            ? `Tem certeza que deseja inativar Dr(a). ${confirmar?.nome}? Você poderá reativar depois.`
+            : `Reativar Dr(a). ${confirmar?.nome}? O médico voltará a aparecer nas listagens ativas.`
+        }
+        textoConfirmar={confirmar?.acao === 'inativar' ? 'Inativar' : 'Reativar'}
+        variante={confirmar?.acao === 'inativar' ? 'perigo' : 'aviso'}
+        onCancelar={() => setConfirmar(null)}
+        onConfirmar={() => {
+          if (confirmar.acao === 'inativar') inativar.mutate(confirmar.id)
+          else reativar.mutate(confirmar)
+          setConfirmar(null)
+        }}
+      />
     </div>
   )
 }

@@ -10,9 +10,15 @@ export const authApi = {
   me: () =>
     client.get('/auth/me'),
 
-  alterarSenha: (data) =>
-    client.post('/auth/alterar-senha', data),
+  alterarSenha: (dados) =>
+    client.post('/auth/alterar-senha', dados),
 
-  alterarSenhaPrimeiroAcesso: (data) =>
-    client.post('/auth/alterar-senha-primeiro-acesso', data),
+  alterarSenhaPrimeiroAcesso: (dados) =>
+    client.post('/auth/alterar-senha-primeiro-acesso', dados),
+
+  esqueciSenha: (email) =>
+    client.post('/auth/esqueci-senha', { email }),
+
+  redefinirSenha: (dados) =>
+    client.post('/auth/redefinir-senha', dados),
 }
