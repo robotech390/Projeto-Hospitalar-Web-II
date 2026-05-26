@@ -41,6 +41,8 @@
                         <button><a href="{{ route('diagnosticos.create', $consulta->id) }}">Diagnóstico</a></button>
                         <!-- botão para criar receita -->
                         <button><a href="{{ route('receitas.create', $consulta->id) }}">Receita</a></button>
+                        <!-- botão para criar solicitação de exame -->
+                        <button><a href="{{ route('solicitacoesExame.create', $consulta->id) }}">Solicitação de Exame</a></button>
                         <!-- botão para editar consulta -->
                         <button><a href="{{ route('consultas.edit', $consulta->id) }}">Editar</a></button>
                         <!-- botão para deletar consulta -->
