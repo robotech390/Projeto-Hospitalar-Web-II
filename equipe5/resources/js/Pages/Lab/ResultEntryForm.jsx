@@ -69,8 +69,8 @@ export default function ResultEntryForm({ orders = [] }) {
   };
 
   const filtered = examOrders.filter((o) => {
-    const matchesSearch = o.paciente.toLowerCase().includes(search.toLowerCase()) ||
-      o.exame.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = (o.paciente || '').toLowerCase().includes(search.toLowerCase()) ||
+      (o.exame || '').toLowerCase().includes(search.toLowerCase());
     return matchesSearch && (o.status === 'Em Análise' || o.status === 'Coletado');
   });
 

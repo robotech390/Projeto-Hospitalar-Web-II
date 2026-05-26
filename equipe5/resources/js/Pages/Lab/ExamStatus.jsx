@@ -1,18 +1,7 @@
-import { useState } from 'react';
 import { Card, CardContent } from './components/Card';
-import Input from './components/Input';
 import StatusBadge from './components/StatusBadge';
 import { Clock, FlaskConical, Microscope, CheckCircle } from 'lucide-react';
 import AppLayout from './components/AppLayout';
-import Button from './components/Button';
-import {
-    Select,
-    SelectTrigger,
-    SelectContent,
-    SelectItem,
-    SelectValue
-} from './components/Select';
-
 
 const statusSteps = [
     { status: 'Pendente', icon: Clock, label: 'Pendente' },

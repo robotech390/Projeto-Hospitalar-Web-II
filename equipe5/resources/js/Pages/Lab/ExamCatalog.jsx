@@ -40,7 +40,7 @@ export default function ExamCatalog() {
   const [form, setForm] = useState({ nome: '', tipo: 'Sangue', preco: '', preparo: '' });
 
   const filtered = exames.filter((e) => {
-    const matchSearch = e.nome.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = (e.nome || '').toLowerCase().includes(search.toLowerCase());
     const matchTipo = filterTipo === 'Todos' || e.tipo === filterTipo;
     return matchSearch && matchTipo;
   });

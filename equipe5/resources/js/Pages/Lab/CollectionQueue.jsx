@@ -22,7 +22,13 @@ export default function CollectionQueue({ orders = [] }) {
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('Todos');
 
-  // Nenhuma lógica local de filtro ou busca, apenas exibe os dados recebidos do backend
+  const filtered = (orders || []).filter((o) => {
+    const matchSearch = (o.paciente || '').toLowerCase().includes(search.toLowerCase()) ||
+                        (o.exame || '').toLowerCase().includes(search.toLowerCase());
+    const matchTipo = filterTipo === 'Todos' || o.tipo === filterTipo;
+    return matchSearch && matchTipo;
+  });
+
   return (
     <AppLayout>
       <div>
@@ -45,7 +51,7 @@ export default function CollectionQueue({ orders = [] }) {
         </Select>
       </div>
       <div className="space-y-3 mt-4">
-        {orders.length === 0 && (
+        {filtered.length === 0 && (
           <Card className="shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-12 text-gray-400">
               <CheckCircle className="mb-2 h-10 w-10" />
@@ -53,7 +59,7 @@ export default function CollectionQueue({ orders = [] }) {
             </CardContent>
           </Card>
         )}
-        {orders.map((o) => (
+        {filtered.map((o) => (
           <Card key={o.id} className="shadow-sm transition-shadow hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex-1 min-w-0">
