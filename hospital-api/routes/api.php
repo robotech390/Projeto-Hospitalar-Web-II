@@ -31,6 +31,10 @@ Route::prefix('auth')->group(function () {
 
     // Troca de senha no primeiro acesso (não exige token, exige senha temporária)
     Route::post('alterar-senha-primeiro-acesso', [AutenticacaoController::class, 'alterarSenhaPrimeiroAcesso']);
+
+    // Fluxo do Grupo 1: Recuperação de senha por código no e-mail
+    Route::post('esqueci-senha', [AutenticacaoController::class, 'esqueciSenha']);
+    Route::post('redefinir-senha', [AutenticacaoController::class, 'redefinirSenha']);
 });
 
 // ─── Rotas protegidas por JWT ──────────────────────────────────────────────────
@@ -50,6 +54,7 @@ Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('usuarios', UsuarioController::class)->except(['store']);
 
     // ── Médicos ───────────────────────────────────────────────────────────────
+    // Modificado para apiResource de médicos
     Route::apiResource('medicos', MedicoController::class);
 
     // Agenda de um médico específico (atalho para o Grupo 2)
