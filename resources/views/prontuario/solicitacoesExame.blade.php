@@ -42,6 +42,7 @@ preparo
                 <th>Data de Criação</th>
                 <th>Data de Alteração</th>
                 <th>Consulta</th><!--id_consulta-->
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -61,6 +62,8 @@ preparo
                         @endif
                     </td>
                     <td>
+                        <!-- botão para visualizar itens de exame desta solicitação -->
+                        
                         <!-- botão para editar solicitação de exame -->
                         <button><a href="{{ route('solicitacoesExame.edit', $solicitacao->id) }}">Editar</a></button>
                         <!-- botão para deletar solicitação de exame -->
@@ -74,6 +77,36 @@ preparo
             @endforeach
         </tbody>
     </table>
-    <button><a href="{{ route('solicitacoesExame.form') }}">Nova Solicitação de Exame</a></button>
+    <div style="margin-top:1rem;">
+        <button id="btnListarItens">Listar Itens de Exame (API)</button>
+        <button><a href="{{ route('solicitacoesExame.form') }}">Nova Solicitação de Exame</a></button>
+    </div>
+
+    <div id="apiResults" style="white-space:pre-wrap; margin-top:1rem; border:1px solid #ccc; padding:0.5rem; display:none;"></div>
+
+    <script>
+    document.getElementById('btnListarItens').addEventListener('click', function(){
+        const out = document.getElementById('apiResults');
+        out.style.display = 'block';
+        out.textContent = 'Carregando...';
+        fetch('/api/itens-exame', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        }).then(async response => {
+            if(!response.ok){
+                const txt = await response.text();
+                out.textContent = 'Erro: ' + response.status + '\n' + txt;
+                return;
+            }
+            const data = await response.json();
+            out.textContent = JSON.stringify(data, null, 2);
+        }).catch(err=>{
+            out.textContent = 'Erro: ' + err.message;
+        });
+    });
+    </script>
 </body>
 </html>
