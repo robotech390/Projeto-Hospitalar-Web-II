@@ -11,7 +11,7 @@ class TipoCobranca extends Model
     use HasFactory;
     protected $primaryKey = 'id'; 
     protected $table = 'tipo_cobranca';
-    // public $timestamps = false;
+    public $timestamps = false;
     protected $fillable = ['descricao', 'data_criacao', 'data_alteracao'];
 
 }

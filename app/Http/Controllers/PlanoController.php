@@ -11,33 +11,38 @@ class PlanoController extends Controller{
 
     public function index(){
         return Inertia::render('Faturamento/Plano', [
-            'plano' => Plano::all()
+            'planos' => Plano::with(['convenio', 'tipoCobranca'])->orderBy('descricao')->get(),
+            'tiposCobranca' => \App\Models\TipoCobranca::orderBy('descricao')->get(),
+            'convenios' => \App\Models\Convenio::orderBy('nome')->get(),
         ]);
     }
 
     public function store(Request $request){
         $request->validate([
             'descricao' => 'required|string|max:255',
+            'id_tipo_cobranca' => 'required|exists:App\Models\TipoCobranca,id',
+            'id_convenio' => 'required|exists:App\Models\Convenio,id',
         ]);
 
-        $data = $request->all();
-        $data['descricao'] = strtolower($data['descricao']);
-
-        Plano::create($data);
+        Plano::create($request->all());
 
         return redirect()->back();
     }
 
     public function update(Request $request, Plano $plano){
-        $data = $request->all();
-        $data['descricao'] = strtolower($data['descricao']);
-        $plano->update($data);
+        $request->validate([
+            'descricao' => 'required|string|max:255',
+            'id_tipo_cobranca' => 'required|exists:App\Models\TipoCobranca,id',
+            'id_convenio' => 'required|exists:App\Models\Convenio,id',
+        ]);
 
-        return redirect()->back();
+        $plano->update($request->all());
+
+        return redirect()->back()->with('success', 'Plano atualizado com sucesso.');
     }
 
     public function destroy(Plano $plano){
         $plano->delete();
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Plano excluído com sucesso.');
     }
 }
