@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ConvenioController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\TipoCobrancaController;
+use App\Http\Controllers\FaturaController;
+use App\Http\Controllers\ContaHospitalarController;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,6 +43,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/faturamento/tipo-cobranca', [TipoCobrancaController::class, 'store']);
     Route::put('/faturamento/tipo-cobranca/{tipoCobranca}', [TipoCobrancaController::class, 'update']);
     Route::delete('/faturamento/tipo-cobranca/{tipoCobranca}', [TipoCobrancaController::class, 'destroy']);
+
+    Route::get('/faturamento/conta-hospitalar', [ContaHospitalarController::class, 'index'])->name('conta-hospitalar');
+    Route::post('/faturamento/conta-hospitalar', [ContaHospitalarController::class, 'store']);
+    Route::put('/faturamento/conta-hospitalar/{contaHospitalar}', [ContaHospitalarController::class, 'update']);
+    Route::delete('/faturamento/conta-hospitalar/{contaHospitalar}', [ContaHospitalarController::class, 'destroy']);
+
+    Route::get('/faturamento/fatura', [FaturaController::class, 'index'])->name('fatura');
+    Route::post('/faturamento/fatura', [FaturaController::class, 'store']);
+    Route::put('/faturamento/fatura/{fatura}', [FaturaController::class, 'update']);
+    Route::delete('/faturamento/fatura/{fatura}', [FaturaController::class, 'destroy']);
 });
 
 require __DIR__ . '/auth.php';
