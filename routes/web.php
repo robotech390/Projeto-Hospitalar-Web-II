@@ -20,14 +20,35 @@ Route::get('/', function () {
     ]);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Dashboard principal
+|--------------------------------------------------------------------------
+| A rota /dashboard agora abre o dashboard visual do módulo
+| Faturamento e Convênios.
+*/
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Faturamento/Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Grupo 6 - Faturamento e Convênios
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/faturamento/dashboard', function () {
+        return Inertia::render('Faturamento/Dashboard');
+    })->name('faturamento.dashboard');
+
+    Route::get('/faturamento/conta-hospitalar', function () {
+        return Inertia::render('Faturamento/ContaHospitalar');
+    })->name('faturamento.conta-hospitalar');
 
     Route::get('/faturamento/convenio', [ConvenioController::class, 'index'])->name('convenio');
     Route::post('/faturamento/convenio', [ConvenioController::class, 'store']);
