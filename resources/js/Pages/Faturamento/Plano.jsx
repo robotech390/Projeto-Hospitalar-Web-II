@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import FaturamentoLayout from '@/Components/Faturamento/FaturamentoLayout';
 import Modal from '@/Components/Faturamento/Modal';
 
@@ -135,7 +135,7 @@ export default function Plano({ planos = [], tiposCobranca = [], convenios = [],
     };
 
     if (editingId) {
-      setPlanos(
+      /*setPlanos(
         planos.map((plano) =>
           plano.id === editingId
             ? {
@@ -144,17 +144,25 @@ export default function Plano({ planos = [], tiposCobranca = [], convenios = [],
               }
             : plano
         )
-      );
+      );*/
+      router.put(`/faturamento/plano/${editingId}`, formData, {
+        onSuccess: () => {setIsModalOpen(false); setProcessing(false)},
+        onError: () => setProcessing(false),
+      });
     } else {
-      const novoPlano = {
+      /*const novoPlano = {
         id: nextId,
         ...dadosPlano,
-      };
+      };*/
+      router.post('/faturamento/plano', formData, {
+        onSuccess: () => {setIsModalOpen(false); setProcessing(false)},
+        onError: () => setProcessing(false),
+      });
 
-      setPlanos([...planos, novoPlano]);
-      setNextId(nextId + 1);
+      // setPlanos([...planos, novoPlano]);
+      // setNextId(nextId + 1);
     }
-
+/*
     setFormData({
       descricao: '',
       id_tipo_cobranca: '',
@@ -166,12 +174,13 @@ export default function Plano({ planos = [], tiposCobranca = [], convenios = [],
     });
 
     setEditingId(null);
-    setIsModalOpen(false);
+    setIsModalOpen(false);*/
   };
 
   const handleDelete = (id) => {
     if (confirm('Tem certeza que deseja deletar este plano?')) {
-      setPlanos(planos.filter((plano) => plano.id !== id));
+      // setPlanos(planos.filter((plano) => plano.id !== id));
+      router.delete(`/faturamento/plano/${id}`);
     }
   };
 
