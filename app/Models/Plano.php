@@ -13,6 +13,10 @@ class Plano extends Model
         'descricao',
         'id_tipo_cobranca',
         'id_convenio',
+        'cobre_consulta',
+        'cobre_remedio',
+        'cobre_exame',
+        'percentual_cobertura',
     ];
 
     public function convenio()
