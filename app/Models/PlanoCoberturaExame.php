@@ -20,6 +20,7 @@ class PlanoCoberturaExame extends Model
 
     public function tipoExame()
     {
-        return $this->belongsTo(Exame::class, 'id_tipo_exame');
+        // return $this->belongsTo(Exame::class, 'id_tipo_exame');
+        return 1;
     }
 }

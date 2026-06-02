@@ -20,6 +20,7 @@ class PlanoCoberturaConsulta extends Model
 
     public function tipoConsulta()
     {
-        return $this->belongsTo(TipoConsulta::class, 'id_tipo_consulta');
+        //return $this->belongsTo(TipoConsulta::class, 'id_tipo_consulta');
+        return 1;
     }
 }

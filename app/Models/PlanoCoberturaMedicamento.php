@@ -20,6 +20,7 @@ class PlanoCoberturaMedicamento extends Model
 
     public function tipoMedicamento()
     {
-        return $this->belongsTo(Medicamento::class, 'id_tipo_medicamento');
+        // return $this->belongsTo(Medicamento::class, 'id_tipo_medicamento');
+        return 1;
     }
 }
