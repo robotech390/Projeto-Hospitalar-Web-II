@@ -129,14 +129,12 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-[#eef5f3] flex text-slate-700">
             <aside className="w-64 bg-[#005f5f] text-white flex flex-col">
-                <div className="px-6 py-6 border-b border-white/10">
-                    <div className="text-2xl font-bold tracking-wide">
-                        Saúde+
-                    </div>
-
-                    <div className="text-xs text-teal-100 mt-1">
-                        Sistema Hospitalar
-                    </div>
+                <div className="px-6 py-6 border-b border-white/10 flex justify-center">
+                    <img
+                        src="/logo-saude-vc.png"
+                        alt="Saúde VC"
+                        className="w-32 h-auto object-contain"
+                    />
                 </div>
 
                 <nav className="flex-1 px-3 py-5 space-y-1">
