@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use OpenApi\Attributes as OA;
 
-#[OA\Info(
+/*#[OA\Info(
     version: "1.0.0",
     title: "Minha API Laravel",
     description: "Documentação da API do meu projeto",
@@ -22,6 +22,14 @@ use OpenApi\Attributes as OA;
     type: "http",
     scheme: "bearer"
 )]
+*/
+
+/**
+ * @OA\Info(
+ * title="Minha API de Convênios",
+ * version="1.0.0"
+ * )
+ */
 abstract class Controller
 {
     // Este arquivo pode ficar vazio ou abstrato. 

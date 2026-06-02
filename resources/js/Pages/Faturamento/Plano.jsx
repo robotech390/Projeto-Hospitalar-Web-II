@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import FaturamentoLayout from '@/Components/Faturamento/FaturamentoLayout';
 import Modal from '@/Components/Faturamento/Modal';
 
-export default function Plano() {
+
+export default function Plano({ planos = [], tiposCobranca = [], convenios = [], }) {
+  const [isModalOpen, setIsModalOpen] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [processing, setProcessing] = useState(false);
+/*export default function Plano() {
   const [tiposCobranca] = useState([
     { id: 1, descricao: 'Convênio' },
     { id: 2, descricao: 'Particular' },
@@ -42,9 +47,10 @@ export default function Plano() {
       percentual_cobertura: 80,
     },
   ]);
+  
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+   const [isModalOpen, setIsModalOpen] = useState(false);
+*/
   const [formData, setFormData] = useState({
     descricao: '',
     id_tipo_cobranca: '',
@@ -55,9 +61,9 @@ export default function Plano() {
     percentual_cobertura: 100,
   });
 
-  const [nextId, setNextId] = useState(3);
+/*  const [nextId, setNextId] = useState(3);
   const [editingId, setEditingId] = useState(null);
-
+*/
   const handleOpenModal = (id = null) => {
     if (id) {
       const plano = planos.find((p) => p.id === id);
