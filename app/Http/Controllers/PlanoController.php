@@ -14,10 +14,6 @@ class PlanoController extends Controller{
             'planos' => Plano::with(['convenio', 'tipoCobranca'])->orderBy('descricao')->get(),
             'tiposCobranca' => \App\Models\TipoCobranca::orderBy('descricao')->get(),
             'convenios' => \App\Models\Convenio::orderBy('nome')->get(),
-            'cobreConsulta' => true,
-            'cobreRemedio' => true,
-            'cobreExame' => true,
-            'percentualCobertura' => 50
         ]);
     }
 
@@ -26,10 +22,6 @@ class PlanoController extends Controller{
             'descricao' => 'required|string|max:255',
             'id_tipo_cobranca' => 'required|exists:App\Models\TipoCobranca,id',
             'id_convenio' => 'required|exists:App\Models\Convenio,id',
-            'cobreConsulta' => 'int',
-            'cobreRemedio' => 'int',
-            'cobreExame' => 'int',
-            'percentualCobertura' => 'int'
         ]);
 
         Plano::create($request->all());
@@ -42,10 +34,6 @@ class PlanoController extends Controller{
             'descricao' => 'required|string|max:255',
             'id_tipo_cobranca' => 'required|exists:App\Models\TipoCobranca,id',
             'id_convenio' => 'required|exists:App\Models\Convenio,id',
-            'cobreConsulta' => 'int',
-            'cobreRemedio' => 'int',
-            'cobreExame' => 'int',
-            'percentualCobertura' => 'int'
         ]);
 
         $plano->update($request->all());
