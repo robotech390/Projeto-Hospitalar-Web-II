@@ -14,6 +14,9 @@ class PlanoController extends Controller{
             'planos' => Plano::with(['convenio', 'tipoCobranca'])->orderBy('descricao')->get(),
             'tiposCobranca' => \App\Models\TipoCobranca::orderBy('descricao')->get(),
             'convenios' => \App\Models\Convenio::orderBy('nome')->get(),
+            /*'tiposConsulta' => \App\Models\PlanoCoberturaConsulta::orderBy('descricao')->get(),
+            'tiposExame' => \App\Models\PlanoCoberturaExame::orderBy('descricao')->get(),
+            'tiposMedicamento' => \App\Models\PlanoCoberturaMedicamento::orderBy('descricao')->get(),*/
         ]);
     }
 

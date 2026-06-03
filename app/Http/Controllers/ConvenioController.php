@@ -2,73 +2,93 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Convenio;
+use App\Http\Controllers\Controller;
+use App\Models\Endereco;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use OpenApi\Attributes as OA;
+use App\Models\Convenio;
 
 class ConvenioController extends Controller
 {
-    #[OA\Get(
-        path: "/usuarios",
-        summary: "Lista todos os usuários",
-        description: "Retorna uma lista paginada de usuários.",
-        tags: ["Usuários"],
-        security: [["bearerAuth" => []]]
-    )]
-    #[OA\Response(
-        response: 200,
-        description: "Sucesso",
-        content: new OA\JsonContent(
-            type: "array",
-            items: new OA\Items(ref: "#/components/schemas/Usuario")
-        )
-    )]
     public function index()
     {
         return Inertia::render('Faturamento/Convenio', [
-            'convenios' => Convenio::orderBy('nome')->get(),
+            'convenios' => Convenio::with('endereco')->get()
         ]);
     }
 
     public function store(Request $request)
     {
-        $dados = $request->validate([
+        $request->validate([
             'nome' => 'required|string|max:255',
-            'cnpj' => 'required|string|max:20',
-            'telefone' => 'nullable|string|max:30',
-            'email' => 'nullable|email|max:255',
         ]);
 
-        Convenio::create($dados);
+        $id_endereco = null;
 
-        return redirect()
-            ->route('convenio')
-            ->with('success', 'Convênio cadastrado com sucesso.');
+        if ($request->filled('rua') || $request->filled('numero') || $request->filled('cidade') || $request->filled('estado') || $request->filled('cep')) {
+            $endereco = Endereco::create([
+                'logradouro' => $request->rua,
+                'numero' => $request->numero,
+                'bairro' => $request->bairro,
+                'cidade' => $request->cidade,
+                'estado' => $request->estado,
+                'cep' => preg_replace('/\D/', '', $request->cep),
+            ]);
+            $id_endereco = $endereco->id;
+        }
+
+        Convenio::create([
+            'nome' => $request->nome,
+            'cnpj' => preg_replace('/\D/', '', $request->cnpj),
+            'telefone' => preg_replace('/\D/', '', $request->telefone),
+            'email' => strtolower($request->email),
+            'id_endereco' => $endereco->id,
+        ]);
+
+        return redirect()->back();
     }
 
     public function update(Request $request, Convenio $convenio)
     {
-        $dados = $request->validate([
-            'nome' => 'required|string|max:255',
-            'cnpj' => 'required|string|max:20',
-            'telefone' => 'nullable|string|max:30',
-            'email' => 'nullable|email|max:255',
+        $data = $request->all();
+        $data['cnpj'] = preg_replace('/\D/', '', $data['cnpj']);
+
+        $convenio->update([
+            'nome' => $request->nome,
+            'cnpj' => preg_replace('/\D/', '', $request->cnpj),
+            'telefone' => preg_replace('/\D/', '', $request->telefone),
+            'email' => strtolower($request->email),
         ]);
 
-        $convenio->update($dados);
+        if($request->filled('rua') || $request->filled('numero') || $request->filled('cidade') || $request->filled('estado') || $request->filled('cep')) {
+            if($convenio->id_endereco) {
+                $convenio->endereco->update([
+                    'logradouro' => $request->rua,
+                    'numero' => $request->numero,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'estado' => $request->estado,
+                    'cep' => preg_replace('/\D/', '', $request->cep),
+                ]);
+            } else {
+                $endereco = Endereco::create([
+                    'logradouro' => $request->rua,
+                    'numero' => $request->numero,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'estado' => $request->estado,
+                    'cep' => preg_replace('/\D/', '', $request->cep),
+                ]);
+                $convenio->update(['id_endereco' => $endereco->id]);
+            }
+        }
 
-        return redirect()
-            ->route('convenio')
-            ->with('success', 'Convênio atualizado com sucesso.');
+        return redirect()->back();
     }
 
     public function destroy(Convenio $convenio)
     {
         $convenio->delete();
-
-        return redirect()
-            ->route('convenio')
-            ->with('success', 'Convênio excluído com sucesso.');
+        return redirect()->back();
     }
 }
