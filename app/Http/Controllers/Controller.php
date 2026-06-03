@@ -30,6 +30,23 @@ use OpenApi\Attributes as OA;
  * version="1.0.0"
  * )
  */
+
+
+/**
+ * @OA\Info(
+ *      title="Minha API Documentation",
+ *      version="1.0.0",
+ *      description="Documentação interativa da minha API Laravel",
+ *      @OA\Contact(
+ *          email="seu-email@exemplo.com"
+ *      )
+ * )
+ * 
+ * @OA\Server(
+ *      url=L5_SWAGGER_CONST_HOST,
+ *      description="Ambiente de Desenvolvimento"
+ * )
+ */
 abstract class Controller
 {
     // Este arquivo pode ficar vazio ou abstrato. 
