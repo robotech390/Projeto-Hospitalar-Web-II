@@ -1,11 +1,13 @@
 import Layout from './Components/Layout';
-import Prontuario from './Pages/Prontuario';
-import Dashboard from './Pages/Prontuario';
+import Prontuario from './js/Pages/Prontuario';
+import Dashboard from './js/Pages/Dashboard';
 
 function App() {
+  const page = window.APP_PAGE ?? 'dashboard';
+
   return (
-    <Layout activePage="prontuario">
-      <Prontuario />
+    <Layout activePage={page}>
+      {page === 'prontuario' ? <Prontuario /> : <Dashboard />}
     </Layout>
   );
 }

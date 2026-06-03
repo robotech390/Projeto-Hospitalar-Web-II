@@ -6,9 +6,8 @@ use App\Http\Controllers\Api\DiagnosticoController;
 use App\Http\Controllers\Api\SolicitacaoExameController;
 use App\Http\Controllers\Api\ReceitaController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'app', ['page' => 'dashboard'])->name('dashboard');
+Route::view('/prontuario', 'app', ['page' => 'prontuario'])->name('prontuario');
 
 // ========== CONSULTAS ==========
 Route::get('/consultas', [ConsultaController::class, 'lista'])->name('consultas.index');
