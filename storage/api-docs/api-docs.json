@@ -16,11 +16,11 @@
         }
     ],
     "paths": {
-        "/api/convenios": {
+        "/convenios": {
             "get": {
                 "summary": "Listar todos os convênios",
                 "description": "Retorna uma lista de todos os convênios médicos cadastrados.",
-                "operationId": "32a2260c14e9afe2c49f124a09015836",
+                "operationId": "9694af025ecd119730dd7974d9bddc46",
                 "responses": {
                     "200": {
                         "description": "Lista de convênios retornada com sucesso."
@@ -33,7 +33,30 @@
             "post": {
                 "summary": "Criar um novo convênio",
                 "description": "Cria um novo convênio médico.",
-                "operationId": "3b0f98c48d95c16357f1aeca719af3e1",
+                "operationId": "f767a1885a17747c4794ed71ffca8bbc",
+                "parameters": [
+                    {
+                        "name": "convenio",
+                        "in": "path",
+                        "description": "ID do convênio que será atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Objeto Convênio a ser transportado",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Convenio"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Convênio criado com sucesso."
@@ -44,11 +67,82 @@
                 }
             }
         },
-        "/api/convenios/{convenio}": {
+        "/convenios/{convenio}": {
             "put": {
                 "summary": "Atualizar um convênio existente",
                 "description": "Atualiza as informações de um convênio médico existente.",
-                "operationId": "84adf9a4549291e6866b1c12ccb35de3",
+                "operationId": "b67be6643e67428f47d0f14e81dc92b4",
+                "parameters": [
+                    {
+                        "name": "convenio",
+                        "in": "path",
+                        "description": "ID do convênio que será atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Dados necessários para criar um convênio",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "cnpj",
+                                    "telefone",
+                                    "email",
+                                    "id_endereco",
+                                    "data_criacao",
+                                    "data_atualizacao"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "description": "Nome do convênio médico",
+                                        "type": "string",
+                                        "example": "Amil Saúde"
+                                    },
+                                    "cnpj": {
+                                        "description": "CNPJ do convênio médico",
+                                        "type": "string",
+                                        "example": "123456"
+                                    },
+                                    "telefone": {
+                                        "description": "Telefone do convênio médico",
+                                        "type": "string",
+                                        "example": "(11) 91234-5678"
+                                    },
+                                    "email": {
+                                        "description": "Email do convênio médico",
+                                        "type": "string",
+                                        "example": "contato@amil.com.br"
+                                    },
+                                    "id_endereco": {
+                                        "description": "ID do endereço do convênio médico",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "data_criacao": {
+                                        "description": "Data de criação do convênio médico",
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    },
+                                    "data_atualizacao": {
+                                        "description": "Data de atualização do convênio médico",
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Convênio atualizado com sucesso."
@@ -61,7 +155,19 @@
             "delete": {
                 "summary": "Excluir um convênio existente",
                 "description": "Exclui um convênio médico existente.",
-                "operationId": "42c93f126095955b3f20533f221a6549",
+                "operationId": "074b659d134f9478218268a92bc834e1",
+                "parameters": [
+                    {
+                        "name": "convenio",
+                        "in": "path",
+                        "description": "ID do convênio que será atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Convênio excluído com sucesso."
@@ -104,6 +210,47 @@
         }
     },
     "components": {
+        "schemas": {
+            "Convenio": {
+                "title": "Objeto Convenio",
+                "description": "Modelo de dados que representa um convênio médico",
+                "required": [
+                    "nome",
+                    "cnpj",
+                    "telefone",
+                    "email",
+                    "id_endereco"
+                ],
+                "properties": {
+                    "nome": {
+                        "description": "Nome do convênio",
+                        "type": "string",
+                        "example": "Amil Saúde"
+                    },
+                    "cnpj": {
+                        "description": "CNPJ do convênio",
+                        "type": "string",
+                        "example": "12345678000199"
+                    },
+                    "telefone": {
+                        "description": "Telefone de contato",
+                        "type": "string",
+                        "example": "(11) 91234-5678"
+                    },
+                    "email": {
+                        "description": "E-mail do convênio",
+                        "type": "string",
+                        "example": "contato@amil.com"
+                    },
+                    "id_endereco": {
+                        "description": "ID do endereço vinculado",
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",

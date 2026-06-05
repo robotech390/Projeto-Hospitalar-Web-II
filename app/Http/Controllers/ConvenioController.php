@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 class ConvenioController extends Controller
 {
     #[OA\Get(
-        path: "/api/convenios",
+        path: "/convenios",
         summary: "Listar todos os convênios",
         description: "Retorna uma lista de todos os convênios médicos cadastrados.",
         responses: [
@@ -34,10 +34,19 @@ class ConvenioController extends Controller
     }
 
     #[OA\Post(
-        path: "/api/convenios",
+        path: "/convenios",
         summary: "Criar um novo convênio",
         description: "Cria um novo convênio médico.",
-        requestBody: new OA\RequestBody(
+        parameters: [
+            new OA\Parameter(
+                name: "convenio",
+                in: "path", // Significa que vai substituir o {convenio} no link
+                description: "ID do convênio que será atualizado",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            )
+        ],
+        /*requestBody: new OA\RequestBody(
             required: true,
             description: "Dados necessários para criar um convênio",
             content: new OA\MediaType(
@@ -93,6 +102,15 @@ class ConvenioController extends Controller
                     ]
                 )
             )
+        ),*/
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Objeto Convênio a ser transportado",
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                // Aqui dizemos que o corpo da requisição REQUER o Schema 'Convenio'
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
+            )
         ),
         responses: [
             new OA\Response(
@@ -137,9 +155,18 @@ class ConvenioController extends Controller
     }
 
     #[OA\Put(
-        path: "/api/convenios/{convenio}",
+        path: "/convenios/{convenio}",
         summary: "Atualizar um convênio existente",
         description: "Atualiza as informações de um convênio médico existente.",
+        parameters: [
+            new OA\Parameter(
+                name: "convenio",
+                in: "path", // Significa que vai substituir o {convenio} no link
+                description: "ID do convênio que será atualizado",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            )
+        ],
         requestBody: new OA\RequestBody(
             required: true,
             description: "Dados necessários para criar um convênio",
@@ -172,12 +199,6 @@ class ConvenioController extends Controller
                             description: "Email do convênio médico",
                             type: "string",
                             example: "contato@amil.com.br"
-                        ),
-                        new OA\Property(
-                            property: "telefone",
-                            description: "Telefone do convênio médico",
-                            type: "string",
-                            example: "(11) 91234-5678"
                         ),
                         new OA\Property(
                             property: "id_endereco",
@@ -253,10 +274,19 @@ class ConvenioController extends Controller
     }
 
     #[OA\Delete(
-        path: "/api/convenios/{convenio}",
+        path: "/convenios/{convenio}",
         summary: "Excluir um convênio existente",
         description: "Exclui um convênio médico existente.",
-        requestBody: new OA\RequestBody(
+        parameters: [
+            new OA\Parameter(
+                name: "convenio",
+                in: "path", // Significa que vai substituir o {convenio} no link
+                description: "ID do convênio que será atualizado",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            )
+        ],
+        /*requestBody: new OA\RequestBody(
             required: true,
             description: "Dados necessários para criar um convênio",
             content: new OA\MediaType(
@@ -274,7 +304,7 @@ class ConvenioController extends Controller
                     ]
                 )
             )
-        ),
+        ),*/
         responses: [
             new OA\Response(
                 response: 200,
