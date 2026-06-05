@@ -1,0 +1,114 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Projeto Hospitalar Web II API",
+        "description": "Projeto para gerenciamento hospitalar, incluindo convênios, planos e tipos de cobrança. Esse projeto foi desenvolvido utilizando Laravel, React, ",
+        "contact": {
+            "name": "Seu Nome",
+            "email": "seu-email@exemplo.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "Ambiente de Desenvolvimento"
+        }
+    ],
+    "paths": {
+        "/api/convenios": {
+            "get": {
+                "summary": "Listar todos os convênios",
+                "description": "Retorna uma lista de todos os convênios médicos cadastrados.",
+                "operationId": "32a2260c14e9afe2c49f124a09015836",
+                "responses": {
+                    "200": {
+                        "description": "Lista de convênios retornada com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            },
+            "post": {
+                "summary": "Criar um novo convênio",
+                "description": "Cria um novo convênio médico.",
+                "operationId": "3b0f98c48d95c16357f1aeca719af3e1",
+                "responses": {
+                    "200": {
+                        "description": "Convênio criado com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            }
+        },
+        "/api/convenios/{convenio}": {
+            "put": {
+                "summary": "Atualizar um convênio existente",
+                "description": "Atualiza as informações de um convênio médico existente.",
+                "operationId": "84adf9a4549291e6866b1c12ccb35de3",
+                "responses": {
+                    "200": {
+                        "description": "Convênio atualizado com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Excluir um convênio existente",
+                "description": "Exclui um convênio médico existente.",
+                "operationId": "42c93f126095955b3f20533f221a6549",
+                "responses": {
+                    "200": {
+                        "description": "Convênio excluído com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            }
+        },
+        "/api/planos": {
+            "get": {
+                "summary": "Listar todos os planos",
+                "description": "Retorna uma lista de todos os planos médicos cadastrados.",
+                "operationId": "f756579110476a0107fbee0941c9449d",
+                "responses": {
+                    "200": {
+                        "description": "Lista de planos retornada com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            }
+        },
+        "/api/tipos-cobranca": {
+            "get": {
+                "summary": "Listar todos os tipos de cobrança",
+                "description": "Retorna uma lista de todos os tipos de cobrança cadastrados.",
+                "operationId": "8615f7ead74331e0e1027c87cf9463d3",
+                "responses": {
+                    "200": {
+                        "description": "Lista de tipos de cobrança retornada com sucesso."
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

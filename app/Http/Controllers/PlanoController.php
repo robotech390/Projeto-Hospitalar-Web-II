@@ -6,9 +6,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Plano;
+use OpenApi\Attributes as OA;
 
 class PlanoController extends Controller{
-
+    #[OA\Get(
+        path: "/api/planos",
+        summary: "Listar todos os planos",
+        description: "Retorna uma lista de todos os planos médicos cadastrados.",
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Lista de planos retornada com sucesso."
+            ),
+            new OA\Response(
+                response: 500,
+                description: "Erro interno do servidor."
+            )
+        ]
+    )]
     public function index(){
         return Inertia::render('Faturamento/Plano', [
             'planos' => Plano::with(['convenio', 'tipoCobranca'])->orderBy('descricao')->get(),

@@ -6,8 +6,8 @@ use OpenApi\Attributes as OA;
 
 #[OA\Info(
     version: "1.0.0",
-    title: "Minha API Laravel",
-    description: "Documentação da API do meu projeto",
+    title: "Projeto Hospitalar Web II API",
+    description: "Projeto para gerenciamento hospitalar, incluindo convênios, planos e tipos de cobrança. Esse projeto foi desenvolvido utilizando Laravel, React, ",
     contact: new OA\Contact(
         name: "Seu Nome",
         email: "seu-email@exemplo.com"
