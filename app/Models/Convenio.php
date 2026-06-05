@@ -24,7 +24,7 @@ class Convenio extends Model
     #[OA\Property(description: "Nome do convênio", example: "Amil Saúde")]
     private string $nome;
 
-    #[OA\Property(description: "CNPJ do convênio", example: "12345678000199")]
+    #[OA\Property(description: "CNPJ do convênio", example: "12.345.678/0001-99")]
     private string $cnpj;
 
     #[OA\Property(description: "Telefone de contato", example: "(11) 91234-5678")]

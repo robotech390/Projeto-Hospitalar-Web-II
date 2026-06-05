@@ -167,7 +167,7 @@ class ConvenioController extends Controller
                 schema: new OA\Schema(type: "integer", example: 1)
             )
         ],
-        requestBody: new OA\RequestBody(
+        /*requestBody: new OA\RequestBody(
             required: true,
             description: "Dados necessários para criar um convênio",
             content: new OA\MediaType(
@@ -222,6 +222,15 @@ class ConvenioController extends Controller
                         )
                     ]
                 )
+            )
+        ),*/
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Objeto Convênio a ser transportado",
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                // Aqui dizemos que o corpo da requisição REQUER o Schema 'Convenio'
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
             )
         ),
         responses: [
@@ -305,6 +314,15 @@ class ConvenioController extends Controller
                 )
             )
         ),*/
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Objeto Convênio a ser transportado",
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                // Aqui dizemos que o corpo da requisição REQUER o Schema 'Convenio'
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
+            )
+        ),
         responses: [
             new OA\Response(
                 response: 200,
