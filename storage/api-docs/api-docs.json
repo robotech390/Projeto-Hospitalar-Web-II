@@ -58,11 +58,18 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Convênio criado com sucesso."
+                    "201": {
+                        "description": "Convênio criado com sucesso!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Convenio"
+                                }
+                            }
+                        }
                     },
-                    "500": {
-                        "description": "Erro interno do servidor."
+                    "422": {
+                        "description": "Erro de validação."
                     }
                 }
             }

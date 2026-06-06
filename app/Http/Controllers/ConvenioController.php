@@ -113,14 +113,21 @@ class ConvenioController extends Controller
             )
         ),
         responses: [
-            new OA\Response(
+            /*new OA\Response(
                 response: 200,
                 description: "Convênio criado com sucesso."
             ),
             new OA\Response(
                 response: 500,
                 description: "Erro interno do servidor."
-            )
+            ),
+        responses: [*/
+        new OA\Response(
+            response: 201,
+            description: "Convênio criado com sucesso!",
+            content: new OA\JsonContent(ref: "#/components/schemas/Convenio") // Opcional: retorna o objeto criado
+        ),
+        new OA\Response(response: 422, description: "Erro de validação.")
         ]
     )]
     public function store(Request $request)
