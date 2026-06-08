@@ -25,7 +25,7 @@ export default function Layout({ children, activePage }) {
         {/* Menu Items */}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           <div className="text-xs font-semibold text-brand-light mb-2 mt-4">GERAL</div>
-          <a href="#" className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${activePage === 'dashboard' ? 'bg-brand-light text-white font-bold' : 'text-white/70 hover:bg-white/5'}`}>
+          <a href="../" className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${activePage === 'dashboard' ? 'bg-brand-light text-white font-bold' : 'text-white/70 hover:bg-white/5'}`}>
             <LayoutDashboard size={18} />
             <span>Dashboard</span>
           </a>
@@ -41,7 +41,7 @@ export default function Layout({ children, activePage }) {
           </a>
 
           <div className="text-xs font-semibold text-brand-light mb-2 mt-6">CLÍNICO</div>
-          <a href="#" className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${activePage === 'prontuario' ? 'bg-brand-light text-white font-bold' : 'text-white/70 hover:bg-white/5'}`}>
+          <a href="prontuario" className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${activePage === 'prontuario' ? 'bg-brand-light text-white font-bold' : 'text-white/70 hover:bg-white/5'}`}>
             <FileText size={18} />
             <span>Prontuário (PEP)</span>
           </a>
