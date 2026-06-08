@@ -43,7 +43,8 @@ class ConvenioController extends Controller
                 in: "path", // Significa que vai substituir o {convenio} no link
                 description: "ID do convênio que será atualizado",
                 required: true,
-                schema: new OA\Schema(type: "integer", example: 1)
+                // schema: new OA\Schema(type: "integer", example: 1)
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
             )
         ],
         /*requestBody: new OA\RequestBody(
@@ -171,7 +172,8 @@ class ConvenioController extends Controller
                 in: "path", // Significa que vai substituir o {convenio} no link
                 description: "ID do convênio que será atualizado",
                 required: true,
-                schema: new OA\Schema(type: "integer", example: 1)
+                // schema: new OA\Schema(type: "integer", example: 1)
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
             )
         ],
         /*requestBody: new OA\RequestBody(
@@ -299,7 +301,8 @@ class ConvenioController extends Controller
                 in: "path", // Significa que vai substituir o {convenio} no link
                 description: "ID do convênio que será atualizado",
                 required: true,
-                schema: new OA\Schema(type: "integer", example: 1)
+                // schema: new OA\Schema(type: "integer", example: 1)
+                schema: new OA\Schema(ref: "#/components/schemas/Convenio")
             )
         ],
         /*requestBody: new OA\RequestBody(

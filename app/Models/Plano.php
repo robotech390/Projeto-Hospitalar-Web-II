@@ -3,7 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "Plano",
+    title: "Objeto Plano",
+    description: "Modelo de dados que representa um plano de saúde",
+    required: ["descricao", "id_tipo_cobranca", "id_convenio"]
+)]
 class Plano extends Model
 {
     protected $table = 'plano';
@@ -19,6 +26,14 @@ class Plano extends Model
         // 'cobre_exame',
         // 'percentual_cobertura',
     ];
+    #[OA\Property(description: "Descrição do plano", example: "Amil Família")]
+    private string $descricao;
+
+    #[OA\Property(description: "Tipo de cobrança do plano", example: "1")]
+    private int $id_tipo_cobranca;
+
+    #[OA\Property(description: "Convênio do plano", example: "1")]
+    private int $id_convenio;
 
     public function convenio()
     {

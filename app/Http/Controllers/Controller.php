@@ -7,9 +7,9 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     version: "1.0.0",
     title: "Projeto Hospitalar Web II API",
-    description: "Projeto para gerenciamento hospitalar, incluindo convênios, planos e tipos de cobrança. Esse projeto foi desenvolvido utilizando Laravel, React, ",
+    description: "Projeto para gerenciamento hospitalar, incluindo convênios, planos e tipos de cobrança. Esse projeto foi desenvolvido utilizando Laravel, React, JWT, Axios, React Query, Inertia.js, Tailwind CSS e L5-Swagger para documentação da API.",
     contact: new OA\Contact(
-        name: "Seu Nome",
+        name: "Equipe 6",
         email: "seu-email@exemplo.com"
     )
 )]

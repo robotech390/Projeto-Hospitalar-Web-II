@@ -41,8 +41,7 @@
                         "description": "ID do convênio que será atualizado",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 1
+                            "$ref": "#/components/schemas/Convenio"
                         }
                     }
                 ],
@@ -86,8 +85,7 @@
                         "description": "ID do convênio que será atualizado",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 1
+                            "$ref": "#/components/schemas/Convenio"
                         }
                     }
                 ],
@@ -122,8 +120,7 @@
                         "description": "ID do convênio que será atualizado",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 1
+                            "$ref": "#/components/schemas/Convenio"
                         }
                     }
                 ],
