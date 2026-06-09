@@ -28,4 +28,9 @@ class ItensExame extends Model
     {
         return $this->belongsTo(SolicitacaoExame::class, 'id_solicitacao');
     }
+
+    public function tipoExame()
+    {
+        return $this->belongsTo(TipoExame::class, 'id_tipo_exame');
+    }
 }

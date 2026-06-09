@@ -19,4 +19,9 @@ class MedicamentoReceita extends Model
     {
         return $this->belongsTo(Receita::class, 'id_receita');
     }
+
+    public function medicamento()
+    {
+        return $this->belongsTo(Medicamento::class, 'id_medicamento');
+    }
 }
