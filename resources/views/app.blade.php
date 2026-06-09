@@ -10,6 +10,7 @@
         <div id="root"></div>
         <script>
             window.APP_PAGE = @json($page);
+            window.APP_PROPS = @json($props ?? []);
         </script>
     </body>
 </html>

@@ -1,13 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ProntuarioController;
 use App\Http\Controllers\Api\ConsultaController;
 use App\Http\Controllers\Api\DiagnosticoController;
 use App\Http\Controllers\Api\SolicitacaoExameController;
 use App\Http\Controllers\Api\ReceitaController;
 
 Route::view('/', 'app', ['page' => 'dashboard'])->name('dashboard');
-Route::view('/prontuario', 'app', ['page' => 'prontuario'])->name('prontuario');
+Route::get('/prontuario', [ProntuarioController::class, 'index'])->name('prontuario');
 
 // ========== CONSULTAS ==========
 Route::get('/consultas', [ConsultaController::class, 'lista'])->name('consultas.index');
