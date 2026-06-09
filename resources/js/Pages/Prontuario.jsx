@@ -1,100 +1,184 @@
 import { useState } from 'react';
-import { 
-  UserSquare2, 
-  ClipboardType, 
-  Pill, 
-  Stethoscope, 
-  History, 
-  CheckCircle2, 
-  Clock 
+import {
+  ClipboardType,
+  Pill,
+  Stethoscope,
+  History,
+  Clock
 } from 'lucide-react';
 
+function parseDate(dateString) {
+  if (!dateString) {
+    return null;
+  }
+
+  const date = new Date(dateString);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatTime(dateString) {
+  const date = parseDate(dateString);
+  if (!date) {
+    return 'Horário não disponível';
+  }
+
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function calculateAge(birthDate) {
+  const date = parseDate(birthDate);
+  if (!date) {
+    return null;
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - date.getFullYear();
+  const monthDiff = today.getMonth() - date.getMonth();
+  const dayDiff = today.getDate() - date.getDate();
+
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age -= 1;
+  }
+
+  return age;
+}
+
 export default function Prontuario() {
-  // Controle das abas do prontuário
   const [abaAtiva, setAbaAtiva] = useState('consulta');
 
-  // Fila de pacientes (Mock)
-  const filaPacientes = [
-    { id: 1, nome: 'Maria Silva', hora: '08:30', status: 'Em Atendimento', idade: 45 },
-    { id: 2, nome: 'João Santos', hora: '09:00', status: 'Aguardando', idade: 32 },
-    { id: 3, nome: 'Ana Oliveira', hora: '09:30', status: 'Aguardando', idade: 28 },
-  ];
+  const props = window.APP_PROPS ?? {};
+  const consultas = Array.isArray(props.consultas) ? props.consultas : [];
+  const pacientes = Array.isArray(props.pacientes) ? props.pacientes : [];
+  const receitas = Array.isArray(props.receitas) ? props.receitas : [];
+  const solicitacoesExame = Array.isArray(props.solicitacoesExame) ? props.solicitacoesExame : [];
+
+  const filaConsultas = consultas
+    .filter((consulta) => consulta.paciente)
+    .sort((a, b) => {
+      const aTime = parseDate(a.data_check_in ?? a.data ?? a.hora_inicio)?.getTime() ?? 0;
+      const bTime = parseDate(b.data_check_in ?? b.data ?? b.hora_inicio)?.getTime() ?? 0;
+      return aTime - bTime;
+    });
+
+  const filaPacientes = filaConsultas.length > 0
+    ? filaConsultas.map((consulta) => ({
+        id: consulta.id,
+        nome: consulta.paciente.nome,
+        hora: formatTime(consulta.data_check_in ?? consulta.hora_inicio),
+        status: consulta.status ?? 'Pendente',
+        idade: calculateAge(consulta.paciente.data_nascimento),
+      }))
+    : pacientes.map((paciente) => ({
+        id: paciente.id,
+        nome: paciente.nome,
+        hora: '—',
+        status: 'Sem consulta agendada',
+        idade: calculateAge(paciente.data_nascimento),
+      }));
+
+  const consultaAtiva = filaConsultas[0] ?? null;
+  const pacienteAtivo = consultaAtiva?.paciente ?? null;
+  const medicoAtivo = consultaAtiva?.medico?.pessoa ?? null;
+
+  const receitasDaConsulta = consultaAtiva
+    ? receitas.filter((receita) => receita.id_consulta === consultaAtiva.id)
+    : [];
+
+  const examesDaConsulta = consultaAtiva
+    ? solicitacoesExame.filter((solicitacao) => solicitacao.id_consulta === consultaAtiva.id)
+    : [];
+
+  const diagnosticosDaConsulta = consultaAtiva?.diagnosticos ?? [];
+
+  const historicoConsultas = consultas
+    .filter((consulta) => consulta.paciente?.id === pacienteAtivo?.id && consulta.id !== consultaAtiva?.id)
+    .sort((a, b) => {
+      const aTime = parseDate(a.data)?.getTime() ?? 0;
+      const bTime = parseDate(b.data)?.getTime() ?? 0;
+      return bTime - aTime;
+    });
 
   return (
     <div className="flex h-full gap-6 animate-fade-in">
-      
-      {/* COLUNA ESQUERDA: PAINEL DO MÉDICO (Fila de Check-in) */}
       <div className="w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[calc(100vh-8rem)]">
         <div className="p-5 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-800">Fila de Atendimento</h2>
-          <p className="text-xs text-gray-500">Pacientes com check-in realizado</p>
+          <p className="text-xs text-gray-500">Consultas com check-in realizado</p>
         </div>
-        
+
         <div className="overflow-y-auto flex-1 p-3 space-y-2">
-          {filaPacientes.map((paciente, index) => (
-            <div 
-              key={paciente.id} 
-              className={`p-4 rounded-lg cursor-pointer transition-colors border ${
-                index === 0 ? 'bg-brand/5 border-brand/20' : 'bg-white border-gray-50 hover:bg-gray-50'
-              }`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <p className="font-bold text-gray-800">{paciente.nome}</p>
-                <span className="flex items-center text-xs font-medium text-gray-500">
-                  <Clock size={12} className="mr-1" /> {paciente.hora}
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                {index === 0 ? (
-                  <span className="text-xs font-semibold px-2 py-1 rounded bg-brand text-white flex items-center">
-                    <CheckCircle2 size={12} className="mr-1" /> {paciente.status}
+          {filaPacientes.length === 0 ? (
+            <div className="p-4 rounded-lg bg-white border border-gray-100 text-sm text-gray-500">
+              Nenhum paciente disponível no momento.
+            </div>
+          ) : (
+            filaPacientes.map((paciente, index) => (
+              <div
+                key={paciente.id}
+                className={`p-4 rounded-lg cursor-pointer transition-colors border ${
+                  index === 0 ? 'bg-brand/5 border-brand/20' : 'bg-white border-gray-50 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <p className="font-bold text-gray-800">{paciente.nome}</p>
+                  <span className="flex items-center text-xs font-medium text-gray-500">
+                    <Clock size={12} className="mr-1" /> {paciente.hora}
                   </span>
-                ) : (
+                </div>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
                   <span className="text-xs font-semibold px-2 py-1 rounded bg-orange-50 text-orange-600">
                     {paciente.status}
                   </span>
-                )}
+                  {typeof paciente.idade === 'number' && (
+                    <span className="text-xs text-gray-500">{paciente.idade} anos</span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      {/* COLUNA DIREITA: ÁREA DO PRONTUÁRIO */}
       <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[calc(100vh-8rem)]">
-        
-        {/* Cabeçalho do Paciente Ativo */}
         <div className="p-5 border-b border-gray-100 flex items-center space-x-4 bg-gray-50/50 rounded-t-xl">
           <div className="w-12 h-12 rounded-full bg-brand text-white flex items-center justify-center font-bold text-lg">
-            MS
+            {pacienteAtivo ? pacienteAtivo.nome.split(' ').map((part) => part[0]).join('') : '—'}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">Maria Silva</h2>
-            <p className="text-sm text-gray-500">Feminino • 45 anos • Convênio: Unimed</p>
+            <h2 className="text-xl font-bold text-gray-800">
+              {pacienteAtivo?.nome ?? 'Paciente não selecionado'}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {pacienteAtivo
+                ? `${calculateAge(pacienteAtivo.data_nascimento) ?? 'Idade indisponível'} anos • ${medicoAtivo ? `Médico: ${medicoAtivo.nome}` : 'Médico não informado'}`
+                : 'Selecione uma consulta para visualizar os detalhes.'}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {consultaAtiva?.status ? `Status: ${consultaAtiva.status}` : ''}
+            </p>
           </div>
         </div>
 
-        {/* Menu de Abas */}
         <div className="flex border-b border-gray-100 px-2">
-          <button 
+          <button
             onClick={() => setAbaAtiva('consulta')}
             className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${abaAtiva === 'consulta' ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
             <ClipboardType size={16} className="mr-2" /> Evolução
           </button>
-          <button 
+          <button
             onClick={() => setAbaAtiva('prescricao')}
             className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${abaAtiva === 'prescricao' ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
             <Pill size={16} className="mr-2" /> Prescrição
           </button>
-          <button 
+          <button
             onClick={() => setAbaAtiva('exames')}
             className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${abaAtiva === 'exames' ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
             <Stethoscope size={16} className="mr-2" /> Exames
           </button>
-          <button 
+          <button
             onClick={() => setAbaAtiva('historico')}
             className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${abaAtiva === 'historico' ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
@@ -102,33 +186,42 @@ export default function Prontuario() {
           </button>
         </div>
 
-        {/* CONTEÚDO DAS ABAS */}
         <div className="flex-1 overflow-y-auto p-6">
-          
-          {/* Aba: Realização da Consulta */}
           {abaAtiva === 'consulta' && (
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Motivo da Consulta / Histórico Médico</label>
-                <textarea 
+                <textarea
                   className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-24 text-sm"
                   placeholder="Descreva os sintomas e o histórico do paciente..."
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Diagnóstico (CID)</label>
-                <input 
-                  type="text" 
-                  className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
-                  placeholder="Ex: J03.9 - Amigdalite aguda não especificada"
+                  defaultValue={consultaAtiva?.descricao ?? ''}
                 />
               </div>
               <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Diagnóstico (CID)</label>
+                <input
+                  type="text"
+                  className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
+                  placeholder="Ex: J03.9 - Amigdalite aguda não especificada"
+                  defaultValue={diagnosticosDaConsulta[0]?.cid ?? ''}
+                />
+                {diagnosticosDaConsulta.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {diagnosticosDaConsulta.map((diagnostico) => (
+                      <div key={diagnostico.id} className="rounded-lg border border-gray-100 p-3 bg-gray-50">
+                        <p className="text-sm font-semibold text-gray-700">{diagnostico.cid ?? 'CID não informado'}</p>
+                        <p className="text-xs text-gray-500">{diagnostico.descricao ?? 'Sem descrição de diagnóstico.'}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Evolução / Conduta Clínica</label>
-                <textarea 
+                <textarea
                   className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-32 text-sm"
                   placeholder="Anote a conduta, orientações e evolução do quadro..."
-                ></textarea>
+                />
               </div>
               <div className="flex justify-end pt-2">
                 <button className="px-6 py-2 bg-brand text-white font-bold rounded-lg hover:bg-brand-dark transition-colors">
@@ -138,67 +231,108 @@ export default function Prontuario() {
             </div>
           )}
 
-          {/* Aba: Prescrição Eletrônica */}
           {abaAtiva === 'prescricao' && (
             <div>
-              <div className="flex gap-2 mb-6">
-                <div className="flex-1">
-                  <input type="text" placeholder="Nome do Medicamento" className="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-brand text-sm" />
-                </div>
-                <div className="flex-1">
-                  <input type="text" placeholder="Posologia (Ex: 1 comp de 8/8h)" className="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-brand text-sm" />
-                </div>
-                <button className="px-4 py-2 bg-brand text-white font-bold rounded-lg text-sm hover:bg-brand-dark">Adicionar</button>
-              </div>
-              
-              <div className="border border-gray-100 rounded-lg">
+              <div className="border border-gray-100 rounded-lg overflow-hidden">
                 <div className="bg-gray-50 p-3 border-b border-gray-100 font-bold text-sm text-gray-700">Receituário Atual</div>
-                <div className="p-4 text-center text-sm text-gray-400 py-10">
-                  Nenhum medicamento prescrito ainda.
-                </div>
+                {receitasDaConsulta.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-gray-400">Nenhuma receita encontrada para esta consulta.</div>
+                ) : (
+                  receitasDaConsulta.map((receita) => (
+                    <div key={receita.id} className="p-4 border-b border-gray-100 last:border-b-0">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="font-semibold text-sm text-gray-800">Receita #{receita.id}</span>
+                        <span className="text-xs text-gray-500">{parseDate(receita.data_emissao)?.toLocaleDateString('pt-BR') ?? 'Data não disponível'}</span>
+                      </div>
+                      {Array.isArray(receita.medicamentos) && receita.medicamentos.length > 0 ? (
+                        <div className="space-y-3">
+                          {receita.medicamentos.map((item) => (
+                            <div key={item.id} className="rounded-lg border border-gray-100 p-3 bg-gray-50">
+                              <p className="text-sm font-semibold text-gray-700">
+                                {item.medicamento?.nome ? item.medicamento.nome : `Medicamento #${item.id_medicamento}`}
+                              </p>
+                              <p className="text-xs text-gray-500">Quantidade: {item.quantidade ?? '—'}</p>
+                              <p className="text-xs text-gray-500">Posologia: {item.posologia ?? '—'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">Nenhum item de medicamento cadastrado nesta receita.</div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
 
-          {/* Aba: Solicitação de Exames */}
           {abaAtiva === 'exames' && (
             <div>
-              <div className="flex gap-2 mb-6">
-                <input type="text" placeholder="Buscar exame (Ex: Hemograma Completo)" className="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-brand text-sm" />
-                <button className="px-4 py-2 bg-brand text-white font-bold rounded-lg text-sm hover:bg-brand-dark">Solicitar</button>
-              </div>
-              <div className="border border-gray-100 rounded-lg">
-                <div className="bg-gray-50 p-3 border-b border-gray-100 font-bold text-sm text-gray-700">Pedidos de Exames</div>
-                <div className="p-4 text-center text-sm text-gray-400 py-10">
-                  Nenhum exame solicitado nesta consulta.
+              {examesDaConsulta.length === 0 ? (
+                <div className="border border-gray-100 rounded-lg p-4 text-sm text-gray-500">
+                  Nenhuma solicitação de exame encontrada para esta consulta.
                 </div>
-              </div>
+              ) : (
+                examesDaConsulta.map((solicitacao) => (
+                  <div key={solicitacao.id} className="border border-gray-100 rounded-lg mb-4">
+                    <div className="bg-gray-50 p-3 border-b border-gray-100 flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-gray-800">Solicitação #{solicitacao.id}</p>
+                        <p className="text-xs text-gray-500">Prioridade: {solicitacao.prioridade ?? '—'}</p>
+                      </div>
+                      <span className="text-xs text-gray-500">{parseDate(solicitacao.data)?.toLocaleDateString('pt-BR') ?? 'Data não disponível'}</span>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <p className="text-sm text-gray-600">{solicitacao.justificativa ?? 'Sem justificativa registrada.'}</p>
+                      {Array.isArray(solicitacao.itens) && solicitacao.itens.length > 0 ? (
+                        <div className="space-y-2">
+                          {solicitacao.itens.map((item) => (
+                            <div key={item.id} className="rounded-lg border border-gray-100 p-3 bg-gray-50">
+                              <p className="text-sm font-semibold text-gray-700">
+                                Tipo de exame: {item.tipoExame?.nome ?? (item.id_tipo_exame ? `#${item.id_tipo_exame}` : 'Não disponível')}
+                              </p>
+                              <p className="text-xs text-gray-500">Status: {item.status ?? '—'}</p>
+                              {item.laudo && <p className="text-xs text-gray-500">Laudo: {item.laudo}</p>}
+                              {item.data_resultado && (
+                                <p className="text-xs text-gray-500">Resultado: {parseDate(item.data_resultado)?.toLocaleDateString('pt-BR')}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">Nenhum item de exame cadastrado nesta solicitação.</div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
 
-          {/* Aba: Histórico */}
           {abaAtiva === 'historico' && (
             <div className="space-y-4">
-              <div className="p-4 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-brand">Consulta de Rotina</span>
-                  <span className="text-xs text-gray-500">12 de Jan, 2026</span>
+              {historicoConsultas.length === 0 ? (
+                <div className="p-4 rounded-lg border border-gray-100 text-sm text-gray-500">
+                  Histórico de consultas não disponível para o paciente atual.
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">Paciente relatou dores de cabeça frequentes. Pressão arterial 12/8. Solicitado exames de sangue rotineiros.</p>
-                <p className="text-xs text-gray-400 mt-2">Atendido por: Dr. Roberto (Clínico Geral)</p>
-              </div>
-              
-              <div className="p-4 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-brand">Retorno de Exames</span>
-                  <span className="text-xs text-gray-500">05 de Dez, 2025</span>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-2">Exames dentro da normalidade. Orientada a manter dieta com restrição de sódio e iniciar atividade física regular.</p>
-                <p className="text-xs text-gray-400 mt-2">Atendido por: Dr. Carlos (Cardiologista)</p>
-              </div>
+              ) : (
+                historicoConsultas.map((consulta) => (
+                  <div key={consulta.id} className="p-4 border border-gray-100 rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-bold text-brand">Consulta {consulta.id}</span>
+                      <span className="text-xs text-gray-500">{parseDate(consulta.data)?.toLocaleDateString('pt-BR') ?? 'Data não disponível'}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {consulta.descricao ?? 'Nenhuma descrição registrada para esta consulta.'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Atendido por: Dr. {consulta.medico?.pessoa?.nome ?? 'Não informado'}{consulta.medico?.especialidade ? ` (${consulta.medico.especialidade})` : ''}
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
           )}
-          
         </div>
       </div>
     </div>
