@@ -17,7 +17,7 @@ Route::post('/consultas', [ConsultaController::class, 'salvar'])->name('consulta
 Route::delete('/consultas/{consulta}', [ConsultaController::class, 'remover'])->name('consultas.destroy');
 Route::get('/consultas/{consulta}', [ConsultaController::class, 'mostrar'])->name('consultas.show');
 Route::get('/consultas/{consulta}/edit', [ConsultaController::class, 'editar'])->name('consultas.edit');
-Route::put('/consultas/{consulta}', [ConsultaController::class, 'atualizar'])->name('consultas.update');
+Route::match(['put', 'post'], '/consultas/{consulta}', [ConsultaController::class, 'atualizar'])->name('consultas.update');
 
 // ========== DIAGNÓSTICOS ==========
 Route::get('/diagnosticos', [DiagnosticoController::class, 'lista'])->name('diagnosticos.index');

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ClipboardType,
   Pill,
@@ -79,6 +79,22 @@ export default function Prontuario() {
   const consultaAtiva = filaConsultas[0] ?? null;
   const pacienteAtivo = consultaAtiva?.paciente ?? null;
   const medicoAtivo = consultaAtiva?.medico?.pessoa ?? null;
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+  const [motivo, setMotivo] = useState('');
+  const [cid, setCid] = useState('');
+  const [diagnosticoDescricao, setDiagnosticoDescricao] = useState('');
+  const [evolucao, setEvolucao] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    setMotivo('');
+    setCid('');
+    setDiagnosticoDescricao('');
+    setEvolucao('');
+    setErrorMessage('');
+  }, [consultaAtiva?.id]);
 
   const receitasDaConsulta = consultaAtiva
     ? receitas.filter((receita) => receita.id_consulta === consultaAtiva.id)
@@ -90,6 +106,17 @@ export default function Prontuario() {
 
   const diagnosticosDaConsulta = consultaAtiva?.diagnosticos ?? [];
 
+  //Ordena diagnósticos do mais recente para o mais antigo
+  const diagnosticosOrdenados = [...diagnosticosDaConsulta].sort((a, b) => {
+    const aDate = new Date(a.data_criacao ?? a.data_alteracao ?? 0).getTime() || 0;
+    const bDate = new Date(b.data_criacao ?? b.data_alteracao ?? 0).getTime() || 0;
+    if (bDate !== aDate) return bDate - aDate;
+    return (b.id ?? 0) - (a.id ?? 0);
+  });
+  const diagnosticoMaisRecente = diagnosticosOrdenados[0] ?? null;
+  const placeholderCid = diagnosticoMaisRecente?.cid ?? 'Ex: J03.9 - Amigdalite aguda não especificada';
+  const placeholderDiagnosticoDescricao = diagnosticoMaisRecente?.descricao ?? 'Descreva o diagnóstico para o CID informado...';
+
   const historicoConsultas = consultas
     .filter((consulta) => consulta.paciente?.id === pacienteAtivo?.id && consulta.id !== consultaAtiva?.id)
     .sort((a, b) => {
@@ -97,6 +124,113 @@ export default function Prontuario() {
       const bTime = parseDate(b.data)?.getTime() ?? 0;
       return bTime - aTime;
     });
+
+  const hasFormContent = motivo.trim() || cid.trim() || diagnosticoDescricao.trim() || evolucao.trim();
+
+  async function handleSalvarEvolucao() {
+    if (!consultaAtiva) {
+      return;
+    }
+
+    const descricao = [motivo.trim(), evolucao.trim()].filter(Boolean).join('\n\n');
+    const wantsDiagnostico = cid.trim() !== '' || diagnosticoDescricao.trim() !== '';
+
+    if (!descricao && !wantsDiagnostico) {
+      return;
+    }
+
+    //Determina o CID a ser usado com base na entrada do usuário ou no diagnóstico mais recente
+    const cidInput = cid.trim();
+    const cidToUse = cidInput || (diagnosticoMaisRecente?.cid ?? '');
+
+    if (diagnosticoDescricao.trim() && !cidToUse) {
+      setErrorMessage('Forneça um CID ou tenha um diagnóstico existente para atualizar.');
+      return;
+    }
+
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const requests = [];
+
+      //Atualiza a descrição da consulta se houver conteúdo relevante
+      if (descricao) {
+        requests.push(
+          fetch(`/consultas/${consultaAtiva.id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+              'X-HTTP-Method-Override': 'PUT',
+              Accept: 'application/json',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ descricao }),
+          }),
+        );
+      }
+
+      //Se o usuário forneceu uma descrição de diagnóstico, tentamos atualizar o diagnóstico mais recente ou criar um novo se o CID for diferente
+      if (diagnosticoDescricao.trim()) {
+        //Verifica se já existe um diagnóstico com o CID a ser usado (considerando entrada do usuário, diagnóstico existente ou placeholder)
+        const existing = diagnosticosOrdenados.find((d) => ((d.cid || '').trim().toLowerCase()) === cidToUse.trim().toLowerCase());
+
+        if (existing) {
+          //Atualiza o diagnóstico existente com a nova descrição (mantendo o CID atual ou usando o CID de entrada se o existente não tiver CID)
+          requests.push(
+            fetch(`/diagnosticos/${existing.id}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-HTTP-Method-Override': 'PUT',
+                Accept: 'application/json',
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify({
+                cid: existing.cid ?? cidToUse,
+                descricao: diagnosticoDescricao.trim(),
+                id_consulta: consultaAtiva.id,
+              }),
+            }),
+          );
+        } else {
+          //Cria um novo diagnóstico se o CID for diferente do diagnóstico mais recente ou do placeholder (considerando entrada do usuário, diagnóstico existente ou placeholder)
+          requests.push(
+            fetch('/diagnosticos', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                Accept: 'application/json',
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify({
+                cid: cidToUse.trim(),
+                descricao: diagnosticoDescricao.trim(),
+                id_consulta: consultaAtiva.id,
+              }),
+            }),
+          );
+        }
+      }
+
+      const responses = await Promise.all(requests);
+      for (const response of responses) {
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          throw new Error(result?.message || 'Erro ao salvar. Verifique os dados e tente novamente.');
+        }
+      }
+
+      window.location.reload();
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="flex h-full gap-6 animate-fade-in">
@@ -159,6 +293,7 @@ export default function Prontuario() {
           </div>
         </div>
 
+        {/* Abas de navegação */}
         <div className="flex border-b border-gray-100 px-2">
           <button
             onClick={() => setAbaAtiva('consulta')}
@@ -193,8 +328,9 @@ export default function Prontuario() {
                 <label className="block text-sm font-bold text-gray-700 mb-1">Motivo da Consulta / Histórico Médico</label>
                 <textarea
                   className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-24 text-sm"
-                  placeholder="Descreva os sintomas e o histórico do paciente..."
-                  defaultValue={consultaAtiva?.descricao ?? ''}
+                  placeholder={consultaAtiva?.descricao ?? 'Descreva os sintomas e o histórico do paciente...'}
+                  value={motivo}
+                  onChange={(event) => setMotivo(event.target.value)}
                 />
               </div>
               <div>
@@ -202,30 +338,50 @@ export default function Prontuario() {
                 <input
                   type="text"
                   className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
-                  placeholder="Ex: J03.9 - Amigdalite aguda não especificada"
-                  defaultValue={diagnosticosDaConsulta[0]?.cid ?? ''}
+                  placeholder={placeholderCid}
+                  value={cid}
+                  onChange={(event) => setCid(event.target.value)}
                 />
-                {diagnosticosDaConsulta.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {diagnosticosDaConsulta.map((diagnostico) => (
-                      <div key={diagnostico.id} className="rounded-lg border border-gray-100 p-3 bg-gray-50">
-                        <p className="text-sm font-semibold text-gray-700">{diagnostico.cid ?? 'CID não informado'}</p>
-                        <p className="text-xs text-gray-500">{diagnostico.descricao ?? 'Sem descrição de diagnóstico.'}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Descrição do Diagnóstico</label>
+                <textarea
+                  className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-20 text-sm"
+                  placeholder={placeholderDiagnosticoDescricao}
+                  value={diagnosticoDescricao}
+                  onChange={(event) => setDiagnosticoDescricao(event.target.value)}
+                />
+              </div>
+              {diagnosticosOrdenados.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {diagnosticosOrdenados.map((diagnostico) => (
+                    <div key={diagnostico.id} className="rounded-lg border border-gray-100 p-3 bg-gray-50">
+                      <p className="text-sm font-semibold text-gray-700">{diagnostico.cid ?? 'CID não informado'}</p>
+                      <p className="text-xs text-gray-500">{diagnostico.descricao ?? 'Sem descrição de diagnóstico.'}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Evolução / Conduta Clínica</label>
                 <textarea
                   className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-32 text-sm"
                   placeholder="Anote a conduta, orientações e evolução do quadro..."
+                  value={evolucao}
+                  onChange={(event) => setEvolucao(event.target.value)}
                 />
               </div>
-              <div className="flex justify-end pt-2">
-                <button className="px-6 py-2 bg-brand text-white font-bold rounded-lg hover:bg-brand-dark transition-colors">
-                  Salvar Evolução
+              <div className="flex flex-col items-end gap-2 pt-2">
+                {errorMessage && (
+                  <p className="text-sm text-red-600">{errorMessage}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSalvarEvolucao}
+                  disabled={!hasFormContent || isSubmitting}
+                  className={`px-6 py-2 font-bold rounded-lg transition-colors ${(!hasFormContent || isSubmitting) ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand text-white hover:bg-brand-dark'}`}
+                >
+                  {isSubmitting ? 'Salvando...' : 'Salvar Evolução'}
                 </button>
               </div>
             </div>
