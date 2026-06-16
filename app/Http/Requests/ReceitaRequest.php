@@ -13,6 +13,7 @@ class ReceitaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_consulta'                   => 'required|integer|exists:consulta,id',
             'observacoes'                   => 'nullable|string|max:2000',
             'farmacia'                      => 'nullable|string|max:255',
             'data_emissao'                  => 'required|date',

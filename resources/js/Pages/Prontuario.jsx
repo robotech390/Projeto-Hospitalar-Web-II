@@ -8,6 +8,7 @@ import {
   Plus
 } from 'lucide-react';
 import SolicitacaoExameModal from '../Components/SolicitacaoExameModal';
+import ReceitaModal from '../Components/ReceitaModal';
 
 function parseDate(dateString) {
   if (!dateString) {
@@ -54,6 +55,7 @@ export default function Prontuario() {
   const receitas = Array.isArray(props.receitas) ? props.receitas : [];
   const solicitacoesExame = Array.isArray(props.solicitacoesExame) ? props.solicitacoesExame : [];
   const tiposExame = Array.isArray(props.tiposExame) ? props.tiposExame : [];
+  const medicamentos = Array.isArray(props.medicamentos) ? props.medicamentos : [];
 
   const filaConsultas = consultas
     .filter((consulta) => consulta.paciente)
@@ -91,6 +93,7 @@ export default function Prontuario() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showSolicitacaoExameModal, setShowSolicitacaoExameModal] = useState(false);
   const [selectedSolicitacaoExame, setSelectedSolicitacaoExame] = useState(null);
+  const [showReceitaModal, setShowReceitaModal] = useState(false);
 
   useEffect(() => {
     setMotivo('');
@@ -386,15 +389,28 @@ export default function Prontuario() {
 
           {abaAtiva === 'prescricao' && (
             <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-800">Receituário Atual</h3>
+                <button
+                  onClick={() => setShowReceitaModal(true)}
+                  disabled={!consultaAtiva}
+                  className="flex items-center px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Criar Receita
+                </button>
+              </div>
               <div className="border border-gray-100 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 p-3 border-b border-gray-100 font-bold text-sm text-gray-700">Receituário Atual</div>
                 {receitasDaConsulta.length === 0 ? (
                   <div className="p-4 text-center text-sm text-gray-400">Nenhuma receita encontrada para esta consulta.</div>
                 ) : (
                   receitasDaConsulta.map((receita) => (
                     <div key={receita.id} className="p-4 border-b border-gray-100 last:border-b-0">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="font-semibold text-sm text-gray-800">Receita #{receita.id}</span>
+                      <div className="flex flex-col gap-2 mb-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="font-semibold text-sm text-gray-800">{receita.observacoes || `Receita #${receita.id}`}</p>
+                          <p className="text-xs text-gray-500">{receita.farmacia ? `Farmácia: ${receita.farmacia}` : `Receita #${receita.id}`}</p>
+                        </div>
                         <span className="text-xs text-gray-500">{parseDate(receita.data_emissao)?.toLocaleDateString('pt-BR') ?? 'Data não disponível'}</span>
                       </div>
                       {Array.isArray(receita.medicamentos) && receita.medicamentos.length > 0 ? (
@@ -528,6 +544,12 @@ export default function Prontuario() {
         consultaId={consultaAtiva?.id}
         solicitacao={selectedSolicitacaoExame}
         tiposExame={tiposExame}
+      />
+      <ReceitaModal
+        show={showReceitaModal}
+        onClose={() => setShowReceitaModal(false)}
+        consultaId={consultaAtiva?.id}
+        medicamentos={medicamentos}
       />
     </div>
   );
