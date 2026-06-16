@@ -13,10 +13,13 @@ class SolicitacaoExameRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_consulta'           => 'required|integer|exists:consulta,id',
             'justificativa'         => 'nullable|string|max:1000',
             'prioridade'            => 'required|integer|in:1,2,3',
-            'itens'                 => 'nullable|array',
-            'itens.*.id_tipo_exame' => 'required|integer',
+            'itens'                 => 'sometimes|array|min:1',
+            'itens.*.id_tipo_exame' => 'required_with:itens|integer|exists:tipo_exame,id',
+            'itens.*.status'        => 'nullable|string|max:30',
+            'itens.*.arquivo'       => 'nullable|string|max:255',
         ];
     }
 

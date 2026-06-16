@@ -44,4 +44,4 @@ Route::get('/solicitacoes-exame/form/{consulta}', [SolicitacaoExameController::c
 Route::post('/solicitacoes-exame', [SolicitacaoExameController::class, 'salvar'])->name('solicitacoesExame.store');
 Route::delete('/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::class, 'remover'])->name('solicitacoesExame.destroy');
 Route::get('/solicitacoes-exame/{solicitacao}/edit', [SolicitacaoExameController::class, 'editar'])->name('solicitacoesExame.edit');
-Route::put('/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::class, 'atualizar'])->name('solicitacoesExame.update');
+Route::match(['post', 'put'], '/solicitacoes-exame/{solicitacao}', [SolicitacaoExameController::class, 'atualizar'])->name('solicitacoesExame.update');

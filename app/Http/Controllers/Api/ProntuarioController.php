@@ -8,6 +8,7 @@ use App\Models\Medico;
 use App\Models\Consulta;
 use App\Models\Receita;
 use App\Models\SolicitacaoExame;
+use App\Models\TipoExame;
 
 class ProntuarioController extends Controller
 {
@@ -18,6 +19,7 @@ class ProntuarioController extends Controller
         $consultas = Consulta::with(['medico.pessoa', 'paciente', 'diagnosticos'])->get();
         $receitas = Receita::with(['consulta', 'medicamentos.medicamento'])->get();
         $solicitacoesExame = SolicitacaoExame::with(['consulta', 'itens.tipoExame'])->get();
+        $tiposExame = TipoExame::all();
 
         return view('app', [
             'page' => 'prontuario',
@@ -26,6 +28,7 @@ class ProntuarioController extends Controller
                 'consultas' => $consultas,
                 'receitas' => $receitas,
                 'solicitacoesExame' => $solicitacoesExame,
+                'tiposExame' => $tiposExame,
             ],
         ]);
     }

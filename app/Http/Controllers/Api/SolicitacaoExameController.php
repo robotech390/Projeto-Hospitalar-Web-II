@@ -16,7 +16,9 @@ class SolicitacaoExameController extends Controller
     // View: lista de solicitações (documentação OpenAPI mantida nas rotas API)
     public function lista()
     {
-        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')->get();
+        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')
+            ->orderBy('id', 'desc')
+            ->get();
         return view('prontuario.solicitacoesExame', compact('solicitacoes'));
     }
 
@@ -43,7 +45,8 @@ class SolicitacaoExameController extends Controller
                 ItensExame::create([
                     'id_solicitacao' => $solicitacao->id,
                     'id_tipo_exame'  => $item['id_tipo_exame'],
-                    'status'         => 'pendente',
+                    'status'         => $item['status'] ?? 'pendente',
+                    'arquivo'        => $item['arquivo'] ?? null,
                 ]);
             }
         }
@@ -76,13 +79,14 @@ class SolicitacaoExameController extends Controller
             'id_consulta'   => $request->id_consulta,
         ]);
 
-        $solicitacao->itens()->delete();
         if ($request->filled('itens')) {
+            $solicitacao->itens()->delete();
             foreach ($request->itens as $item) {
                 ItensExame::create([
                     'id_solicitacao' => $solicitacao->id,
                     'id_tipo_exame'  => $item['id_tipo_exame'],
-                    'status'         => 'pendente',
+                    'status'         => $item['status'] ?? 'pendente',
+                    'arquivo'        => $item['arquivo'] ?? null,
                 ]);
             }
         }
@@ -146,7 +150,9 @@ class SolicitacaoExameController extends Controller
      */
     public function all(): JsonResponse
     {
-        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')->get();
+        $solicitacoes = SolicitacaoExame::with('consulta', 'itens')
+            ->orderBy('id', 'desc')
+            ->get();
 
         return response()->json([
             'success' => true,

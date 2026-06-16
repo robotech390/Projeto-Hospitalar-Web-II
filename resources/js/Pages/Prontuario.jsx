@@ -4,8 +4,10 @@ import {
   Pill,
   Stethoscope,
   History,
-  Clock
+  Clock,
+  Plus
 } from 'lucide-react';
+import SolicitacaoExameModal from '../Components/SolicitacaoExameModal';
 
 function parseDate(dateString) {
   if (!dateString) {
@@ -51,6 +53,7 @@ export default function Prontuario() {
   const pacientes = Array.isArray(props.pacientes) ? props.pacientes : [];
   const receitas = Array.isArray(props.receitas) ? props.receitas : [];
   const solicitacoesExame = Array.isArray(props.solicitacoesExame) ? props.solicitacoesExame : [];
+  const tiposExame = Array.isArray(props.tiposExame) ? props.tiposExame : [];
 
   const filaConsultas = consultas
     .filter((consulta) => consulta.paciente)
@@ -86,6 +89,8 @@ export default function Prontuario() {
   const [diagnosticoDescricao, setDiagnosticoDescricao] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showSolicitacaoExameModal, setShowSolicitacaoExameModal] = useState(false);
+  const [selectedSolicitacaoExame, setSelectedSolicitacaoExame] = useState(null);
 
   useEffect(() => {
     setMotivo('');
@@ -99,7 +104,9 @@ export default function Prontuario() {
     : [];
 
   const examesDaConsulta = consultaAtiva
-    ? solicitacoesExame.filter((solicitacao) => solicitacao.id_consulta === consultaAtiva.id)
+    ? solicitacoesExame
+        .filter((solicitacao) => solicitacao.id_consulta === consultaAtiva.id)
+        .sort((a, b) => (b.id ?? 0) - (a.id ?? 0))
     : [];
 
   const diagnosticosDaConsulta = consultaAtiva?.diagnosticos ?? [];
@@ -414,6 +421,17 @@ export default function Prontuario() {
 
           {abaAtiva === 'exames' && (
             <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-gray-800">Solicitações de Exame</h3>
+                <button
+                  onClick={() => setShowSolicitacaoExameModal(true)}
+                  disabled={!consultaAtiva}
+                  className="flex items-center px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Solicitar Exame
+                </button>
+              </div>
               {examesDaConsulta.length === 0 ? (
                 <div className="border border-gray-100 rounded-lg p-4 text-sm text-gray-500">
                   Nenhuma solicitação de exame encontrada para esta consulta.
@@ -430,6 +448,18 @@ export default function Prontuario() {
                     </div>
                     <div className="p-4 space-y-3">
                       <p className="text-sm text-gray-600">{solicitacao.justificativa ?? 'Sem justificativa registrada.'}</p>
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedSolicitacaoExame(solicitacao);
+                            setShowSolicitacaoExameModal(true);
+                          }}
+                          className="text-sm font-medium text-brand hover:text-brand-dark"
+                        >
+                          Adicionar itens ao exame
+                        </button>
+                      </div>
                       {Array.isArray(solicitacao.itens) && solicitacao.itens.length > 0 ? (
                         <div className="space-y-2">
                           {solicitacao.itens.map((item) => (
@@ -438,6 +468,13 @@ export default function Prontuario() {
                                 Tipo de exame: {item.tipoExame?.nome ?? (item.id_tipo_exame ? `#${item.id_tipo_exame}` : 'Não disponível')}
                               </p>
                               <p className="text-xs text-gray-500">Status: {item.status ?? '—'}</p>
+                              {item.arquivo && (
+                                <p className="text-xs text-gray-500">
+                                  Arquivo: <a href={item.arquivo} target="_blank" rel="noreferrer" className="underline text-brand">
+                                    {item.arquivo.split('/').pop() || item.arquivo}
+                                  </a>
+                                </p>
+                              )}
                               {item.laudo && <p className="text-xs text-gray-500">Laudo: {item.laudo}</p>}
                               {item.data_resultado && (
                                 <p className="text-xs text-gray-500">Resultado: {parseDate(item.data_resultado)?.toLocaleDateString('pt-BR')}</p>
@@ -481,6 +518,17 @@ export default function Prontuario() {
           )}
         </div>
       </div>
+
+      <SolicitacaoExameModal
+        show={showSolicitacaoExameModal}
+        onClose={() => {
+          setShowSolicitacaoExameModal(false);
+          setSelectedSolicitacaoExame(null);
+        }}
+        consultaId={consultaAtiva?.id}
+        solicitacao={selectedSolicitacaoExame}
+        tiposExame={tiposExame}
+      />
     </div>
   );
 }
