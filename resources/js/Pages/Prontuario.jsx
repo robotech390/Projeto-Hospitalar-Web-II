@@ -84,7 +84,6 @@ export default function Prontuario() {
   const [motivo, setMotivo] = useState('');
   const [cid, setCid] = useState('');
   const [diagnosticoDescricao, setDiagnosticoDescricao] = useState('');
-  const [evolucao, setEvolucao] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -92,7 +91,6 @@ export default function Prontuario() {
     setMotivo('');
     setCid('');
     setDiagnosticoDescricao('');
-    setEvolucao('');
     setErrorMessage('');
   }, [consultaAtiva?.id]);
 
@@ -125,14 +123,14 @@ export default function Prontuario() {
       return bTime - aTime;
     });
 
-  const hasFormContent = motivo.trim() || cid.trim() || diagnosticoDescricao.trim() || evolucao.trim();
+  const hasFormContent = motivo.trim() || cid.trim() || diagnosticoDescricao.trim();
 
   async function handleSalvarEvolucao() {
     if (!consultaAtiva) {
       return;
     }
 
-    const descricao = [motivo.trim(), evolucao.trim()].filter(Boolean).join('\n\n');
+    const descricao = motivo.trim();
     const wantsDiagnostico = cid.trim() !== '' || diagnosticoDescricao.trim() !== '';
 
     if (!descricao && !wantsDiagnostico) {
@@ -362,15 +360,7 @@ export default function Prontuario() {
                   ))}
                 </div>
               )}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Evolução / Conduta Clínica</label>
-                <textarea
-                  className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none h-32 text-sm"
-                  placeholder="Anote a conduta, orientações e evolução do quadro..."
-                  value={evolucao}
-                  onChange={(event) => setEvolucao(event.target.value)}
-                />
-              </div>
+
               <div className="flex flex-col items-end gap-2 pt-2">
                 {errorMessage && (
                   <p className="text-sm text-red-600">{errorMessage}</p>
