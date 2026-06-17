@@ -81,7 +81,8 @@ export default function Prontuario() {
         idade: calculateAge(paciente.data_nascimento),
       }));
 
-  const consultaAtiva = filaConsultas[0] ?? null;
+  const [selectedConsultaId, setSelectedConsultaId] = useState(filaConsultas[0]?.id ?? null);
+  const consultaAtiva = filaConsultas.find((consulta) => consulta.id === selectedConsultaId) ?? filaConsultas[0] ?? null;
   const pacienteAtivo = consultaAtiva?.paciente ?? null;
   const medicoAtivo = consultaAtiva?.medico?.pessoa ?? null;
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -257,8 +258,9 @@ export default function Prontuario() {
             filaPacientes.map((paciente, index) => (
               <div
                 key={paciente.id}
+                onClick={() => setSelectedConsultaId(paciente.id)}
                 className={`p-4 rounded-lg cursor-pointer transition-colors border ${
-                  index === 0 ? 'bg-brand/5 border-brand/20' : 'bg-white border-gray-50 hover:bg-gray-50'
+                  paciente.id === selectedConsultaId ? 'bg-brand/5 border-brand/20' : 'bg-white border-gray-50 hover:bg-gray-50'
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
