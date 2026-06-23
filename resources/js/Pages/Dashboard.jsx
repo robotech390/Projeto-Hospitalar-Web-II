@@ -1,65 +1,12 @@
 import { Users, Calendar, Pill, DollarSign, Clock } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
-  const [pacientesHoje, setPacientesHoje] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
-
-  useEffect(() => {
-    const carregarPacientes = async () => {
-      try {
-        setCarregando(true);
-        const response = await fetch('/consultas/api/pacientes-hoje', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erro: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.success && data.data) {
-          setPacientesHoje(data.data);
-        }
-      } catch (err) {
-        console.error('Erro ao carregar pacientes:', err);
-        setErro(err.message);
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    carregarPacientes();
-  }, []);
-
-  const getStatusBadge = (status) => {
-    const statusMap = {
-      'em_consulta': { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Em Consulta' },
-      'aguardando': { bg: 'bg-orange-50', text: 'text-orange-600', label: 'Aguardando' },
-      'concluida': { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Concluída' },
-      'cancelada': { bg: 'bg-red-50', text: 'text-red-600', label: 'Cancelada' },
-    };
-    
-    const mapped = statusMap[status?.toLowerCase()] || { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
-    return mapped;
-  };
-
-  const getCorAvatarColor = (index) => {
-    const cores = ['bg-brand', 'bg-brand-light', 'bg-brand-dark', 'bg-blue-500', 'bg-purple-500', 'bg-pink-500'];
-    return cores[index % cores.length];
-  };
-
   return (
     <div className="animate-fade-in">
       {/* Título e Data */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-sm text-gray-500">Visão geral do hospital — {new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p className="text-sm text-gray-500">Visão geral do hospital — terça-feira, 3 de março de 2026</p>
       </div>
 
       {/* Cartões de Métricas */}
@@ -72,7 +19,7 @@ export default function Dashboard() {
             </div>
             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12%</span>
           </div>
-          <h3 className="text-3xl font-bold text-gray-800">{pacientesHoje.length}</h3>
+          <h3 className="text-3xl font-bold text-gray-800">47</h3>
           <p className="text-sm text-gray-500 font-medium mt-1">Pacientes Hoje</p>
         </div>
 
@@ -145,44 +92,64 @@ export default function Dashboard() {
           <Clock size={18} className="text-gray-400" />
         </div>
 
-        {carregando ? (
-          <div className="flex justify-center items-center py-8">
-            <p className="text-gray-500">Carregando pacientes...</p>
+        <div className="space-y-0">
+          {/* Paciente 1 */}
+          <div className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs">
+                MS
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">Maria Silva</p>
+                <p className="text-xs text-gray-500">Dr. Carlos</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-500">08:30</span>
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-md bg-gray-100 text-gray-600 w-28 text-center">
+                Em Consulta
+              </span>
+            </div>
           </div>
-        ) : erro ? (
-          <div className="flex justify-center items-center py-8">
-            <p className="text-red-500">Erro ao carregar: {erro}</p>
+
+          {/* Paciente 2 */}
+          <div className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-full bg-brand-light text-white flex items-center justify-center font-bold text-xs">
+                JS
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">João Santos</p>
+                <p className="text-xs text-gray-500">Dra. Ana</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-500">09:00</span>
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-md bg-orange-50 text-orange-600 w-28 text-center">
+                Aguardando
+              </span>
+            </div>
           </div>
-        ) : pacientesHoje.length === 0 ? (
-          <div className="flex justify-center items-center py-8">
-            <p className="text-gray-500">Nenhum paciente agendado para hoje</p>
+
+          {/* Paciente 3 */}
+          <div className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold text-xs">
+                AO
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">Ana Oliveira</p>
+                <p className="text-xs text-gray-500">Dr. Roberto</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-500">09:30</span>
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-md bg-orange-50 text-orange-600 w-28 text-center">
+                Aguardando
+              </span>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-0">
-            {pacientesHoje.map((paciente, index) => {
-              const statusInfo = getStatusBadge(paciente.status);
-              return (
-                <div key={paciente.id} className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-9 h-9 rounded-full ${getCorAvatarColor(index)} text-white flex items-center justify-center font-bold text-xs`}>
-                      {paciente.paciente_iniciais}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-800 text-sm">{paciente.paciente_nome}</p>
-                      <p className="text-xs text-gray-500">Dr(a). {paciente.medico_nome}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="text-sm font-medium text-gray-500">{paciente.hora}</span>
-                    <span className={`text-xs font-semibold px-3 py-1.5 rounded-md ${statusInfo.bg} ${statusInfo.text} w-28 text-center`}>
-                      {statusInfo.label}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
