@@ -12,6 +12,7 @@ Route::get('/prontuario', [ProntuarioController::class, 'index'])->name('prontua
 
 // ========== CONSULTAS ==========
 Route::get('/consultas', [ConsultaController::class, 'lista'])->name('consultas.index');
+Route::get('/consultas/api/pacientes-hoje', [ConsultaController::class, 'pacientesHoje'])->name('api.pacientes-hoje');
 Route::get('/consultas/form', [ConsultaController::class, 'formulario'])->name('consultas.form');
 Route::post('/consultas', [ConsultaController::class, 'salvar'])->name('consultas.store');
 Route::delete('/consultas/{consulta}', [ConsultaController::class, 'remover'])->name('consultas.destroy');
