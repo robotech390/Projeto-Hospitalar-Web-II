@@ -39,6 +39,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::get('diagnosticos', [DiagnosticoController::class, 'all']);
     Route::get('diagnosticos/{id}', [DiagnosticoController::class, 'show']);
 
+    Route::get('consultas/pacientes/hoje', [ConsultaController::class, 'pacientesHoje']);
     Route::get('consultas', [ConsultaController::class, 'all']);
     Route::get('consultas/{id}', [ConsultaController::class, 'show']);
     
