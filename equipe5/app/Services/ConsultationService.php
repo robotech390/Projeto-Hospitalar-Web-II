@@ -26,7 +26,7 @@ class ConsultationService
     }
 
     /**
-     * Retorna todas as consultas da fila de hoje via API do Grupo 3.
+     * Retorna todas as consultas via API do Grupo 3.
      */
     public function getAllConsultations(): array
     {
@@ -42,7 +42,7 @@ class ConsultationService
                 $request = $request->withToken($token);
             }
 
-            $response = $request->get($this->getBaseUrl() . '/consultas/fila/hoje');
+            $response = $request->get($this->getBaseUrl() . '/consultas');
             
             if ($response->successful()) {
                 $data = $response->json();
@@ -68,12 +68,33 @@ class ConsultationService
             Log::error("Erro ao buscar fila de consultas da Equipe 3: " . $e->getMessage());
         }
         
+        // Fallback: Busca as consultas diretamente da tabela 'consulta' no banco compartilhado
+        try {
+            Log::info("Buscando consultas diretamente do banco de dados compartilhado como fallback.");
+            $dbConsultations = \Illuminate\Support\Facades\DB::table('consulta')->get()->toArray();
+            $consultations = [];
+            foreach ($dbConsultations as $c) {
+                $consultation = (array)$c;
+                if (!isset($consultation['paciente']) && isset($consultation['id_paciente'])) {
+                    $consultation['paciente'] = $this->patientService->getPatientData((int)$consultation['id_paciente']);
+                }
+                if (!isset($consultation['medico']) && isset($consultation['id_medico'])) {
+                    $consultation['medico'] = $this->doctorService->getDoctorData((int)$consultation['id_medico']);
+                }
+                $consultations[] = $consultation;
+            }
+            $this->cachedConsultations = $consultations;
+            return $consultations;
+        } catch (\Exception $dbEx) {
+            Log::error("Erro no fallback de busca direta no BD: " . $dbEx->getMessage());
+        }
+
         $this->cachedConsultations = [];
         return [];
     }
 
     /**
-     * Busca dados da consulta, procurando na fila de hoje.
+     * Busca dados da consulta.
      */
     public function getConsultationData(int $id): ?array
     {

@@ -71,7 +71,27 @@ class DoctorService
             Log::error("Erro ao buscar médicos em /usuarios?funcao=medico na API da Equipe 1: " . $e->getMessage());
         }
 
-        // Fallback para não quebrar a tela em caso de falha da API ou se não encontrar o médico
+        // Fallback 1: Busca o médico diretamente no banco de dados compartilhado (tabelas medico + pessoa)
+        try {
+            $dbDoctor = \Illuminate\Support\Facades\DB::table('medico')
+                ->join('pessoa', 'medico.id_pessoa', '=', 'pessoa.id')
+                ->where('medico.id', $id)
+                ->select('medico.id', 'pessoa.nome', 'medico.crm', 'medico.especialidade')
+                ->first();
+
+            if ($dbDoctor) {
+                return [
+                    'id' => $id,
+                    'nome' => $dbDoctor->nome,
+                    'crm' => $dbDoctor->crm,
+                    'especialidade' => $dbDoctor->especialidade ?: 'Médico'
+                ];
+            }
+        } catch (\Exception $dbEx) {
+            Log::error("Erro no fallback de busca de médico no BD: " . $dbEx->getMessage());
+        }
+
+        // Fallback 2: Dados mocados básicos caso não encontre no banco ou ocorra erro
         return [
             'id' => $id,
             'nome' => "Médico ID #{$id}",

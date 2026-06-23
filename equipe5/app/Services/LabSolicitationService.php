@@ -26,7 +26,7 @@ class LabSolicitationService
         // Pega todas as solicitações da base do Lab (Equipe 5)
         $solicitations = $this->repository->getAll();
         
-        // Pega as consultas da fila de hoje da API (Equipe 3)
+        // Pega todas as consultas da API (Equipe 3)
         $consultations = $this->consultationService->getAllConsultations();
         
         $formatted = [];
