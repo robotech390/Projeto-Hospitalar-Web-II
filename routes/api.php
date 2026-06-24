@@ -23,7 +23,7 @@ Saída:
     ?Grupo 4 recebe a Prescrição digital do grupo 3
 */
 
-Route::middleware('auth.jwt')->group(function () {
+Route::middleware('auth')->group(function () {
 
     Route::get('/user', function (Request $request) {
         return response()->json($request->attributes->get('authenticated_user'));
