@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +12,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Http\Controllers\Api\ConsultaController::class
+        );
+        $this->app->bind(
+            \App\Http\Controllers\Api\DiagnosticoController::class
+        );
+        $this->app->bind(
+            \App\Http\Controllers\Api\ReceitaController::class
+        );
+        $this->app->bind(
+            \App\Http\Controllers\Api\SolicitacaoExameController::class
+        );
     }
 
     /**
@@ -19,6 +31,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Vite::prefetch(concurrency: 3);
     }
 }
